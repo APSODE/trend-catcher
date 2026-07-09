@@ -24,9 +24,9 @@ class NewsUrlData:
 
     def __post_init__(self):
         if self.sitemap_type == SitemapType.PAGE and self.selector is None:
-            raise SelectorValueException("페이지 타입에 셀렉터가 존재하지 않습니다")
+            raise SelectorValueException()
         if self.sitemap_type != SitemapType.PAGE and self.selector:
-            raise SelectorValueException("페이지 타입이 아닌 값에 셀렉터가 존재합니다")
+            raise SelectorValueException()
 
     def get_url(self, date : datetime = datetime.today()):
         return self.url.format(
