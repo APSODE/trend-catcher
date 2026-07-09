@@ -1,3 +1,6 @@
+import random
+import time
+
 import httpx
 from src.crawler_api.exception.FetchValueException import FetchValueException
 from src.crawler_api.service.url_extractor.BaseUrlFetcher import BaseUrlFetcher
@@ -13,17 +16,17 @@ class HTTPXUrlFetcher(BaseUrlFetcher):
                 raise Exception()
             return response.text
         except Exception as e:
-            raise FetchValueException("Fetch 과정에서 문제가 발생했습니다" + "\n" + e.__str__())
+            raise FetchValueException()
 
-    async def fetch_base_url(self, urls: list[str]) -> list[str]:
+    async def fetch_by_all(self, urls: list[str]) -> list[str]:
         results = []
-        try:
-            for i in urls:
-                response = httpx.get(i, headers=headers)
+        for url in urls:
+            try:
+                response = httpx.get(url, headers=headers)
                 if response.status_code != 200:
                     continue
                 results.append(response.text)
-        except Exception as e:
-            raise FetchValueException("Fetch 과정에서 문제가 발생했습니다" + "\n" + e.__str__())
-        finally:
-            return results
+                time.sleep(random.uniform(1.5, 3.5))
+            except Exception as e:
+                continue
+        return results
