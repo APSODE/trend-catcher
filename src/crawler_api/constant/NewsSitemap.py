@@ -2,12 +2,13 @@ from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from src.crawler_api.exception.SelectorValueException import SelectorValueError
+from src.crawler_api.exception.SelectorValueException import SelectorValueException
 
 
 class SitemapType(Enum):
     XML = auto()
-    PAGE = auto()
+    PAGE_HTTPX = auto()
+    PAGE_SELENIUM = auto()
 
 
 @dataclass(frozen=True)
@@ -23,9 +24,9 @@ class NewsUrlData:
 
     def __post_init__(self):
         if self.sitemap_type == SitemapType.PAGE and self.selector is None:
-            raise SelectorValueError("페이지 타입에 셀렉터가 존재하지 않습니다")
+            raise SelectorValueException("페이지 타입에 셀렉터가 존재하지 않습니다")
         if self.sitemap_type != SitemapType.PAGE and self.selector:
-            raise SelectorValueError("페이지 타입이 아닌 값에 셀렉터가 존재합니다")
+            raise SelectorValueException("페이지 타입이 아닌 값에 셀렉터가 존재합니다")
 
     def get_url(self, date : datetime = datetime.today()):
         return self.url.format(
@@ -45,7 +46,7 @@ class NewsSitemap(Enum):
     DONGA_PAGE = NewsUrlData(
         "https://www.donga.com/news/sitemap?p1={yyyy}&p2={mm}&p3={dd}",
         "동아일보",
-        SitemapType.PAGE,
+        SitemapType.PAGE_HTTPX,
         "#contents > div > div > div.sitemap_list.contents_list > div > ul li a"
 )
 
@@ -57,8 +58,8 @@ class NewsSitemap(Enum):
     CHOSUN_PAGE = NewsUrlData(
         "https://www.chosun.com/sitemap/{yyyy}/{mm}/{dd}/",
         "조선일보",
-        SitemapType.PAGE,
-        "#fusion-app > div:nth-child(2) > div > div > section > div > div:nth-child(5) > div")
+        SitemapType.PAGE_SELENIUM,
+        "a.story-card__headline")
 
 
     KMIB = NewsUrlData(
@@ -93,7 +94,7 @@ class NewsSitemap(Enum):
     SEOUL_PAGE = NewsUrlData(
         "https://www.seoul.co.kr/sitemap/sitemap_index_{yyyymmdd}",
         "서울신문",
-        SitemapType.PAGE,
+        SitemapType.PAGE_HTTPX,
         "#articleArea > ul li a")
 
 
