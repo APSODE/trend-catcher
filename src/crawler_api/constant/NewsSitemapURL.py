@@ -2,7 +2,7 @@ from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from src.crawler_api.Exception.SelectorValueError import SelectorValueError
+from src.crawler_api.exception.SelectorValueError import SelectorValueError
 
 
 class SitemapType(Enum):
