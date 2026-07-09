@@ -7,6 +7,7 @@ class SitemapType(Enum):
     DATE_IN_NEWS = auto()
     DATE_IN_URL = auto()
     ONLY_URL = auto()
+    PAGE = auto()
 
 
 @dataclass(frozen=True)
@@ -19,30 +20,25 @@ class NewsURLData:
     날짜마다 URL이 달라지는 경우가 있음으로 무조건 value.get_url 사용
     """
 
-    @property
-    def get_url(self):
-        today = datetime.today()
-        if self.sitemap_type == SitemapType.ONLY_URL:
-            return self.url.format(
-                yyyy = today.strftime("%Y"),
-                yyyymmdd = today.strftime("%Y%m%d"),
-                mm = today.strftime("%m")
-            )
-        return self.url
-
-
-
+    def get_url(self, date : datetime = datetime.today()):
+        return self.url.format(
+            yyyy = date.strftime("%Y"),
+            yyyymmdd = date.strftime("%Y%m%d"),
+            mm = date.strftime("%m"),
+            dd = date.strftime("%d")
+        )
 
 
 class NewsSitemap(Enum):
-    KHAN = NewsURLData("https://www.khan.co.kr/sitemap/latest-articles.xml", "경향신문",
-                       SitemapType.DATE_IN_URL) #최신순
-
     DONGA = NewsURLData("https://www.donga.com/sitemap/donga-newsmap.xml", "동아일보",
                         SitemapType.DATE_IN_NEWS) #일간
 
+    DONGA_PAGE = NewsURLData("https://www.donga.com/news/sitemap?p1={yyyy}&p2={mm}&p3={dd}", "동아일보", SitemapType.PAGE)
+
     CHOSUN = NewsURLData("https://www.chosun.com/arc/outboundfeeds/news-sitemap/?outputType=xml", "조선일보",
                          SitemapType.DATE_IN_URL)  # 최신순
+
+    CHOSUN_PAGE = NewsURLData("https://www.chosun.com/sitemap/{yyyy}/{mm}/{dd}/", "조선일보", SitemapType.PAGE)
 
     KMIB = NewsURLData("https://www.kmib.co.kr/rss/data/sitemap/daily/{yyyy}/{mm}/dailyArticleList_{yyyymmdd}.xml", "국민일보",
                              SitemapType.ONLY_URL)  # 일간
@@ -64,4 +60,5 @@ class NewsSitemap(Enum):
     HANKOOK = NewsURLData("https://www.hankookilbo.com/sitemap/daily-articles/{yyyymmdd}", "한국일보",
                                 SitemapType.ONLY_URL)  # 일간
 
+    SEOUL_PAGE = NewsURLData("https://www.seoul.co.kr/sitemap/sitemap_index_{yyyymmdd", "서울신문", SitemapType.PAGE)
     #날짜 알고리즘
