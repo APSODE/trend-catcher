@@ -6,14 +6,12 @@ from src.crawler_api.exception.SelectorValueError import SelectorValueError
 
 
 class SitemapType(Enum):
-    DATE_IN_NEWS = auto()
-    DATE_IN_URL = auto()
-    ONLY_URL = auto()
+    XML = auto()
     PAGE = auto()
 
 
 @dataclass(frozen=True)
-class NewsURLData:
+class NewsUrlData:
     url : str
     kr_name : str
     sitemap_type : SitemapType
@@ -39,60 +37,60 @@ class NewsURLData:
 
 class NewsSitemap(Enum):
 
-    DONGA = NewsURLData(
-        "https://www.donga.com/sitemap/donga-newsmap.xml",
-        "동아일보",
-        SitemapType.DATE_IN_NEWS) #일간
+    #DONGA = NewsURLData(
+    #    "https://www.donga.com/sitemap/donga-newsmap.xml",
+    #    "동아일보",
+    #    SitemapType.DATE_IN_NEWS) #일간
 
-    DONGA_PAGE = NewsURLData(
+    DONGA_PAGE = NewsUrlData(
         "https://www.donga.com/news/sitemap?p1={yyyy}&p2={mm}&p3={dd}",
         "동아일보",
         SitemapType.PAGE,
         "#contents > div > div > div.sitemap_list.contents_list > div > ul li a"
 )
 
-    CHOSUN = NewsURLData(
-        "https://www.chosun.com/arc/outboundfeeds/news-sitemap/?outputType=xml",
-        "조선일보",
-        SitemapType.DATE_IN_URL)  # 최신순
+    #CHOSUN = NewsURLData(
+    #    "https://www.chosun.com/arc/outboundfeeds/news-sitemap/?outputType=xml",
+    #    "조선일보",
+    #    SitemapType.DATE_IN_URL)  # 최신순
 
-    CHOSUN_PAGE = NewsURLData(
+    CHOSUN_PAGE = NewsUrlData(
         "https://www.chosun.com/sitemap/{yyyy}/{mm}/{dd}/",
         "조선일보",
         SitemapType.PAGE,
         "#fusion-app > div:nth-child(2) > div > div > section > div > div:nth-child(5) > div")
 
 
-    KMIB = NewsURLData(
+    KMIB = NewsUrlData(
         "https://www.kmib.co.kr/rss/data/sitemap/daily/{yyyy}/{mm}/dailyArticleList_{yyyymmdd}.xml",
         "국민일보",
-        SitemapType.ONLY_URL)  # 일간
+        SitemapType.XML)  # 일간
 
 
-    MUNHWA = NewsURLData(
+    MUNHWA = NewsUrlData(
         "https://www.munhwa.com/sitemap/articles/{yyyy}/{yyyymmdd}",
         "문화일보",
-        SitemapType.ONLY_URL)
+        SitemapType.XML)
 
 
-    SEGYE = NewsURLData(
-        "https://www.segye.com/sitemap_day0.xml",
-        "세계일보",
-        SitemapType.DATE_IN_NEWS) # 일간
+    #SEGYE = NewsURLData(
+    #    "https://www.segye.com/sitemap_day0.xml",
+    #    "세계일보",
+    #    SitemapType.DATE_IN_NEWS) # 일간
 
 
-    JOONGANG = NewsURLData(
+    JOONGANG = NewsUrlData(
         "https://www.joongang.co.kr/sitemap/articles/{yyyy}/{yyyymmdd}",
         "중앙일보",
-        SitemapType.ONLY_URL)  # 일간
+        SitemapType.XML)  # 일간
 
 
-    HANKOOK = NewsURLData(
+    HANKOOK = NewsUrlData(
         "https://www.hankookilbo.com/sitemap/daily-articles/{yyyymmdd}",
         "한국일보",
-        SitemapType.ONLY_URL)  # 일간
+        SitemapType.XML)  # 일간
 
-    SEOUL_PAGE = NewsURLData(
+    SEOUL_PAGE = NewsUrlData(
         "https://www.seoul.co.kr/sitemap/sitemap_index_{yyyymmdd}",
         "서울신문",
         SitemapType.PAGE,
