@@ -7,5 +7,5 @@ class BaseUrlFetcher(ABC):
     async def fetch(self, url: str) -> str:
         pass
     @abstractmethod
-    async def fetchByAll(self, urls: list[str]) -> list[str]:
+    async def fetch_by_all(self, urls: list[str]) -> list[str]:
         pass
