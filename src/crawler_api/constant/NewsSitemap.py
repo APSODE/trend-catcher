@@ -94,6 +94,6 @@ class NewsSitemap(Enum):
         "https://www.seoul.co.kr/sitemap/sitemap_index_{yyyymmdd}",
         "서울신문",
         SitemapType.PAGE,
-        "#articleArea > ul")
+        "#articleArea > ul li a")
 
 
