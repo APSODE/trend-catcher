@@ -35,8 +35,8 @@ class Settings(BaseSettings):
 
     # --- 스케줄 (내부 스케줄러를 쓸 경우) ---
     enable_internal_scheduler: bool = False
-    morning_cron: str = "0 7 * * *"    # 매일 07:00
-    evening_cron: str = "0 19 * * *"   # 매일 19:00
+    morning_cron: str = "0 7 * * *"    # 매일 09:00
+    evening_cron: str = "0 19 * * *"   # 매일 21:00
     timezone: str = "Asia/Seoul"
 
 
