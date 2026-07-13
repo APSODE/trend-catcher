@@ -15,7 +15,6 @@ class Settings(BaseSettings):
     debug: bool = False
 
     # --- Oracle DB ---
-    # 예: oracle+oracledb://user:pass@host:1521/?service_name=XEPDB1
     db_url: str = "oracle+oracledb://sns:sns@localhost:1521/?service_name=XEPDB1"
     db_pool_size: int = 5
     db_max_overflow: int = 10
@@ -26,7 +25,6 @@ class Settings(BaseSettings):
     user_api_base_url: str = "http://user-api:8000"     # 유저 정보 조회 (필요 시)
 
     # --- 발송 채널 ---
-    # 기본 Discord Webhook (구독자별 webhook이 없을 때의 fallback)
     default_discord_webhook_url: str | None = None
     http_timeout_seconds: float = 10.0
     http_max_retries: int = 3
