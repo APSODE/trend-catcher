@@ -6,7 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 from src.crawler_api.exception.NotFoundException import NotFoundException
-from src.crawler_api.service.url_extractor.BaseUrlFetcher import BaseUrlFetcher
+from src.crawler_api.service.url_fetcher.BaseUrlFetcher import BaseUrlFetcher
 
 
 class SeleniumURLFetcher(BaseUrlFetcher):

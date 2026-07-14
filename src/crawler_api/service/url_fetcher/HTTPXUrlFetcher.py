@@ -3,7 +3,7 @@ import time
 
 import httpx
 from src.crawler_api.exception.FetchValueException import FetchValueException
-from src.crawler_api.service.url_extractor.BaseUrlFetcher import BaseUrlFetcher
+from src.crawler_api.service.url_fetcher.BaseUrlFetcher import BaseUrlFetcher
 
 headers = {"User-Agent": "Mozilla/5.0"}
 
