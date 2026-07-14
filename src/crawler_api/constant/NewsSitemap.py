@@ -62,10 +62,10 @@ class NewsSitemap(Enum):
         "a.story-card__headline")
 
 
-    KMIB = NewsUrlData(
-        "https://www.kmib.co.kr/rss/data/sitemap/daily/{yyyy}/{mm}/dailyArticleList_{yyyymmdd}.xml",
-        "국민일보",
-        SitemapType.XML)  # 일간
+    #KMIB = NewsUrlData(
+    #    "https://www.kmib.co.kr/rss/data/sitemap/daily/{yyyy}/{mm}/dailyArticleList_{yyyymmdd}.xml",
+    #    "국민일보",
+    #    SitemapType.XML)  # 일간
 
 
     MUNHWA = NewsUrlData(
