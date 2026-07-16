@@ -23,7 +23,7 @@ class ArticleUpdate(BaseModel):
     img_list: list[str] | None = None
     published_at: datetime | None = None
 
-class ArticleRead(BaseModel):
+class ArticleResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: PydanticObjectId
     title: str
@@ -32,3 +32,16 @@ class ArticleRead(BaseModel):
     content: str
     category: str | None = None
     url: str
+
+class ArticleRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: PydanticObjectId
+    title: str
+    content: str
+    company_name: str
+    reporter: str | None = None
+    category: str | None = None
+    img_list: list[str] | None = None
+    published_at: datetime | None = None
+    crawled_at: datetime
+    updated_at: datetime | None = None
