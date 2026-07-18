@@ -1,6 +1,5 @@
 """
-SNS 서비스 설정.
-환경변수(.env)에서 값을 읽어온다. pydantic-settings 사용.
+SNS 서비스 설정
 """
 from functools import lru_cache
 
@@ -33,12 +32,11 @@ class Settings(BaseSettings):
     # 스케줄러/게이트웨이가 /dispatch 를 호출할 때 쓰는 공유 토큰
     internal_token: str = "change-me-in-env"
 
-    # --- 스케줄 (내부 스케줄러를 쓸 경우) ---
+    # 시간
     enable_internal_scheduler: bool = False
-    morning_cron: str = "0 7 * * *"    # 매일 09:00
-    evening_cron: str = "0 19 * * *"   # 매일 21:00
+    morning_cron: str = "0 9 * * *"    # 매일 09:00
+    evening_cron: str = "0 21 * * *"   # 매일 21:00
     timezone: str = "Asia/Seoul"
-
 
 @lru_cache
 def get_settings() -> Settings:
