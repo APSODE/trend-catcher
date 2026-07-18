@@ -53,7 +53,7 @@ class BaseRepository(Generic[ModelType]):
 
     async def update_by_id(self, target_id: int, update_data: dict, with_commit: bool = False) -> None:
         await self.update(
-            filter =self._model_class.id == target_id,
+            filter = self._model_class.id == target_id,
             update_data = update_data,
             with_commit = with_commit,
         )
@@ -73,7 +73,7 @@ class BaseRepository(Generic[ModelType]):
 
     async def delete_by_id(self, target_id: int, with_commit: bool = False) -> None:
         await self.delete(
-            filter =self._model_class.id == target_id,
+            filter = self._model_class.id == target_id,
             amount = 1,
             with_commit = with_commit,
         )
