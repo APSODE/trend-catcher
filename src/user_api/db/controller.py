@@ -97,7 +97,7 @@ class DatabaseController:
             await self.__session.delete(targets)
 
         if with_commit:
-            await self.__session.commit()
+            await self.commit()
 
 
     async def commit(self):
