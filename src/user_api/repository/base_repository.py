@@ -9,12 +9,12 @@ ModelType = TypeVar("ModelType", bound = BaseModel)
 
 
 class BaseRepository(Generic[ModelType]):
-    def __init__(self, db_controller: DatabaseController, model_class: ModelType | Type[ModelType]):
+    def __init__(self, db_controller: DatabaseController, model_class: Type[ModelType]):
         self._db_controller = db_controller
         self._model_class = model_class
 
     @property
-    def model_class(self) -> ModelType | Type[ModelType]:
+    def model_class(self) -> Type[ModelType]:
         return self._model_class
 
     @property
@@ -32,11 +32,11 @@ class BaseRepository(Generic[ModelType]):
         results = await self.find(filter, amount = 1)
         return results[0] if results else None
 
+    async def find_all(self) -> List[ModelType]:
+        return await self.find()
+
     async def get_by_id(self, target_id: int) -> Optional[ModelType]:
         return await self.find_one(filter = self._model_class.id == target_id)
-
-    async def get_all(self) -> List[ModelType]:
-        return await self._db_controller.get(self._model_class, amount = 0)
 
     async def is_exist(self, filter: ColumnElement[bool]) -> bool:
         results = await self._db_controller.get(self._model_class, filter = filter, amount = 1)
