@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..model.model_entity import DispatchLogModel, DispatchStatus, Slot
+from ..model.entity_model import DispatchLogModel, DispatchStatus, Slot
 
 class DispatchRepository:
     # 오늘 이 슬롯에 이미 성공 발송했는지 여부

@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..model.model_entity import Slot, SubscriptionModel
+from ..model.entity_model import Slot, SubscriptionModel
 
 
 class SubscriptionRepository:
