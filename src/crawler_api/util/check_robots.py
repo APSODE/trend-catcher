@@ -11,6 +11,7 @@ class CheckRobots:
         self.__base_url = f"{parse_url.scheme}://{parse_url.netloc}"
         self.__robots_url = f"{self.__base_url}/robots.txt"
         self.__rp = urllib.robotparser.RobotFileParser()
+        self.__is_loaded = False
 
     async def load(self):
         try:
