@@ -36,7 +36,6 @@ class DispatchStatus(str, Enum):
 
 
 class SubscriptionModel(Base):
-
     # 구독 설정
     # user_id 는 User 서비스의 PK 를 참조
 
