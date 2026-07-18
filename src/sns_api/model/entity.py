@@ -1,10 +1,5 @@
 """
 SNS 서비스 ORM 엔티티.
-
-설계 원칙:
-- User 서비스 DB와 물리적으로 분리되어 있다. user_id 는 FK 컬럼으로만 참조하며
-  실제 조인은 하지 않는다 (서비스 경계 유지).
-- 구독 정보(SUBSCRIPTION)와 발송 이력(DISPATCH_LOG) 두 테이블을 관리한다.
 """
 from datetime import datetime
 from enum import Enum

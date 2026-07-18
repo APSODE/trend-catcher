@@ -1,7 +1,3 @@
-"""
-Oracle 비동기 엔진/세션 설정.
-python-oracledb 의 async 드라이버를 SQLAlchemy 2.0 async 로 사용한다.
-"""
 from collections.abc import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import (
