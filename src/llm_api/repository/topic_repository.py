@@ -1,21 +1,22 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from model.topic_model import TopicModel
 from sqlalchemy import select
 
 class TopicRepository:
     #새 주제 추가
-    def save(self, session: Session, topic: TopicModel) -> TopicModel:
+    async def save(self, session: AsyncSession, topic: TopicModel) -> TopicModel:
         session.add(topic)
-        session.flush()
+        await session.flush()
         return topic
 
     #주제 목록 반환
-    def get_all(self, session: Session) -> list[TopicModel]:
+    async def get_all(self, session: AsyncSession) -> list[TopicModel]:
         query = select(TopicModel)
-        return list(session.execute(query).scalars().all())
+        result = await session.execute(query)
+        return list(result.scalars().all())
 
     #주제 중복도 증가
-    def increment_count(self, session: Session, topic_id: int) -> None:
-        topic = session.get(TopicModel, topic_id)
+    async def increment_count(self, session: AsyncSession, topic_id: int) -> None:
+        topic = await session.get(TopicModel, topic_id)
         topic.count += 1
-        session.flush()
+        await session.flush()
