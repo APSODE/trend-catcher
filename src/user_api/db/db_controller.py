@@ -47,20 +47,13 @@ class DatabaseController:
                   model_class: ModelType | Type[ModelType],
                   filter: Optional[ColumnElement[bool]] = None,
                   amount: int = 0
-                  ) -> Optional[List[ModelType] | ModelType]:
+                  ) -> List[ModelType]:
         statement = self.__build_select(model_class, filter)
+        if amount > 0:
+            statement = statement.limit(amount)
 
-        if amount == 0:
-            result = await self.__session.scalars(statement)
-            return list(result.all())
-
-        elif amount == 1:
-            result = await self.__session.scalars(statement.limit(1))
-            return result.first()
-
-        else:
-            result = await self.__session.scalars(statement.limit(amount))
-            return list(result.all())
+        result = await self.__session.scalars(statement)
+        return list(result.all())
 
     async def update(self,
                      model_class: ModelType | Type[ModelType],
@@ -90,14 +83,11 @@ class DatabaseController:
         if targets is None:
             return
 
-        if isinstance(targets, list):
-            for target in targets:
-                await self.__session.delete(target)
-        else:
-            await self.__session.delete(targets)
+        for target in targets:
+            await self.__session.delete(target)
 
         if with_commit:
-            await self.commit()
+            await self.__session.commit()
 
 
     async def commit(self):
