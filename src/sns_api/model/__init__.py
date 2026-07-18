@@ -1,12 +1,12 @@
-from .database import Base, AsyncSessionLocal, engine, get_session
-from .entity import (
+from .model_database import Base, AsyncSessionLocal, engine, get_session
+from .model_entity import (
     Channel,
     DispatchLogModel,
     DispatchStatus,
     Slot,
     SubscriptionModel,
 )
-from .schema import (
+from .model_schema import (
     DispatchRequestData,
     DispatchResponseData,
     DispatchResultItemData,

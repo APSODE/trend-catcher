@@ -2,10 +2,10 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .entity import Channel, DispatchStatus, Slot
+from .model_entity import Channel, DispatchStatus, Slot
 
 
-# ---------- 구독 (Subscription) ----------
+# 구독
 
 class SubscriptionCreateData(BaseModel):
     user_id: int
@@ -42,7 +42,7 @@ class SubscriptionOutData(BaseModel):
     updated_at: datetime
 
 
-# ---------- 발송 (Dispatch) ----------
+# 발송
 
 class DispatchRequestData(BaseModel):
     slot: Slot
@@ -66,7 +66,7 @@ class DispatchResponseData(BaseModel):
     results: list[DispatchResultItemData]
 
 
-# ---------- LLM 서비스 응답 (뉴스 콘텐츠) ----------
+# LLM 서비스 응답 (수정 필요)
 
 class NewsItemData(BaseModel):
     title: str

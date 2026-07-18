@@ -32,7 +32,6 @@ class Base(DeclarativeBase):
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    """FastAPI 의존성으로 주입되는 세션. 요청 단위로 열고 닫는다."""
     async with AsyncSessionLocal() as session:
         try:
             yield session

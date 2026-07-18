@@ -15,17 +15,17 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .database import Base
+from .model_database import Base
 
 
 class Slot(str, Enum):
-    """발송 시간대."""
+    # 발송 시간대
     MORNING = "MORNING"
     EVENING = "EVENING"
 
 
 class Channel(str, Enum):
-    """발송 채널. 지금은 Discord 만 있지만 확장 대비 enum 으로 둔다."""
+    # 발송 대상 (일단 디코)
     DISCORD = "DISCORD"
 
 
@@ -36,10 +36,10 @@ class DispatchStatus(str, Enum):
 
 
 class SubscriptionModel(Base):
-    """
-    구독 설정. 한 유저가 채널별로 여러 구독을 가질 수 있다.
-    user_id 는 User 서비스의 PK 를 참조 (물리 FK 아님).
-    """
+
+    # 구독 설정
+    # user_id 는 User 서비스의 PK 를 참조
+
     __tablename__ = "SNS_SUBSCRIPTION"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
@@ -68,10 +68,6 @@ class SubscriptionModel(Base):
 
 
 class DispatchLogModel(Base):
-    """
-    발송 이력. 중복 발송 방지(멱등성)와 재시도/모니터링에 사용.
-    (user_id, slot, dispatch_date) 조합으로 하루 슬롯당 1회 발송을 보장한다.
-    """
     __tablename__ = "SNS_DISPATCH_LOG"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
