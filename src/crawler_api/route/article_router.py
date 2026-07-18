@@ -35,3 +35,5 @@ async def delete_article(article_id: str):
 @router.put("/{article_id}", response_model=ArticleRead)
 async def update_article(article_id: str):
     pass
+
+#whitelist 미들웨어
