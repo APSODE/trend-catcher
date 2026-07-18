@@ -10,6 +10,6 @@ class UrlExtractorFactory:
         if source.value.sitemap_type == SitemapType.XML:
             return XMLExtractor()
         else:
-            if source.value.selector == None:
+            if source.value.selector is None:
                 raise selector_value_exception
             return PageExtractor()
