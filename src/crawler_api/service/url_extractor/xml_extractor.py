@@ -12,9 +12,10 @@ class XMLExtractor(BaseExtractor):
         items : list[str] = []
         seems : set[str] = set()
         for item in soup.find_all("url"):
-            loc = item.find("loc").text.strip()
+            loc = item.find("loc")
             if not loc:
                 continue
+            loc = loc.text.strip()
             if loc not in seems:
                 seems.add(loc)
                 items.append(loc)
