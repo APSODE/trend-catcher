@@ -5,9 +5,9 @@ from httpcore import TimeoutException
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from src.crawler_api.exception.NotFoundException import NotFoundException
-from src.crawler_api.service.url_fetcher.BaseUrlFetcher import BaseUrlFetcher
-from src.crawler_api.util.CheckRobots import CheckRobots
+from src.crawler_api.exception.not_found_exception import NotFoundException
+from src.crawler_api.service.url_fetcher.base_url_fetcher import BaseUrlFetcher
+from src.crawler_api.util.check_robots import CheckRobots
 
 
 class SeleniumURLFetcher(BaseUrlFetcher):
@@ -17,7 +17,10 @@ class SeleniumURLFetcher(BaseUrlFetcher):
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
+
         robots = CheckRobots(url)
+        await robots.load()
+
         driver = webdriver.Chrome(options=options)
         try:
             if not await robots.is_allowed(url):
@@ -37,17 +40,19 @@ class SeleniumURLFetcher(BaseUrlFetcher):
         options.add_argument("--disable-dev-shm-usage")
 
         driver = webdriver.Chrome(options=options)
+
         robots = CheckRobots(base_url)
+        await robots.load()
         results = []
         for url in urls:
             try:
                 if not await robots.is_allowed(url):
-                    continue
+                    results.append("")
                 driver.get(url)
                 results.append(driver.page_source)
                 time.sleep(random.uniform(1.5, 3.5))
 
             except TimeoutException:
-                continue
+                results.append("")
         return results
 

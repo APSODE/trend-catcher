@@ -3,7 +3,7 @@ from datetime import datetime
 from beanie import PydanticObjectId
 from fastapi import APIRouter
 
-from src.crawler_api.schemas.Article import ArticleRead, ArticleResponse, ArticleCreate
+from src.crawler_api.schemas.article import ArticleRead, ArticleResponse, ArticleCreate
 
 router = APIRouter(
     prefix="/article",

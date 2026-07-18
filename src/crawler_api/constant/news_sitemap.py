@@ -2,19 +2,18 @@ from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from src.crawler_api.exception.SelectorValueException import SelectorValueException
+from src.crawler_api.exception.selector_value_exception import SelectorValueException
 
 
 class SitemapType(Enum):
     XML = auto()
-    PAGE_HTTPX = auto()
-    PAGE_SELENIUM = auto()
+    PAGE = auto()
 
 
 @dataclass(frozen=True)
 class NewsUrlData:
     url : str
-    kr_name : str
+    company_name : str
     sitemap_type : SitemapType
     selector : str | None = None
 
@@ -46,7 +45,7 @@ class NewsSitemap(Enum):
     DONGA_PAGE = NewsUrlData(
         "https://www.donga.com/news/sitemap?p1={yyyy}&p2={mm}&p3={dd}",
         "동아일보",
-        SitemapType.PAGE_HTTPX,
+        SitemapType.PAGE,
         "#contents > div > div > div.sitemap_list.contents_list > div > ul li a"
 )
 
@@ -58,7 +57,7 @@ class NewsSitemap(Enum):
     CHOSUN_PAGE = NewsUrlData(
         "https://www.chosun.com/sitemap/{yyyy}/{mm}/{dd}/",
         "조선일보",
-        SitemapType.PAGE_SELENIUM,
+        SitemapType.PAGE,
         "a.story-card__headline")
 
 
@@ -79,22 +78,32 @@ class NewsSitemap(Enum):
     #    "세계일보",
     #    SitemapType.DATE_IN_NEWS) # 일간
 
-
+    #AI봇 많이 차단
     JOONGANG = NewsUrlData(
         "https://www.joongang.co.kr/sitemap/articles/{yyyy}/{yyyymmdd}",
         "중앙일보",
         SitemapType.XML)  # 일간
 
+    #AI 학습용 데이터 크롤링 금지
+    #HANKOOK = NewsUrlData(
+    #    "https://www.hankookilbo.com/sitemap/daily-articles/{yyyymmdd}",
+    #    "한국일보",
+    #    SitemapType.XML)  # 일간
 
-    HANKOOK = NewsUrlData(
-        "https://www.hankookilbo.com/sitemap/daily-articles/{yyyymmdd}",
-        "한국일보",
-        SitemapType.XML)  # 일간
+    #SEOUL_PAGE = NewsUrlData(
+    #    "https://www.seoul.co.kr/sitemap/sitemap_index_{yyyymmdd}",
+    #    "서울신문",
+    #    SitemapType.PAGE_HTTPX,
+    #    "#articleArea > ul li a")
+    MBN_PAGE = NewsUrlData(
+        "https://www.mbn.co.kr/sitemap/{yyyy}/{mm}/{dd}",
+        "MBN",
+        SitemapType.PAGE,
+        ".articles_list li a"
+    )
 
-    SEOUL_PAGE = NewsUrlData(
-        "https://www.seoul.co.kr/sitemap/sitemap_index_{yyyymmdd}",
-        "서울신문",
-        SitemapType.PAGE_HTTPX,
-        "#articleArea > ul li a")
-
-
+    #후보
+    #조선일보
+    #문화일보
+    #mbn <- ai 규제 심함
+    #중앙일보 <- ai 규제 심함

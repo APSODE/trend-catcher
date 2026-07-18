@@ -3,8 +3,8 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
-from src.crawler_api.exception.SelectorValueException import SelectorValueException
-from src.crawler_api.service.url_extractor.BaseExtractor import BaseExtractor
+from src.crawler_api.exception.selector_value_exception import SelectorValueException
+from src.crawler_api.service.url_extractor.base_extractor import BaseExtractor
 
 
 class PageExtractor(BaseExtractor):
