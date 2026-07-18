@@ -27,7 +27,7 @@ class HTTPXUrlFetcher(BaseUrlFetcher):
         except Exception:
             raise FetchValueException()
 
-    async def fetch_one(self, client: httpx.AsyncClient, url: str, robots: CheckRobots) -> str | None:
+    async def _fetch_one(self, client: httpx.AsyncClient, url: str, robots: CheckRobots) -> str | None:
         async with self.__semaphore:
             try:
                 if not await robots.is_allowed(url):
@@ -51,7 +51,7 @@ class HTTPXUrlFetcher(BaseUrlFetcher):
         await robots.load()
 
         async with httpx.AsyncClient(headers=headers, timeout=10.0) as client:
-            tasks = [self.fetch_one(client, url, robots) for url in urls]
+            tasks = [self._fetch_one(client, url, robots) for url in urls]
             results = await asyncio.gather(*tasks)
 
         return [html for html in results if html is not None]
