@@ -1,8 +1,7 @@
-from datetime import timezone, datetime
+from datetime import datetime
 from typing import Annotated
 
 import pymongo
-from pydantic import Field
 from beanie import Document, Indexed
 
 
@@ -17,8 +16,9 @@ class Article(Document):
     category : str | None = None
     img_list : list[str] | None = None
     published_at : datetime | None = None
-    crawled_at : datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at : datetime | None = None
+
+    crawled_at : datetime | None = None
+    db_updated_at : datetime | None = None # db 데이터 변동
 
     class Settings:
         name = "article"
