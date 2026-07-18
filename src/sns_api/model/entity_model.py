@@ -15,7 +15,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .model_database import Base
+from .database_model import Base
 
 
 class Slot(str, Enum):

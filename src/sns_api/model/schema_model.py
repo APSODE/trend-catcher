@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .model_entity import Channel, DispatchStatus, Slot
+from .entity_model import Channel, DispatchStatus, Slot
 
 
 # 구독
