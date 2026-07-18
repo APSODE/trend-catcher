@@ -12,7 +12,7 @@ class HTTPXUrlFetcher(BaseUrlFetcher):
     def __init__(self):
         self.__semaphore = asyncio.Semaphore(10)
 
-    async def fetch(self, url: str) -> str:
+    async def fetch(self, url: str) -> str | None:
         robots = CheckRobots(url)
         await robots.load()
 
@@ -43,7 +43,7 @@ class HTTPXUrlFetcher(BaseUrlFetcher):
                 return response.text
 
             except Exception:
-                return ""
+                return None
 
 
     async def fetch_by_all(self, urls: list[str], base_url: str) -> list[str]:

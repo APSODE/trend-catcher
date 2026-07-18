@@ -12,7 +12,7 @@ from src.crawler_api.util.check_robots import CheckRobots
 
 class SeleniumURLFetcher(BaseUrlFetcher):
 
-    async def fetch(self, url: str) -> str:
+    async def fetch(self, url: str) -> str | None:
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
