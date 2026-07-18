@@ -1,8 +1,6 @@
 import asyncio
 from datetime import datetime
 
-from dns.dnssec import validate
-
 from src.crawler_api.constant.news_sitemap import NewsSitemap
 from src.crawler_api.schemas.article import ArticleCreate
 from src.crawler_api.service.url_extractor.url_extractor_factory import UrlExtractorFactory
@@ -10,7 +8,7 @@ from src.crawler_api.service.url_fetcher.url_fetcher_factory import UrlFetcherFa
 from src.crawler_api.service.url_parser.url_parser_factory import UrlParserFactory
 
 
-class NewsArticlePipeline:
+class CrawlingPipeline:
     """
     sitemap url을
 
@@ -65,8 +63,9 @@ class NewsArticlePipeline:
     async def run_today(self, limit: int | None = None) -> list[ArticleCreate]:
         return await self.run(datetime.today(), limit=limit)
 
-    async def run_all(self, sources : list[NewsSitemap], date : datetime, limit: int | None = None) ->list[ArticleCreate]:
-        pipelines = [NewsArticlePipeline(source) for source in sources]
+    @staticmethod
+    async def run_all(sources : list[NewsSitemap], date : datetime, limit: int | None = None) ->list[ArticleCreate]:
+        pipelines = [CrawlingPipeline(source) for source in sources]
         results = await asyncio.gather(*(pipe.run(date = date, limit=limit) for pipe in pipelines), return_exceptions=True)
         articles : list[ArticleCreate] = []
         for source, result in zip(sources, results):
@@ -76,12 +75,12 @@ class NewsArticlePipeline:
             articles.extend(result)
         return articles
 
-    async def run_all_today(self, source : list[NewsSitemap], limit: int | None = None) ->list[ArticleCreate]:
-        return await self.run_all(source, datetime.today(), limit=limit)
+    @staticmethod
+    async def run_all_today(source : list[NewsSitemap], limit: int | None = None) ->list[ArticleCreate]:
+        return await CrawlingPipeline.run_all(source, datetime.today(), limit=limit)
 
 
 temp = [NewsSitemap.MUNHWA, NewsSitemap.JOONGANG, NewsSitemap.CHOSUN_PAGE]
-pipeline = NewsArticlePipeline(temp[0])
-resultt = asyncio.run(pipeline.run_all_today(temp, limit=2))
+resultt = asyncio.run(CrawlingPipeline.run_all_today(temp, limit=2))
 for i in resultt:
     print(i)
