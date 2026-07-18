@@ -32,8 +32,8 @@ class BaseRepository(Generic[ModelType]):
         results = await self.find(filter, amount = 1)
         return results[0] if results else None
 
-    async def find_all(self) -> List[ModelType]:
-        return await self.find()
+    async def find_all(self, filter: ColumnElement[bool]) -> List[ModelType]:
+        return await self.find(filter)
 
     async def get_by_id(self, target_id: int) -> Optional[ModelType]:
         return await self.find_one(filter = self._model_class.id == target_id)
