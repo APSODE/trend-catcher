@@ -10,8 +10,10 @@ from src.crawler_api.service.url_parser.url_parser_factory import UrlParserFacto
 
 class CrawlingPipeline:
     """
-    sitemap url을
-
+    -> sitemap url fetch(fetch 함수)
+    -> xml / page 파싱(extractor parse)
+    -> 파싱한 데이터 (url list) 다시 fetch (fetch_by_all)
+    -> fetch한 뉴스 기사 html 다시 파싱 (parser parse)
     """
     def __init__(self, source : NewsSitemap):
         self.__source = source
@@ -70,7 +72,6 @@ class CrawlingPipeline:
         articles : list[ArticleCreate] = []
         for source, result in zip(sources, results):
             if isinstance(result, Exception):
-                print(f"[{source.value.company_name}] 실패: {type(result).__name__}: {result}")
                 continue
             articles.extend(result)
         return articles
