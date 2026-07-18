@@ -1,7 +1,3 @@
-"""
-요청/응답 Pydantic 스키마.
-ORM 엔티티와 분리해서 API 경계에서만 사용한다.
-"""
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
