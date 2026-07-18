@@ -37,6 +37,10 @@ class UserModel(BaseModel):
         if interest is None:
             self.interest = []
 
+    @staticmethod
+    def create_model(login_id: str, password: str, name: str, permission: Union[int, Permission], interest: Optional[List[int]] = None):
+        return UserModel(login_id, password, name, permission, interest)
+
 
 
 
