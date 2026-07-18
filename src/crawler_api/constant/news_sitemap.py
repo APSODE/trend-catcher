@@ -48,7 +48,6 @@ class NewsSitemap(Enum):
         SitemapType.PAGE,
         "#contents > div > div > div.sitemap_list.contents_list > div > ul li a"
 )
-
     #CHOSUN = NewsURLData(
     #    "https://www.chosun.com/arc/outboundfeeds/news-sitemap/?outputType=xml",
     #    "조선일보",
@@ -95,12 +94,6 @@ class NewsSitemap(Enum):
     #    "서울신문",
     #    SitemapType.PAGE_HTTPX,
     #    "#articleArea > ul li a")
-    MBN_PAGE = NewsUrlData(
-        "https://www.mbn.co.kr/sitemap/{yyyy}/{mm}/{dd}",
-        "MBN",
-        SitemapType.PAGE,
-        ".articles_list li a"
-    )
 
     #후보
     #조선일보
