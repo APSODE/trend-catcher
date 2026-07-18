@@ -38,6 +38,46 @@ class BaseRepository(Generic[ModelType]):
     async def get_by_id(self, target_id: int) -> Optional[ModelType]:
         return await self.find_one(filter = self._model_class.id == target_id)
 
+    async def update(
+            self,
+            filter: ColumnElement[bool],
+            update_data: dict,
+            with_commit: bool = False,
+    ) -> None:
+        await self._db_controller.update(
+            self._model_class,
+            update_data = update_data,
+            filter = filter,
+            with_commit = with_commit,
+        )
+
+    async def update_by_id(self, entity_id: int, update_data: dict, with_commit: bool = False) -> None:
+        await self.update(
+            filter = self._model_class.id == entity_id,
+            update_data = update_data,
+            with_commit = with_commit,
+        )
+
+    async def delete(
+            self,
+            filter: Optional[ColumnElement[bool]] = None,
+            amount: int = 1,
+            with_commit: bool = False,
+    ) -> None:
+        await self._db_controller.delete(
+            self._model_class,
+            filter = filter,
+            amount = amount,
+            with_commit = with_commit,
+        )
+
+    async def delete_by_id(self, entity_id: int, with_commit: bool = False) -> None:
+        await self.delete(
+            filter = self._model_class.id == entity_id,
+            amount = 1,
+            with_commit = with_commit,
+        )
+
     async def is_exist(self, filter: ColumnElement[bool]) -> bool:
         results = await self._db_controller.get(self._model_class, filter = filter, amount = 1)
         return len(results) > 0
