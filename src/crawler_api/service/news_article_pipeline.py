@@ -64,3 +64,24 @@ class NewsArticlePipeline:
 
     async def run_today(self, limit: int | None = None) -> list[ArticleCreate]:
         return await self.run(datetime.today(), limit=limit)
+
+    async def run_all(self, sources : list[NewsSitemap], date : datetime, limit: int | None = None) ->list[ArticleCreate]:
+        pipelines = [NewsArticlePipeline(source) for source in sources]
+        results = await asyncio.gather(*(pipe.run(date = date, limit=limit) for pipe in pipelines), return_exceptions=True)
+        articles : list[ArticleCreate] = []
+        for source, result in zip(sources, results):
+            if isinstance(result, Exception):
+                print(f"[{source.value.company_name}] 실패: {type(result).__name__}: {result}")
+                continue
+            articles.extend(result)
+        return articles
+
+    async def run_all_today(self, source : list[NewsSitemap], limit: int | None = None) ->list[ArticleCreate]:
+        return await self.run_all(source, datetime.today(), limit=limit)
+
+
+temp = [NewsSitemap.MUNHWA, NewsSitemap.JOONGANG, NewsSitemap.CHOSUN_PAGE]
+pipeline = NewsArticlePipeline(temp[0])
+resultt = asyncio.run(pipeline.run_all_today(temp, limit=2))
+for i in resultt:
+    print(i)
