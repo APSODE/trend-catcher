@@ -26,10 +26,11 @@ class PageExtractor(BaseExtractor):
             url = item.get("href")
 
             # url 비어있는경우
-            if not url:
+            if not isinstance(url, str) or not url:
                 continue
 
             absolute_url = urljoin(base_url, url)
+
             if absolute_url not in seen:
                 seen.add(absolute_url)
                 urls.append(absolute_url)
