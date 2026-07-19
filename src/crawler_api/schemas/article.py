@@ -36,6 +36,7 @@ class ArticleUpdate(BaseModel):
 
 class ArticleResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+    url : str
     id: PydanticObjectId
     title: str
     company_name: str
@@ -47,6 +48,7 @@ class ArticleResponse(BaseModel):
 class ArticleRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: PydanticObjectId
+    url : str
     title: str
     content: str
     company_name: str
