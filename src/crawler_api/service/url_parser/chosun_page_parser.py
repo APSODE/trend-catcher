@@ -22,20 +22,30 @@ class ChosunPageParser(BasePageParser):
         category = soup.select_one(
             "a.flex.flex--align-items-center.font--size-md-18.font--primary.text--line-height-1\\.43.text--black"
         )
+        if category is None:
+            category = soup.select_one(
+                "a.flex.flex--align-items-center.font--size-md-18.font--tertiary.text--line-height-1\\.43.text--black"
+            )
+
 
         reporter = soup.select_one(
             "#fusion-app > div:nth-of-type(1) > div:nth-of-type(2) > div > section > article > div:nth-of-type(1) > div:nth-of-type(1) > div > a"
         )
+        if reporter is None:
+            reporter = soup.select_one(
+                "#fusion-app > div:nth-of-type(1) > div:nth-of-type(2) > div > section > article > div:nth-of-type(1) > div:nth-of-type(1) > div > span"
+            )
 
         if not title or not section:
+            #raise ParsingFailException("조선일보 제목이나 내용이 존재하지않습니다")
             return None
         img_urls = []
         for img in section.find_all("img"):
             src = img.get("src")
             if src:
                 img_urls.append(src)
-        published_at = None
 
+        published_at = None
         if date:
             date_text = date.get_text(strip=True).replace("입력", "").strip()
             try:
@@ -44,12 +54,9 @@ class ChosunPageParser(BasePageParser):
                 pass
         return ParsedData(
             title=title.get_text(strip=True),
-            content=section.get_text(strip=True),
+            content=" ".join(p.get_text(strip = True) for p in section.find_all("p") if p.get_text(strip = True)),
             reporter=reporter.get_text(strip=True) if reporter else None,
             category=category.get_text(strip=True) if category else None,
             published_at=published_at,
             img_urls=img_urls)
 
-"""
-TODO : 기자가 리다이렉팅이 안되는 경우 기자이름을 못받아옴
-"""
