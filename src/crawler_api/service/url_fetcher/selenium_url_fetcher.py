@@ -31,6 +31,8 @@ class SeleniumURLFetcher(BaseUrlFetcher):
             raise NotFoundException()
         except Exception as e:
             raise NotFoundException(e.__str__())
+        finally:
+            driver.quit()
 
 
     async def fetch_by_all(self, urls: list[str], base_url : str) -> list[str]:
@@ -44,15 +46,21 @@ class SeleniumURLFetcher(BaseUrlFetcher):
         robots = CheckRobots(base_url)
         await robots.load()
         results = []
-        for url in urls:
-            try:
-                if not await robots.is_allowed(url):
-                    results.append("")
-                driver.get(url)
-                results.append(driver.page_source)
-                time.sleep(random.uniform(1.5, 3.5))
+        try:
+            for url in urls:
+                try:
+                    if not await robots.is_allowed(url):
+                        results.append("")
+                        continue
+                    driver.get(url)
+                    results.append(driver.page_source)
+                    time.sleep(random.uniform(1.5, 3.5))
 
-            except TimeoutException:
-                results.append("")
+                except TimeoutException:
+                    results.append("")
+                except Exception:
+                    results.append("")
+        finally:
+            driver.quit()
         return results
 
