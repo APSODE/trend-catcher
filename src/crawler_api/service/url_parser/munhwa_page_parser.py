@@ -18,6 +18,7 @@ class MunhwaPageParser(BasePageParser):
         reporter = soup.select_one("#container > div.inner > div > header > div.article-header-bottom > div.byline > p.writer > span > a")
 
         if not title or not section:
+            #raise ParsingFailException("문화일보 제목이나 내용이 존재하지않습니다")
             return None
 
         img_urls = []
@@ -40,7 +41,7 @@ class MunhwaPageParser(BasePageParser):
                 pass
         return ParsedData(
             title=title.get_text(strip=True),
-            content=section.get_text(strip=True),
+            content=" ".join(p.get_text(strip = True) for p in section.find_all("p") if p.get_text(strip = True)),
             reporter=reporter.get_text(strip=True) + " 기자" if reporter else None,
             category=category.get_text(strip=True) if category else None,
             published_at=published_at,
