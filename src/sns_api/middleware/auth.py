@@ -1,7 +1,7 @@
 from fastapi import Header, HTTPException, status
 from src.sns_api.config import get_settings
 
-settings = get_settings()  # ← 이 줄 추가!
+settings = get_settings()
 
 
 class InternalTokenMiddleware:
