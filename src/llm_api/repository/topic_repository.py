@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from model.topic_model import TopicModel
+from src.llm_api.model.topic_model import TopicModel
 from sqlalchemy import select
 
 class TopicRepository:

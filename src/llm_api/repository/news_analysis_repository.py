@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from model.news_analysis_model import NewsAnalysisModel
+from src.llm_api.model.news_analysis_model import NewsAnalysisModel
 from sqlalchemy import select
 
 

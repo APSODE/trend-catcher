@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from model.keyword_model import KeywordModel
+from src.llm_api.model.keyword_model import KeywordModel
 from sqlalchemy import select
 
 class KeywordRepository:
