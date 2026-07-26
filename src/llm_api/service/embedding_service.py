@@ -25,7 +25,7 @@ class EmbeddingService:
 
         #주어라 내게 결과
         response = await self.client.post(self.URL, headers = headers, json = payload, timeout = self.TIMEOUT)  # 내놓아라 결과
-        print(response.status_code, response.text) #TODO: 디버깅용 코드, 제거필요
+        #print(response.status_code, response.text) #디버깅용 코드
         response.raise_for_status() #당신 에러인가
         data = response.json()["data"] #데이터만 통과
         data.sort(key = lambda x: x["index"]) #데이터 일렬로 줄서

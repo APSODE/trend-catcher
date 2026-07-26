@@ -43,7 +43,7 @@ class ExtractionService:
         }
 
         response = await self.client.post(self.URL, headers = headers, json = payload, timeout = self.TIMEOUT)
-        print(response.status_code, response.text)  # TODO: 디버깅용 코드, 제거필요
+        #print(response.status_code, response.text)  # 디버깅용 코드
         response.raise_for_status()  # 당신 에러인가
         raw = response.json()["choices"][0]["message"]["content"].strip()
 
