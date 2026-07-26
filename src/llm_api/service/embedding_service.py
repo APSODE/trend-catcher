@@ -12,6 +12,7 @@ class EmbeddingService:
         self.api_key = api_key
         self.client = httpx.AsyncClient()
 
+    ##메인 기능
     async def get_embeddings(self, texts: list[str], input_type: str = "passage") -> list[list[float]]:
         headers = {
             "Authorization" : f"Bearer {self.api_key}",
@@ -32,7 +33,7 @@ class EmbeddingService:
         return [item["embedding"] for item in data]
 
     #유사도 비교
-    def cosine_similarity(self, vec_a: list[float], vec_b: list[float]) -> float:
+    def get_similarity_score(self, vec_a: list[float], vec_b: list[float]) -> float:
         a, b = np.array(vec_a), np.array(vec_b)
         return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
 
