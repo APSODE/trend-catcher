@@ -43,7 +43,6 @@ class ArticleResponse(BaseModel):
     crawled_at: datetime
     content: str
     category: str | None = None
-    url: str
 
 class ArticleRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -57,4 +56,4 @@ class ArticleRead(BaseModel):
     img_list: list[str] | None = None
     published_at: datetime | None = None
     crawled_at: datetime
-    updated_at: datetime | None = None
+    db_updated_at: datetime | None = None
