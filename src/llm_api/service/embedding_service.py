@@ -12,24 +12,29 @@ class EmbeddingService:
         self.api_key = api_key
         self.client = httpx.AsyncClient()
 
-    ##메인 기능
+    #하나만 처리
     async def get_embedding(self, text: str, input_type: str = "passage") -> list[float]:
+        return (await self.get_embeddings([text], input_type))[0]
+
+    # 여럿 한번에 처리
+    async def get_embeddings(self, texts: list[str], input_type: str = "passage") -> list[list[float]]:
         headers = {
-            "Authorization" : f"Bearer {self.api_key}",
-            "Content-Type" : "application/json"
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
         }
         payload = {
-            "input" : [text],
-            "model" : self.MODEL,
-            "input_type" : input_type
+            "input": texts,
+            "model": self.MODEL,
+            "input_type": input_type
         }
 
-        #주어라 내게 결과
-        response = await self.client.post(self.URL, headers = headers, json = payload, timeout = self.TIMEOUT)  # 내놓아라 결과
-        #print(response.status_code, response.text) #디버깅용 코드
-        response.raise_for_status() #당신 에러인가
-        data = response.json()["data"] #데이터만 통과
-        return data[0]["embedding"]
+        # 주어라 내게 결과
+        response = await self.client.post(self.URL, headers=headers, json=payload, timeout=self.TIMEOUT)
+        response.raise_for_status()  # 당신 에러인가
+        data = response.json()["data"]  # 데이터만 통과
+        data.sort(key = lambda x : x["index"]) #줄세우기
+        result = [item["embedding"] for item in data] #임베딩만 통과
+        return result
 
     #유사도 비교
     def get_similarity_score(self, vec_a: list[float], vec_b: list[float]) -> float:
