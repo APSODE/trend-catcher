@@ -13,13 +13,13 @@ class EmbeddingService:
         self.client = httpx.AsyncClient()
 
     ##메인 기능
-    async def get_embeddings(self, texts: list[str], input_type: str = "passage") -> list[list[float]]:
+    async def get_embedding(self, text: str, input_type: str = "passage") -> list[float]:
         headers = {
             "Authorization" : f"Bearer {self.api_key}",
             "Content-Type" : "application/json"
         }
         payload = {
-            "input" : texts,
+            "input" : [text],
             "model" : self.MODEL,
             "input_type" : input_type
         }
@@ -29,8 +29,7 @@ class EmbeddingService:
         #print(response.status_code, response.text) #디버깅용 코드
         response.raise_for_status() #당신 에러인가
         data = response.json()["data"] #데이터만 통과
-        data.sort(key = lambda x: x["index"]) #데이터 일렬로 줄서
-        return [item["embedding"] for item in data]
+        return data[0]["embedding"]
 
     #유사도 비교
     def get_similarity_score(self, vec_a: list[float], vec_b: list[float]) -> float:
