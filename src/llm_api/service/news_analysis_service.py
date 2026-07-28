@@ -39,8 +39,7 @@ class NewsAnalysisService:
         #여기부턴 db 손대는 영역이라 try
         try:
             match_data = await self.topic_matching_service.create_topic_match_data(session, embedding, news_id, extracted_data["topic"])
-            score = self.reliability_service.calculate_final_score(extracted_data["content_score"], match_data.main_topic_count)
-            analysis = await self.news_analysis_repo.save(session, NewsAnalysisModel(news_id = news_id, category = category, topic_id = match_data.main_topic_id, score = score["score"], score_detail = score["score_detail"]))
+            analysis = await self.news_analysis_repo.save(session, NewsAnalysisModel(news_id = news_id, category = category, topic_id = match_data.main_topic_id, score = None, score_detail = {"content_score": extracted_data["content_score"]}))
             await self.topic_matching_service.save_topic_match_data(session, analysis.id, match_data)
             await self.keyword_assignment_service.assign_keywords(session, analysis.id, extracted_data["keywords"])
             await session.commit()

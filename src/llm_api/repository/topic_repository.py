@@ -20,3 +20,10 @@ class TopicRepository:
         topic = await session.get(TopicModel, topic_id)
         topic.count += 1
         await session.flush()
+
+    #
+    async def get(self, session: AsyncSession, topic_id: int) -> TopicModel:
+        topic = await session.get(TopicModel, topic_id)
+        if topic is None:
+            raise ValueError(f"id {topic_id}에 해당하는 주제 없음")
+        return topic

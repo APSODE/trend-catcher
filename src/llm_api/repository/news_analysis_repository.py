@@ -21,3 +21,9 @@ class NewsAnalysisRepository:
         query = select(NewsAnalysisModel).where(NewsAnalysisModel.score >= cutoff_score).order_by(NewsAnalysisModel.score.desc()).limit(limit)
         result = await session.execute(query)
         return list(result.scalars().all())
+
+    #점수없는것들 반환
+    async def get_unscored_news(self, session: AsyncSession) -> list[NewsAnalysisModel]:
+        query = select(NewsAnalysisModel).where(NewsAnalysisModel.score.is_(None))
+        result = await session.execute(query)
+        return list(result.scalars().all())
