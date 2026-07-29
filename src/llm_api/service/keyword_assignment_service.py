@@ -14,9 +14,15 @@ class KeywordAssignmentService:
         self.embedding_service = embedding_service
 
     async def assign_keywords(self, session: AsyncSession, news_id: int, keywords: list[str]) -> None:
+        assigned_keywords_ids = set()
         for target_keyword in keywords:
             keyword = await self.get_or_create_by_similarity(session, target_keyword)
+
+            if keyword.id in assigned_keywords_ids: #한 기사에서 같은 의미의 여러 키워드 나오면 터지는 상황 방지
+                continue
+
             await self.news_keyword_map_repo.save(session, news_id, keyword.id)
+            assigned_keywords_ids.add(keyword.id)
 
     async def get_or_create_by_similarity(self, session: AsyncSession, keyword: str) -> KeywordModel:
         #동일한 키워드 있으면 바로 그거 리턴
