@@ -32,6 +32,16 @@ class NewsAnalysisService:
         if extracted_data is None: #크레이지 AI 안 한다면 일 똑바로 쫓아낸다
             return None
 
+        #디버깅용======================================================
+        extracted_data = await self.extraction_service.extract(title, content)
+        if extracted_data is None:
+            return None
+
+        print(f"# {news_id}, title={title}")
+        print(f"  → topic: {extracted_data['topic']}")
+        print(f"  → keywords: {extracted_data['keywords']}")
+        #=============================================================
+
         #한다 임베딩
         target_text = f"{title}. {extracted_data['topic']}"
         embedding = await self.embedding_service.get_embedding(target_text)
