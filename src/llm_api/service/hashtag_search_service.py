@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import numpy
 
 class HashtagSearchService:
-    TOPIC_RELEVANCE_STANDARD = 0.6
-    KEYWORD_RELEVANCE_STANDARD = 0.65
+    TOPIC_RELEVANCE_STANDARD = 0.45
+    KEYWORD_RELEVANCE_STANDARD = 0.89
 
     def __init__(
             self,
@@ -62,8 +62,6 @@ class HashtagSearchService:
 
         #유사도 구하기: 행렬 내적 / 노름 곱
         similarity_matrix = (hashtag_matrix @ candidate_matrix.T) / numpy.outer(hashtag_norms, candidate_norms)
-
-        print(f"유사도 행렬:\n{similarity_matrix}")  # 임시 디버깅
 
         #기준 넘는 것들만 담아 리턴
         matched_indices = numpy.where(similarity_matrix >= standard)[1]
