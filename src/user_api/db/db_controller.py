@@ -18,29 +18,31 @@ class DatabaseController:
     def create_object(session: AsyncSession) -> "DatabaseController":
         return DatabaseController(session = session)
 
-    @property
-    def session(self) -> AsyncSession:
-        return self.__session
-
-
-    def __build_select(self, model_class: ModelType | Type[ModelType], filter: Optional[ColumnElement[bool]] = None) -> Select[tuple[Any]]:
+    @staticmethod
+    def __build_select(model_class: ModelType | Type[ModelType],
+                       filter: Optional[ColumnElement[bool]] = None) -> Select[tuple[Any]]:
         statement = select(model_class)
 
         if filter is not None:
             statement = statement.where(filter)
 
-
         return statement
 
-    async def add(self, model: ModelType | Iterable[ModelType], with_commit: bool = False) -> None:
+    @property
+    def session(self) -> AsyncSession:
+        return self.__session
+
+    async def add(self,
+                  model: ModelType | Iterable[ModelType],
+                  with_flush: bool = False) -> None:
         if isinstance(model, Iterable):
             self.__session.add_all(model)
 
         else:
             self.__session.add(model)
 
-        if with_commit:
-            await self.commit()
+        if with_flush:
+            await self.flush()
 
 
     async def get(self,
@@ -59,7 +61,7 @@ class DatabaseController:
                      model_class: ModelType | Type[ModelType],
                      update_data: dict[str, Any],
                      filter: Optional[ColumnElement[bool]] = None,
-                     with_commit: bool = False
+                     with_flush: bool = False
                      ) -> None:
 
         statement = update(model_class).values(**update_data)
@@ -68,14 +70,14 @@ class DatabaseController:
 
         await self.__session.execute(statement)
 
-        if with_commit:
-            await self.commit()
+        if with_flush:
+            await self.flush()
 
     async def delete(self,
                      model_class: ModelType | Type[ModelType],
                      filter: Optional[ColumnElement[bool]] = None,
                      amount: int = 1,
-                     with_commit: bool = False
+                     with_flush: bool = False
                      ) -> None:
 
         targets = await self.get(model_class, filter, amount)
@@ -86,14 +88,17 @@ class DatabaseController:
         for target in targets:
             await self.__session.delete(target)
 
-        if with_commit:
-            await self.__session.commit()
+        if with_flush:
+            await self.__session.flush()
 
 
-    async def commit(self):
+    async def commit(self) -> None:
         await self.__session.commit()
 
-    async def rollback(self):
+    async def rollback(self) -> None:
         await self.__session.rollback()
+
+    async def flush(self) -> None:
+        await self.__session.flush()
 
 
