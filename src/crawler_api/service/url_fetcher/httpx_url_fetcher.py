@@ -56,7 +56,7 @@ class HTTPXUrlFetcher(BaseUrlFetcher):
         robots = CheckRobots(base_url)
         await robots.load()
 
-        async with httpx.AsyncClient(headers=headers, timeout=10.0) as client:
+        async with httpx.AsyncClient(headers=headers, timeout=20.0) as client:
             tasks = [self._fetch_one(client, url, robots) for url in urls]
             results = await asyncio.gather(*tasks)
 
