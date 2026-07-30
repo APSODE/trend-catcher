@@ -42,12 +42,11 @@ class NewsSitemap(Enum):
     #    "동아일보",
     #    SitemapType.DATE_IN_NEWS) #일간
 
-    DONGA_PAGE = NewsUrlData(
-        "https://www.donga.com/news/sitemap?p1={yyyy}&p2={mm}&p3={dd}",
-        "동아일보",
-        SitemapType.PAGE,
-        "#contents > div > div > div.sitemap_list.contents_list > div > ul li a"
-)
+    #DONGA_PAGE = NewsUrlData(
+    #    "https://www.donga.com/news/sitemap?p1={yyyy}&p2={mm}&p3={dd}",
+    #    "동아일보",
+    #    SitemapType.PAGE,
+    #    "#contents > div > div > div.sitemap_list.contents_list > div > ul li a")
     #CHOSUN = NewsURLData(
     #    "https://www.chosun.com/arc/outboundfeeds/news-sitemap/?outputType=xml",
     #    "조선일보",
