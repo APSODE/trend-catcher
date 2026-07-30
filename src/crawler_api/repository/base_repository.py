@@ -55,9 +55,9 @@ class BaseRepository(Generic[ModelType, IdType]):
                      update_data : dict) -> list[ModelType] | None:
         if not update_data:
             return None
-        documents = await self._model.find(filter_data).to_list()
-        await self._model.find(filter_data).update_many({"$set": update_data})
-        return documents
+        documents = self._model.find(filter_data)
+        await documents.update_many({"$set": update_data})
+        return await documents.to_list()
 
 
     async def update_by_id(self,
@@ -86,13 +86,12 @@ class BaseRepository(Generic[ModelType, IdType]):
                 return False
             else:
                 await document.delete()
-
         else: #n건 삭제인 경우, 갯수 지정된 경우 갯수만큼 삭제
-            documents = await query.to_list() if amount is None else await query.limit(amount).to_list()
-            for document in documents:
-                await document.delete()
+            documents = await query.to_list() if amount <= 0 else await query.limit(amount).to_list()
             if len(documents) <= 0:
                 return False
+            for document in documents:
+                await document.delete()
         return True
 
     async def delete_by_id(self, target_id : IdType) -> bool:
