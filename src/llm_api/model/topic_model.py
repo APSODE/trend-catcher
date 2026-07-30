@@ -1,4 +1,4 @@
-from .base import Base
+from src.llm_api.model.base import Base
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, JSON
 from datetime import datetime

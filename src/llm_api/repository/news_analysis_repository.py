@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from model.news_analysis_model import NewsAnalysisModel
+from src.llm_api.model.news_analysis_model import NewsAnalysisModel
 from sqlalchemy import select
 
 
@@ -19,5 +19,11 @@ class NewsAnalysisRepository:
     #주요 뉴스 반환: 커트라인 점수 이상인 뉴스 중 상위 n개
     async def get_main_news(self, session: AsyncSession, cutoff_score: float, limit: int) -> list[NewsAnalysisModel]:
         query = select(NewsAnalysisModel).where(NewsAnalysisModel.score >= cutoff_score).order_by(NewsAnalysisModel.score.desc()).limit(limit)
+        result = await session.execute(query)
+        return list(result.scalars().all())
+
+    #점수없는것들 반환
+    async def get_unscored_news(self, session: AsyncSession) -> list[NewsAnalysisModel]:
+        query = select(NewsAnalysisModel).where(NewsAnalysisModel.score.is_(None))
         result = await session.execute(query)
         return list(result.scalars().all())
