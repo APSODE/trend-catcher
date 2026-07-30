@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING, Any, Union, List, Optional
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from src.user_api.constant.permission import Permission
 from src.user_api.constant.user_model_constant import MAX_NAME_LENGTH
 from src.user_api.model.base_model import BaseModel
+from src.user_api.model.user_category_model import UserCategoryModel
 
 if TYPE_CHECKING:
-    from src.user_api.model.user_category_model import UserCategoryModel
+    from src.user_api.model.account_model import AccountModel
 
 
 class UserModel(BaseModel):
@@ -20,10 +20,11 @@ class UserModel(BaseModel):
         back_populates = "user_model",
     )
 
-    account: Mapped[int] = relationship(
+    accounts: Mapped[List["AccountModel"]] = relationship(
         back_populates = "user",
         cascade = "all, delete-orphan"
     )
+
 
 
     def __init__(self, name: str, permission: Union[int, Permission], interest: Optional[List[int]] = None, **kw: Any):
