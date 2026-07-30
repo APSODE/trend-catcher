@@ -1,4 +1,7 @@
-class IllegalSaltException(Exception):
+from src.user_api.exceptions.app_exception import AppException
+
+
+class IllegalSaltException(AppException):
     def __init__(self, **kwargs):
         param_amount = len(kwargs.keys())
 
