@@ -10,6 +10,7 @@ from src.crawler_api.schemas.article import ArticleCreate, ArticleUpdate
 class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
     def __init__(self):
         super().__init__(Article)
+
     async def create_one(self, schema : ArticleCreate) -> PydanticObjectId | None:
         exist_data = await self.get_by_url(schema.url)
         if exist_data:
@@ -27,9 +28,11 @@ class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
         for schema in schemas:
             exist_data = await self.get_by_url(schema.url)
             if exist_data:
-                update_date = schema.model_dump(exclude_unset=True, exclude_none=True)
-                update_date["db_updated_at"] = datetime.now()
-                await exist_data.set(update_date)
+                update_schema = (ArticleUpdate(**schema.model_dump()))
+                update_data = update_schema.model_dump(exclude_unset=True, exclude_none=True)
+
+                update_data["db_updated_at"] = datetime.now()
+                await exist_data.set(update_data)
                 if exist_data.id is not None:
                     ids.append(exist_data.id)
 
