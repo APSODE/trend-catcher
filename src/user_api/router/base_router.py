@@ -1,26 +1,29 @@
-from abc import abstractmethod
-from typing import List, Dict, Any
+from abc import abstractmethod, ABC
+from typing import List, Dict, Any, TypeVar, Generic, Callable, Awaitable
 
 from fastapi import APIRouter
-from src.user_api.db.db_controller import DatabaseController
+
+from src.user_api.service.base_service import BaseService
+
+T = TypeVar("T", bound = BaseService)
 
 
-class BaseRouter(APIRouter):
-    def __init__(self, prefix: str, tags: List[str], response: Dict[int, Dict[str, Any]], db_controller: DatabaseController):
+class BaseRouter(APIRouter, Generic[T], ABC):
+    def __init__(
+            self,
+            prefix: str,
+            tags: List[str],
+            response: Dict[int, Dict[str, Any]],
+            get_service: Callable[..., Awaitable[T]],
+    ):
         super().__init__(
             prefix = prefix,
             tags = tags,
-            # dependencies = [Depends(get_token_header)],
-            responses = response
+            responses = response,
         )
 
-        self._db_controller = db_controller
+        self._get_service = get_service
         self.setup_routes()
-
-    @staticmethod
-    @abstractmethod
-    def create_router(db_controller: DatabaseController):
-        pass
 
     @abstractmethod
     def setup_routes(self):
