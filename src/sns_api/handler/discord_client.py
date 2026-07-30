@@ -19,27 +19,30 @@ class PermanentWebhookError(Exception):
 
 def build_payload(bundle: NewsBundleData, slot_label: str) -> dict:
     fields = []
-    if bundle.major:
-        lines = []
-        for i, item in enumerate(bundle.major, start=1):
-            if item.url:
-                lines.append(f"{i}. [{item.title}]({item.url})")
-            else:
-                lines.append(f"{i}. {item.title}")
-        fields.append({"name": "📰 주요 뉴스", "value": "\n".join(lines)})
-    if bundle.personalized:
-        lines = []
-        for i, item in enumerate(bundle.personalized, start=1):
-            if item.url:
-                lines.append(f"{i}. [{item.title}]({item.url})")
-            else:
-                lines.append(f"{i}. {item.title}")
-        fields.append({"name": "✨ 맞춤 뉴스", "value": "\n".join(lines)})
+    image_url = None  # embed 하나에 이미지는 1개만 가능, 첫 번째로 발견되는 것 사용
 
-    return {
-        "username": "Trend Catcher",
-        "embeds": [{"title": f"{slot_label} 뉴스 브리핑", "fields": fields}],
-    }
+    def format_lines(items):
+        nonlocal image_url
+        lines = []
+        for i, item in enumerate(items, start=1):
+            if item.url:
+                lines.append(f"{i}. [{item.title}]({item.url})")
+            else:
+                lines.append(f"{i}. {item.title}")
+            if image_url is None and item.image_url:
+                image_url = item.image_url
+        return lines
+
+    if bundle.major:
+        fields.append({"name": "📰 주요 뉴스", "value": "\n".join(format_lines(bundle.major))})
+    if bundle.personalized:
+        fields.append({"name": "✨ 맞춤 뉴스", "value": "\n".join(format_lines(bundle.personalized))})
+
+    embed = {"title": f"{slot_label} 뉴스 브리핑", "fields": fields}
+    if image_url:
+        embed["image"] = {"url": image_url}
+
+    return {"username": "Trend Catcher", "embeds": [embed]}
 
 
 class DiscordClient:
