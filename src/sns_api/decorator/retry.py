@@ -1,7 +1,3 @@
-"""
-비동기 재시도 데코레이터.
-외부 호출(Discord Webhook, LLM API)처럼 일시적으로 실패할 수 있는 작업에 사용.
-"""
 import asyncio
 import functools
 import logging
@@ -11,15 +7,14 @@ from typing import Any
 
 logger = logging.getLogger("sns.retry")
 
-
 def async_retry(
     max_attempts: int = 3,
     base_delay: float = 0.5,
     max_delay: float = 8.0,
     exceptions: tuple[type[Exception], ...] = (Exception,),
-) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:                                
     if max_attempts < 1:
-        raise ValueError("max_attempts는 1 이상이어야 해")
+        raise ValueError("max_attempts는 1 이상")
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
@@ -27,7 +22,7 @@ def async_retry(
             for attempt in range(1, max_attempts + 1):
                 try:
                     return await func(*args, **kwargs)
-                except exceptions as exc:  # noqa: PERF203
+                except exceptions as exc:
                     if attempt == max_attempts:
                         raise
                     delay = min(max_delay, base_delay * (2 ** (attempt - 1)))

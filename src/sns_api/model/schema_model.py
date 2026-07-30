@@ -72,7 +72,7 @@ class NewsItemData(BaseModel):
     title: str
     summary: str
     url: str | None = None
-
+    image_url: str | None = None
 
 class NewsBundleData(BaseModel):
     personalized: list[NewsItemData] = []
