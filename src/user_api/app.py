@@ -38,9 +38,8 @@ class UserAPI(FastAPI):
         ]
 
         for handler in handlers:
-            self.add_exception_handler(handler.get_status_code, handler)
+            self.add_exception_handler(handler.exception_type, handler)  # exception_type으로 등록
 
-        return None
 
 
     def _setup_routers(self) -> None:
