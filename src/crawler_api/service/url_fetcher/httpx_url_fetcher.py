@@ -10,7 +10,7 @@ headers = {"User-Agent": "Mozilla/5.0"}
 
 class HTTPXUrlFetcher(BaseUrlFetcher):
     def __init__(self):
-        self.__semaphore = asyncio.Semaphore(10)
+        self.__semaphore = asyncio.Semaphore(5)
 
     async def fetch(self, url: str) -> str | None:
         robots = CheckRobots(url)
@@ -33,17 +33,23 @@ class HTTPXUrlFetcher(BaseUrlFetcher):
                 if not await robots.is_allowed(url):
                     return ""
                 response = await client.get(url)
-
                 if response.status_code != 200:
                     return ""
-
-                await asyncio.sleep(
-                    random.uniform(1.5, 3.5)
-                )
                 return response.text
+            except httpx.TimeoutException:
+                #print(f"[TIMEOUT] {url}")
+                return ""
+            except httpx.RequestError as e:
+                #print(f"[REQUEST ERROR {type(e).__name__}] {url}: {e}")
+                return ""
+            except Exception as e:
+                #print(f"[UNKNOWN ERROR {type(e).__name__}] {url}: {e}")
+                return ""
+            finally:
+                await asyncio.sleep(random.uniform(1.5, 3.5))
 
-            except Exception:
-                return None
+
+
 
 
     async def fetch_by_all(self, urls: list[str], base_url: str) -> list[str]:
@@ -54,4 +60,4 @@ class HTTPXUrlFetcher(BaseUrlFetcher):
             tasks = [self._fetch_one(client, url, robots) for url in urls]
             results = await asyncio.gather(*tasks)
 
-        return [html for html in results if html is not None]
+        return results

@@ -1,9 +1,7 @@
-from http.client import HTTPException
+from src.crawler_api.exception.base_error_exception import BaseErrorException
 
-
-class SelectorValueException(HTTPException):
+class SelectorValueException(BaseErrorException):
     def __init__(self, message : str | None = None):
-        self.status_code = 404
         if message:
             super().__init__(message)
         else:

@@ -79,9 +79,3 @@ class CrawlingPipeline:
     @staticmethod
     async def run_all_today(source : list[NewsSitemap], limit: int | None = None) ->list[ArticleCreate]:
         return await CrawlingPipeline.run_all(source, datetime.today(), limit=limit)
-
-
-temp = [NewsSitemap.MUNHWA, NewsSitemap.JOONGANG, NewsSitemap.CHOSUN_PAGE]
-resultt = asyncio.run(CrawlingPipeline.run_all_today(temp, limit=2))
-for i in resultt:
-    print(i)

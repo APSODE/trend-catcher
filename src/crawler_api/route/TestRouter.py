@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from src.crawler_api.config.database import lifespan
 from src.crawler_api.route import article_router
 
-app = FastAPI()
+app = FastAPI(lifespan = lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,

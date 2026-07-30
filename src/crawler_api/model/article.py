@@ -17,11 +17,12 @@ class Article(Document):
     img_list : list[str] | None = None
     published_at : datetime | None = None
 
-    crawled_at : datetime | None = None
+    crawled_at : datetime
     db_updated_at : datetime | None = None # db 데이터 변동
 
     class Settings:
         name = "article"
+        # 인덱스 생성
         indexes = [
             [("published_at",pymongo.DESCENDING), ("crawled_at", pymongo.ASCENDING)]
         ]

@@ -22,14 +22,12 @@ class CheckRobots:
                     self.__is_loaded = False
                     return
 
-                self.__rp.parse(
-                    response.text.splitlines()
-                )
-
+                self.__rp.parse(response.text.splitlines())
                 self.__is_loaded = True
-
         except Exception:
             self.__is_loaded = False
+            return
+
 
 
     async def is_allowed(self, url : str) -> bool:

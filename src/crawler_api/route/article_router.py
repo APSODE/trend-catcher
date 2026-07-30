@@ -1,39 +1,57 @@
-from datetime import datetime
+from datetime import datetime, time, date
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from src.crawler_api.schemas.article import ArticleRead, ArticleResponse, ArticleCreate
+from src.crawler_api.dependencies.article import get_article_service
+from src.crawler_api.schemas.article import ArticleRead, ArticleResponse, ArticleCreate, ArticleUpdate
+from src.crawler_api.service.article_service import ArticleService
 
 router = APIRouter(
     prefix="/article",
     tags=["Article"],
 )
+@router.get("/articles", response_model=list[ArticleRead])
+async def get_all_articles(
+        service : ArticleService = Depends(get_article_service)
+):
+    return await service.get_all_articles()
+
+
+@router.get("/{date}/{time}", response_model=list[ArticleResponse])
+async def get_articles_by_date(
+        date: date,
+        time : time,
+        service : ArticleService = Depends(get_article_service)
+):
+    target_datetime = datetime.combine(date, time)
+    return await service.get_article_by_date(target_datetime)
 
 @router.get("/{article_id}", response_model=ArticleRead)
-async def get_article(article_id: PydanticObjectId):
-    #pass
-    return ArticleRead(id=article_id, title="Test Article", content="Test Content", company_name="Test Company", crawled_at=datetime.now())
+async def get_article(
+        article_id: PydanticObjectId,
+        service : ArticleService = Depends(get_article_service)
+):
+    return await service.get_article_by_id(article_id)
 
-@router.get("/articles", response_model=list[ArticleRead])
-async def get_all_articles():
-    #pass
-    return [{"id": "1", "title": "Test Article"}]
-
-@router.get("{date}", response_model=list[ArticleResponse])
-async def get_articles_by_date(date: datetime):
-    return [{date.__str__(): "Test Article"}]
-
-@router.post("/", response_model=ArticleRead, status_code=201)
-async def create_article(article_data : ArticleCreate):
-    pass
-
-@router.delete("/{article_id}")
-async def delete_article(article_id: str):
-    pass
-
+@router.post("/", response_model=PydanticObjectId, status_code=201)
+async def create_article(
+        article_data : ArticleCreate,
+        service : ArticleService = Depends(get_article_service)
+):
+    return await service.create_article(article_data)
+@router.delete("/{article_id}", response_model = bool)
+async def delete_article(
+        article_id: PydanticObjectId,
+        service : ArticleService = Depends(get_article_service),
+):
+    return await service.delete_article(article_id)
 @router.put("/{article_id}", response_model=ArticleRead)
-async def update_article(article_id: str):
-    pass
+async def update_article(
+        article_id: PydanticObjectId,
+        article_date : ArticleUpdate,
+        service : ArticleService = Depends(get_article_service)
+):
+    return await service.update_article(article_id, article_date)
 
 #whitelist 미들웨어
