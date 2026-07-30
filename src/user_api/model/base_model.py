@@ -1,26 +1,13 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import inspect
+from sqlalchemy import inspect, Identity
+
 
 class BaseModel(DeclarativeBase):
-    __tablename__ = "[dev]BaseModel"
     __abstract__ = True
 
-    id: Mapped[int] = mapped_column(primary_key = True, autoincrement = True)
+    id: Mapped[int] = mapped_column(Identity(start = 1, increment = 1), primary_key = True)
 
     def __repr__(self):
         table_keys = inspect(self.__class__).mapper.columns.keys()
         attrs = ', '.join(f"{key}={getattr(self, key)}" for key in table_keys)
         return f"{self.__tablename__}({attrs})"
-
-
-
-
-
-
-
-
-
-
-
-
-
