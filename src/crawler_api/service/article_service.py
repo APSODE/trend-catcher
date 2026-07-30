@@ -25,6 +25,7 @@ class ArticleService:
 
         if article is None:
             raise NotFoundException("ID로 기사를 찾지 못했습니다")
+
         return ArticleRead.model_validate(article)
 
     async def get_article_by_date(self, date: datetime) -> list[ArticleResponse]:
@@ -60,3 +61,8 @@ class ArticleService:
     async def delete_article(self, article_id: PydanticObjectId) -> bool:
         return await self._article_repository.delete_by_id(article_id)
 
+    #권한 검증
+    async def delete_all_articles(self, amount : int | None) -> bool:
+        if amount is None:
+            return await self._article_repository.delete(amount = 0)
+        return await self._article_repository.delete(amount = amount)
