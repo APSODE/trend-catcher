@@ -9,11 +9,13 @@ from src.user_api.router.base_router import BaseRouter
 
 class UserRouter(BaseRouter):
     def __init__(self, db_controller: DatabaseController):
+class UserRouter(BaseRouter[UserAccountService]):
+    def __init__(self):
         super().__init__(
             prefix = "/user",
             tags = ["dev", "inner-connection-only"],
             response = {404: {"description": "Not Found"}},
-            db_controller = db_controller
+            get_service = _get_user_account_service,
         )
 
     @staticmethod
