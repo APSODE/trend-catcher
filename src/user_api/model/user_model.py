@@ -12,10 +12,9 @@ if TYPE_CHECKING:
 
 class UserModel(BaseModel):
     __tablename__ = "user"
-    account_id: Mapped[int] = mapped_column(ForeignKey("account.id"), unique = True)
-    name: Mapped[str] = mapped_column(String(MAX_NAME_LENGTH), nullable = False)
-    permission: Mapped[int] = mapped_column(default = 0, nullable = False)
-    interest: Mapped[list["UserCategoryModel"]] = relationship(
+    name: Mapped[str] = mapped_column(String(MAX_NAME_LENGTH), nullable=False)
+    permission: Mapped[int] = mapped_column(default=0, nullable=False)
+    interest: Mapped[List["UserCategoryModel"]] = relationship(
         "UserCategoryModel",
         back_populates = "user_model",
     )
