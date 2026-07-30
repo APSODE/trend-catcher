@@ -1,7 +1,11 @@
 import os.path
+
+from asyncio import run
+import src.user_api.model
+from urllib.parse import quote_plus
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.engine.base import Connection
-from src.user_api.utils.JsonReadWrite import JsonReadWrite
+from src.user_api.utils.json_read_write import JsonReadWrite
 from src.user_api.model.base_model import BaseModel
 
 
@@ -15,8 +19,8 @@ class _DatabaseAccount:
 
     def _read_data(self) -> None:
         ac_data = JsonReadWrite.read(self._account_data_file)
-        self._id = ac_data.get("id")
-        self._pw = ac_data.get("pw")
+        self._id = quote_plus(ac_data.get("id"))
+        self._pw = quote_plus(ac_data.get("pw"))
 
     @property
     def id(self):
@@ -49,8 +53,7 @@ class DatabaseCreator:
             cls._DatabaseCreator__init = True
             self._database_account = _DatabaseAccount()
             self._engine = self._create_engine()
-            self._session = self._create_session()
-            self.init_db()
+            self._session = self._create_session_factory()
 
     @property
     def session(self):
@@ -73,8 +76,8 @@ class DatabaseCreator:
 
     def _create_engine(self) -> AsyncEngine:
         return create_async_engine(
-            f"oracle-db-address",
-            echo = False,
+            f"oracle+oracledb_async://{self._database_account.id}:{self._database_account.pw}@localhost:51521/?service_name=trend_catcher",
+            echo = True,
         )
 
     def _create_session_factory(self) -> async_sessionmaker[AsyncSession]:

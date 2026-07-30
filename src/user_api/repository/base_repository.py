@@ -22,10 +22,14 @@ class BaseRepository(Generic[ModelType]):
         return self._db_controller
 
 
-    async def add_data(self, new_data: ModelType | List[ModelType],with_commit: bool = False) -> None:
-        await self.db_controller.add(new_data, with_commit)
+    async def add_data(self,
+                       new_data: ModelType | List[ModelType],
+                       with_flush: bool = False) -> None:
+        await self.db_controller.add(new_data, with_flush)
 
-    async def find(self, filter: Optional[ColumnElement[bool]] = None, amount: int = 0) -> List[ModelType]:
+    async def find(self,
+                   filter: Optional[ColumnElement[bool]] = None,
+                   amount: int = 0) -> List[ModelType]:
         return await self._db_controller.get(self._model_class, filter = filter, amount = amount)
 
     async def find_one(self, filter: ColumnElement[bool]) -> Optional[ModelType]:
@@ -38,44 +42,44 @@ class BaseRepository(Generic[ModelType]):
     async def get_by_id(self, target_id: int) -> Optional[ModelType]:
         return await self.find_one(filter = self._model_class.id == target_id)
 
-    async def update(
-            self,
-            filter: ColumnElement[bool],
-            update_data: dict,
-            with_commit: bool = False,
-    ) -> None:
+    async def update(self,
+                     filter: ColumnElement[bool],
+                     update_data: dict,
+                     with_flush: bool = False) -> None:
         await self._db_controller.update(
             self._model_class,
             update_data = update_data,
             filter = filter,
-            with_commit = with_commit,
+            with_flush = with_flush,
         )
 
-    async def update_by_id(self, target_id: int, update_data: dict, with_commit: bool = False) -> None:
-        await self.update(
-            filter = self._model_class.id == target_id,
-            update_data = update_data,
-            with_commit = with_commit,
-        )
+    async def update_by_id(self,
+                           target_id: int,
+                           update_data: dict,
+                           with_flush: bool = False) -> None:
 
-    async def delete(
-            self,
-            filter: Optional[ColumnElement[bool]] = None,
-            amount: int = 1,
-            with_commit: bool = False,
-    ) -> None:
+        await self.update(filter = self._model_class.id == target_id,
+                          update_data = update_data,
+                          with_flush = with_flush)
+
+    async def delete(self,
+                     filter: Optional[ColumnElement[bool]] = None,
+                     amount: int = 1,
+                     with_flush: bool = False) -> None:
         await self._db_controller.delete(
             self._model_class,
             filter = filter,
             amount = amount,
-            with_commit = with_commit,
+            with_flush = with_flush,
         )
 
-    async def delete_by_id(self, target_id: int, with_commit: bool = False) -> None:
+    async def delete_by_id(self,
+                           target_id: int,
+                           with_flush: bool = False) -> None:
         await self.delete(
             filter = self._model_class.id == target_id,
             amount = 1,
-            with_commit = with_commit,
+            with_flush = with_flush,
         )
 
     async def is_exist(self, filter: ColumnElement[bool]) -> bool:
