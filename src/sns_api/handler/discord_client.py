@@ -20,10 +20,20 @@ class PermanentWebhookError(Exception):
 def build_payload(bundle: NewsBundleData, slot_label: str) -> dict:
     fields = []
     if bundle.major:
-        lines = [f"{i}. {item.title}" for i, item in enumerate(bundle.major, start=1)]
+        lines = []
+        for i, item in enumerate(bundle.major, start=1):
+            if item.url:
+                lines.append(f"{i}. [{item.title}]({item.url})")
+            else:
+                lines.append(f"{i}. {item.title}")
         fields.append({"name": "📰 주요 뉴스", "value": "\n".join(lines)})
     if bundle.personalized:
-        lines = [f"{i}. {item.title}" for i, item in enumerate(bundle.personalized, start=1)]
+        lines = []
+        for i, item in enumerate(bundle.personalized, start=1):
+            if item.url:
+                lines.append(f"{i}. [{item.title}]({item.url})")
+            else:
+                lines.append(f"{i}. {item.title}")
         fields.append({"name": "✨ 맞춤 뉴스", "value": "\n".join(lines)})
 
     return {
