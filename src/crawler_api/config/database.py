@@ -35,6 +35,6 @@ async def lifespan(app: FastAPI):
     await client.close()
 
 
-#TODO 여기 코드 더 공부(1줄씩 기능 분석)
+
+
 #TODO lifespan, failfast 식 알아보기
-#TODO Repository 코드 수정
