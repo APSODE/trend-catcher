@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.llm_api.repository.news_analysis_repository import NewsAnalysisRepository
 from src.llm_api.repository.topic_repository import TopicRepository
 
-class ReliabilityService:
+class ScoringService:
     CONTENT_WEIGHT = 0.35
     CROSS_CHECK_WEIGHT = 0.65
     CROSS_CHECK_MAX = 6  # TODO: 돌려보며 조정필요
