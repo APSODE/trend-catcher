@@ -1,11 +1,13 @@
 from hmac import compare_digest
 from src.user_api.constant.account_constant import SALT_LENGTH
 from src.user_api.dto.request_data import LoginRequest, RegisterRequest, DeleteRequest
-from src.user_api.exceptions.account_exceptions import IsAlreadyExistLoginID
+from src.user_api.dto.token_data import TokenPair
+from src.user_api.exceptions.account_exceptions import IsAlreadyExistLoginID, InvalidCredentialData
 from src.user_api.repository.account_repository import AccountRepository
 from src.user_api.repository.user_repository import UserRepository
 from src.user_api.service.base_service import BaseService
 from src.user_api.utils.hash_util import HashUtil
+from src.user_api.utils.jwt_util import JwtUtil
 
 
 class UserAccountService(BaseService):
@@ -34,18 +36,35 @@ class UserAccountService(BaseService):
             with_flush = True
         )
 
-    async def login(self, login_data: LoginRequest) -> bool:
+    async def login(self, login_data: LoginRequest) -> TokenPair:
         target_account = await self.__account_repository.get_account_by_login_id(login_id = login_data.login_id)
 
         if target_account is None:
-            return False
+            raise InvalidCredentialData()
 
         hashed_input_password = HashUtil.get_hashed_string(
             target = login_data.password,
             salt = target_account.personal_salt
         )
 
-        return compare_digest(hashed_input_password, target_account.hashed_password)
+        compare_result = compare_digest(hashed_input_password, target_account.hashed_password)
+
+        if not compare_result:
+            raise InvalidCredentialData()
+
+        return TokenPair(
+            access_token = JwtUtil.create_access_token(target_account.id),
+            refresh_token = JwtUtil.create_refresh_token(target_account.id)
+        )
+
+    async def refresh_token(self, target_token: str) -> TokenPair:
+        account_id = JwtUtil.decode_token(target_token, expected_type = "refresh")
+
+        return TokenPair(
+            access_token = JwtUtil.create_access_token(account_id),
+            refresh_token = JwtUtil.create_refresh_token(account_id),
+        )
+
 
     async def delete(self, delete_data: DeleteRequest):
         await self.__account_repository.delete_by_login_id(delete_data.login_id)
