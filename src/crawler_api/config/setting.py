@@ -1,5 +1,7 @@
 from functools import lru_cache
 
+
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from pathlib import Path
@@ -16,9 +18,14 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    mongodb_uri: str
-    mongodb_name: str = "crawler-api"
+    mongodb_uri : SecretStr
+    mongodb_name : str
+
     app_name: str = "Crawler API"
+
+    #llm api url env에 추가
+    #llm_api_url : SecretStr
+    #llm_api_timeout : float = 30.0
 
 @lru_cache
 def get_settings() -> Settings:
