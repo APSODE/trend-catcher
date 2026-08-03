@@ -5,7 +5,8 @@ from starlette.requests import Request
 
 from src.user_api.db.db_creator import DatabaseCreator
 from src.user_api.db.user_account_context import UserAccountContext
-from src.user_api.dto.request_data import RegisterRequest, LoginRequest, DeleteRequest
+from src.user_api.dto.request_data import RegisterRequest, LoginRequest, DeleteRequest, RefreshRequest
+from src.user_api.dto.token_data import TokenPair
 from src.user_api.repository.user_repository import UserRepository
 from src.user_api.repository.account_repository import AccountRepository
 from src.user_api.router.base_router import BaseRouter
@@ -42,16 +43,19 @@ class UserRouter(BaseRouter[UserAccountService]):
         )
 
     def setup_routes(self):
-        @self.post("/register")
+        @self.put("/register")
         async def register(request: RegisterRequest, service: UserAccountService = Depends(self._get_service)):
             await service.register(request)
             return {"message": "success"}
 
-        @self.post("/login")
+        @self.post("/login", response_model = TokenPair)
         async def login(request: LoginRequest, service: UserAccountService = Depends(self._get_service)):
-            is_success = await service.login(request)
-            return {"success": is_success}
+            return await service.login(request)
 
-        @self.post("/delete-user")
+        @self.delete("/delete-user")
         async def delete(request: DeleteRequest, service: UserAccountService = Depends(self._get_service)):
             await service.delete(request)
+
+        @self.post("/refresh", response_model = TokenPair)
+        async def refresh(request: RefreshRequest, service: UserAccountService = Depends(self._get_service)):
+            return await service.refresh_token(request.refresh_token)
