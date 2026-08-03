@@ -21,3 +21,7 @@ class LoginRequest(BaseModel):
 
 class DeleteRequest(BaseModel):
     login_id: str
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
