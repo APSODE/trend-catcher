@@ -6,8 +6,6 @@ from fastapi import APIRouter, Depends
 from src.crawler_api.dependencies.article import get_article_service
 from src.crawler_api.schemas.article import ArticleRead, ArticleResponse, ArticleCreate, ArticleUpdate
 from src.crawler_api.service.article_service import ArticleService
-from src.crawler_api.service.crawling_pipeline import CrawlingPipeline
-
 router = APIRouter(
     prefix="/article",
     tags=["Article"],
@@ -23,8 +21,7 @@ async def get_all_articles(
 async def get_articles_today(
         service : ArticleService = Depends(get_article_service),
         limit : int | None = None):
-    result = await CrawlingPipeline.run_all_today(None, limit=limit)
-    return await service.create_articles(result)
+    return await service.create_articles_today(None, limit = limit)
 
 @router.delete("/delete_all", response_model = bool)
 async def delete_all_articles(

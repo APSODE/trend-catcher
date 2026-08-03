@@ -2,10 +2,12 @@ from datetime import datetime
 
 from beanie import SortDirection, PydanticObjectId
 
+from src.crawler_api.constant.news_sitemap import SitemapType, NewsSitemap
 from src.crawler_api.exception.create_error_exception import CreateErrorException
 from src.crawler_api.exception.not_found_exception import NotFoundException
 from src.crawler_api.repository.article_repository import ArticleRepository
 from src.crawler_api.schemas.article import ArticleRead, ArticleResponse, ArticleCreate, ArticleUpdate
+from src.crawler_api.service.crawling_pipeline import CrawlingPipeline
 
 
 class ArticleService:
@@ -49,6 +51,12 @@ class ArticleService:
             return []
         return result
 
+    async def create_articles_today(self, sources : list[NewsSitemap] | None = None, limit : int | None = None) -> list[PydanticObjectId]:
+        if sources is None:
+            sources = list(NewsSitemap)
+        today_crawled_articles = await CrawlingPipeline.run_all_today(sources = sources, limit=limit)
+        return await self.create_articles(today_crawled_articles)
+
     async def update_article(self, article_id: PydanticObjectId, article: ArticleUpdate) -> ArticleRead:
         update_data = article.model_dump(exclude_unset=True, exclude_none=True)
 
@@ -66,3 +74,5 @@ class ArticleService:
         if amount is None:
             return await self._article_repository.delete(amount = 0)
         return await self._article_repository.delete(amount = amount)
+
+

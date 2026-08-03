@@ -79,7 +79,7 @@ class CrawlingPipeline:
         return articles
 
     @staticmethod
-    async def run_all_today(source : list[NewsSitemap] | None, limit: int | None = None) ->list[ArticleCreate]:
-        if source is None:
-            source = list(NewsSitemap)
-        return await CrawlingPipeline.run_all(source, datetime.today(), limit=limit)
+    async def run_all_today(sources : list[NewsSitemap] | None = None, limit: int | None = None) ->list[ArticleCreate]:
+        if sources is None:
+            sources = list(NewsSitemap)
+        return await CrawlingPipeline.run_all(sources, datetime.today(), limit=limit)
