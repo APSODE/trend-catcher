@@ -13,18 +13,6 @@ from src.user_api.router.base_router import BaseRouter
 from src.user_api.service.user_account_service import UserAccountService
 
 
-async def _get_user_account_context() -> AsyncGenerator[UserAccountContext, None]:
-    context = UserAccountContext(
-        session_factory = DatabaseCreator().session,
-        repository_factories = {
-            UserRepository: UserRepository,
-            AccountRepository: AccountRepository,
-        }
-    )
-
-    async with context:
-        yield context
-
 
 async def _get_user_account_service(context: UserAccountContext = Depends(_get_user_account_context)) -> UserAccountService:
     return UserAccountService(
