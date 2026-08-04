@@ -11,14 +11,14 @@ class AccountRepository(BaseRepository[AccountModel]):
         super().__init__(db_controller, AccountModel)
 
     async def create_account(self,
-                             user_id: int,
+                             user_pk: int,
                              login_id: str,
                              hashed_password: HashedString,
                              personal_salt: str,
                              with_flush: bool = False):
         await self.add_data(
             new_data = AccountModel.create_model(
-                user_id = user_id,
+                user_fk= user_pk,
                 login_id = login_id,
                 hashed_password = hashed_password,
                 personal_salt = personal_salt
@@ -26,17 +26,17 @@ class AccountRepository(BaseRepository[AccountModel]):
             with_flush = with_flush
         )
 
-    async def get_account_by_id(self, account_id: int) -> Optional[AccountModel]:
-        return await self.find_one(self.model_class.id == account_id)
+    async def get_account_by_pk(self, account_pk: int) -> Optional[AccountModel]:
+        return await self.find_one(self.model_class.pk == account_pk)
 
     async def get_account_by_login_id(self, login_id: str) -> Optional[AccountModel]:
         return await self.find_one(self.model_class.login_id == login_id)
 
     # 반드시 new_password는 hash된 문자열이여야함.
     # 추후 리팩토링 고려
-    async def update_password(self, target_account_id: int, new_password: str, new_salt: str, with_flush: bool = False):
-        await self.update_by_id(
-            target_id = target_account_id,
+    async def update_password(self, target_account_pk: int, new_password: str, new_salt: str, with_flush: bool = False):
+        await self.update_by_pk(
+            target_pk = target_account_pk,
             update_data = {"hashed_password": new_password, "personal_salt": new_salt},
             with_flush = with_flush
         )

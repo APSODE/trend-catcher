@@ -29,7 +29,7 @@ class UserAccountService(BaseService):
         hashed_password = HashUtil.get_hashed_string(register_data.password, new_salt)
 
         await self.__account_repository.create_account(
-            user_id = new_user.id,
+            user_pk = new_user.pk,
             login_id = register_data.login_id,
             hashed_password = hashed_password,
             personal_salt = new_salt,
@@ -53,8 +53,8 @@ class UserAccountService(BaseService):
             raise InvalidCredentialData()
 
         return TokenPair(
-            access_token = JwtUtil.create_access_token(target_account.id),
-            refresh_token = JwtUtil.create_refresh_token(target_account.id)
+            access_token = JwtUtil.create_access_token(target_account.pk),
+            refresh_token = JwtUtil.create_refresh_token(target_account.pk)
         )
 
     async def refresh_token(self, target_token: str) -> TokenPair:

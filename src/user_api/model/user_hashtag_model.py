@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 class UserCategoryModel(BaseModel):
     __tablename__ = "user_interest_category"
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
-    category_id: Mapped[int] = mapped_column(ForeignKey("category.id"))
+    user_fk: Mapped[int] = mapped_column(ForeignKey("user.pk"))
+    hashtag_fk: Mapped[int] = mapped_column(ForeignKey("hashtag.pk"))
 
     user_model: Mapped["UserModel"] = relationship(
         "UserModel",

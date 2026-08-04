@@ -39,8 +39,8 @@ class BaseRepository(Generic[ModelType]):
     async def find_all(self, filter: ColumnElement[bool]) -> List[ModelType]:
         return await self.find(filter)
 
-    async def get_by_id(self, target_id: int) -> Optional[ModelType]:
-        return await self.find_one(filter = self._model_class.id == target_id)
+    async def get_by_pk(self, target_pk: int) -> Optional[ModelType]:
+        return await self.find_one(filter =self._model_class.pk == target_pk)
 
     async def update(self,
                      filter: ColumnElement[bool],
@@ -53,12 +53,12 @@ class BaseRepository(Generic[ModelType]):
             with_flush = with_flush,
         )
 
-    async def update_by_id(self,
-                           target_id: int,
+    async def update_by_pk(self,
+                           target_pk: int,
                            update_data: dict,
                            with_flush: bool = False) -> None:
 
-        await self.update(filter = self._model_class.id == target_id,
+        await self.update(filter =self._model_class.pk == target_pk,
                           update_data = update_data,
                           with_flush = with_flush)
 
@@ -73,11 +73,11 @@ class BaseRepository(Generic[ModelType]):
             with_flush = with_flush,
         )
 
-    async def delete_by_id(self,
+    async def delete_by_pk(self,
                            target_id: int,
                            with_flush: bool = False) -> None:
         await self.delete(
-            filter = self._model_class.id == target_id,
+            filter =self._model_class.pk == target_id,
             amount = 1,
             with_flush = with_flush,
         )

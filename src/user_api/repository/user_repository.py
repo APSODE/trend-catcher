@@ -25,25 +25,25 @@ class UserRepository(BaseRepository[UserModel]):
         return new_user
 
     async def update_name(self,
-                          user_id: int,
+                          user_pk: int,
                           new_name: str,
                           with_flush: bool = False) -> None:
-        await self.update_by_id(
-            target_id = user_id,
+        await self.update_by_pk(
+            target_pk = user_pk,
             update_data = {"name": new_name},
             with_flush = with_flush,
         )
 
     async def update_user_permission(self,
-                                     user_id: int,
+                                     user_pk: int,
                                      new_permission: int | Permission,
                                      with_flush: bool = False) -> None:
         perm_value = new_permission
         if isinstance(new_permission, Permission):
             perm_value = new_permission.value
 
-        await self.update_by_id(
-            target_id = user_id,
+        await self.update_by_pk(
+            target_pk = user_pk,
             update_data = {"permission": perm_value},
             with_flush = with_flush
         )
