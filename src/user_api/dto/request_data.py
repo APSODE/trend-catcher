@@ -27,11 +27,11 @@ class RefreshRequest(BaseModel):
     refresh_token: str
 
 class FollowHashtagRequest(BaseModel):
-    target_user_pk: int
+    target_user_pk: int #TODO JWT에서 USER.PK를 가져올수 있도록 수정하여 payload에 pk를 입력하지 않도록 삭제 해야함
     target_hashtag: HashtagData
 
 class UnfollowHashtagRequest(BaseModel):
-    target_user_pk: int
+    target_user_pk: int #TODO JWT에서 USER.PK를 가져올수 있도록 수정하여 payload에 pk를 입력하지 않도록 삭제 해야함
     target_hashtag: HashtagData
 
 # # ==== 사용..? 안할수도...?

@@ -13,6 +13,7 @@ from src.user_api.constant.auth_constant import (
 )
 from src.user_api.exceptions.auth_exceptions import InvalidToken, ExpiredToken
 
+#TODO JWT 인증과정을 Redis를 이용한 별도의 인증과정으로 구현해야함
 
 class JwtUtil:
     @staticmethod
