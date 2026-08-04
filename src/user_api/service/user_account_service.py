@@ -1,5 +1,12 @@
 from hmac import compare_digest
+
+from fastapi import Depends
+
 from src.user_api.constant.account_constant import SALT_LENGTH
+from src.user_api.db.context.user_account_context import (
+    UserAccountContext,
+    get_user_account_context as _get_user_account_context
+)
 from src.user_api.dto.request_data import LoginRequest, RegisterRequest, DeleteRequest
 from src.user_api.dto.token_data import TokenPair
 from src.user_api.exceptions.account_exceptions import IsAlreadyExistLoginID, InvalidCredentialData
@@ -75,4 +82,10 @@ class UserAccountService(BaseService):
 
         return True
 
+
+async def get_user_account_service(context: UserAccountContext = Depends(_get_user_account_context)) -> UserAccountService:
+    return UserAccountService(
+        account_repository = context.accounts,
+        user_repository = context.users,
+    )
 
