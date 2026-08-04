@@ -1,9 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 class CrawledArticleData(BaseModel):
     url: str
-    id: str
+    crawled_id: str = Field(alias="id")
     title: str
     company_name: str
     crawled_at: datetime
