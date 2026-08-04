@@ -2,7 +2,7 @@ from datetime import datetime
 
 from beanie import SortDirection, PydanticObjectId
 
-from src.crawler_api.constant.news_sitemap import SitemapType, NewsSitemap
+from src.crawler_api.constant.news_sitemap import NewsSitemap
 from src.crawler_api.exception.create_error_exception import CreateErrorException
 from src.crawler_api.exception.not_found_exception import NotFoundException
 from src.crawler_api.repository.article_repository import ArticleRepository
