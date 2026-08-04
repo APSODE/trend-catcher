@@ -1,4 +1,4 @@
-from typing import AsyncGenerator, Callable, Dict, Type, TypeVar
+from typing import Callable, Dict, Type, TypeVar
 
 from src.user_api.db.db_controller import DatabaseController
 from src.user_api.repository.base_repository import BaseRepository
