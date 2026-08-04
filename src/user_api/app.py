@@ -4,9 +4,15 @@ from typing import List
 from fastapi import FastAPI
 
 from src.user_api.db.db_creator import DatabaseCreator
+from src.user_api.handler.exception_handler.auth_exception_handler import ExpiredTokenExceptionHandler, \
+    MismatchTokenTypeExceptionHandler
 from src.user_api.handler.exception_handler.base_exception_handler import BaseExceptionHandler
 from src.user_api.handler.exception_handler.account_exception_handler import InvalidCredentialDataHandler, IsAlreadyExistLoginIDHandler
+from src.user_api.handler.exception_handler.hashtag_exception_handler import UnknownHashtagDataExceptionHandler
+from src.user_api.handler.exception_handler.relation_exception_handler import NotFollowedHashtagExceptionHandler
+from src.user_api.handler.exception_handler.user_exception_handler import UnknownUserDataExceptionHandler
 from src.user_api.router.base_router import BaseRouter
+from src.user_api.router.test_router import TestRouter
 from src.user_api.router.user_router import UserRouter
 
 
@@ -35,6 +41,12 @@ class UserAPI(FastAPI):
         handlers: List[BaseExceptionHandler] = [
             InvalidCredentialDataHandler(),
             IsAlreadyExistLoginIDHandler(),
+            UnknownHashtagDataExceptionHandler(),
+            UnknownUserDataExceptionHandler(),
+            NotFollowedHashtagExceptionHandler(),
+            InvalidCredentialDataHandler(),
+            ExpiredTokenExceptionHandler(),
+            MismatchTokenTypeExceptionHandler()
         ]
 
         for handler in handlers:
@@ -45,6 +57,7 @@ class UserAPI(FastAPI):
     def _setup_routers(self) -> None:
         routers: List[BaseRouter] = [
             UserRouter(),
+            TestRouter()
         ]
 
         for router in routers:
