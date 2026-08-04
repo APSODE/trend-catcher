@@ -1,0 +1,25 @@
+from fastapi import Depends
+
+from src.user_api.db.db_creator import DatabaseCreator
+from src.user_api.router.base_router import BaseRouter
+from src.user_api.service.test_service import TestService, get_test_service
+
+
+class TestRouter(BaseRouter):
+    def __init__(self):
+        super().__init__(
+            prefix = "/test",
+            tags = ["dev-only"],
+            response = {403: {"description": "개발 환경에서만 사용 가능"}},
+        )
+
+    def setup_routes(self):
+        @self.post("/reset-db")
+        async def reset_db(service: TestService = Depends(get_test_service)):
+            await service.reset_all()
+            return {"message": "DB가 초기화되었습니다."}
+
+        @self.post("/drop-db")
+        async def drop_db(service: TestService = Depends(get_test_service)):
+            await service.drop_all()
+            return {"message": "모든 테이블이 삭제되었습니다."}
