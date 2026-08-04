@@ -1,11 +1,12 @@
-from datetime import datetime, time, date
+from datetime import datetime
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends
-
+from fastapi import APIRouter, Depends, Query
 from src.crawler_api.dependencies.article import get_article_service
 from src.crawler_api.schemas.article import ArticleRead, ArticleResponse, ArticleCreate, ArticleUpdate
 from src.crawler_api.service.article_service import ArticleService
+from src.crawler_api.util.normalize_datetime import normalize_datetime
+
 router = APIRouter(
     prefix="/article",
     tags=["Article"],
@@ -23,29 +24,28 @@ async def get_articles_today(
         limit : int | None = None):
     return await service.create_articles_today(None, limit = limit)
 
+@router.get("/articles_date", response_model = list[ArticleResponse])
+async def get_articles_by_date(
+        datetime_value: datetime = Query(default = datetime.now().replace(microsecond = 0)),
+        service : ArticleService = Depends(get_article_service)
+):
+    return await service.get_article_by_date(normalize_datetime(datetime_value))
 @router.delete("/delete_all", response_model = bool)
 async def delete_all_articles(
         service : ArticleService = Depends(get_article_service),
         amount : int | None = None
 ):
     return await service.delete_all_articles(amount = amount)
-@router.get("/{date_value}/{time_value}", response_model=list[ArticleResponse])
-async def get_articles_by_date(
-        date_value: date,
-        time_value : time,
-        service : ArticleService = Depends(get_article_service)
-):
-    target_datetime = datetime.combine(date_value, time_value)
-    return await service.get_article_by_date(target_datetime)
 
-@router.get("/{article_id}", response_model=ArticleRead)
+
+@router.get("/{article_id}", response_model = ArticleRead)
 async def get_article(
         article_id: PydanticObjectId,
         service : ArticleService = Depends(get_article_service)
 ):
     return await service.get_article_by_id(article_id)
 
-@router.post("/", response_model=PydanticObjectId, status_code=201)
+@router.post("/", response_model = PydanticObjectId, status_code = 201)
 async def create_article(
         article_data : ArticleCreate,
         service : ArticleService = Depends(get_article_service)
@@ -66,4 +66,3 @@ async def update_article(
         service : ArticleService = Depends(get_article_service)
 ):
     return await service.update_article(article_id, article_date)
-
