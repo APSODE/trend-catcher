@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.user_api.constant.permission import Permission
 from src.user_api.constant.user_model_constant import MAX_NAME_LENGTH
 from src.user_api.model.base_model import BaseModel
-from src.user_api.model.user_category_model import UserCategoryModel
+from src.user_api.model.user_hashtag_model import UserHashtagModel
 
 if TYPE_CHECKING:
     from src.user_api.model.account_model import AccountModel
@@ -14,8 +14,8 @@ class UserModel(BaseModel):
     __tablename__ = "user"
     name: Mapped[str] = mapped_column(String(MAX_NAME_LENGTH), nullable = False)
     permission: Mapped[int] = mapped_column(default = 0, nullable = False)
-    interest: Mapped[List["UserCategoryModel"]] = relationship(
-        "UserCategoryModel",
+    interest: Mapped[List["UserHashtagModel"]] = relationship(
+        "UserHashtagModel",
         back_populates = "user_model",
     )
 
