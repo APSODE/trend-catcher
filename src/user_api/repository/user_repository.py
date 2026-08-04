@@ -52,5 +52,11 @@ class UserRepository(BaseRepository[UserModel]):
         return await self.find_all(self.model_class.name == target_name)
 
 
+    async def is_exist_pk(self, target_pk: int) -> bool:
+        return await self.is_exist(filter = self.model_class.pk == target_pk)
+
+
+
+
 
 
