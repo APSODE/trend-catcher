@@ -1,4 +1,4 @@
-from src.llm_api.core.setting import get_settings
+from src.llm_api.core.settings import get_settings
 from collections.abc import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, AsyncSession, async_sessionmaker
 
@@ -19,7 +19,7 @@ SessionFactory: async_sessionmaker[AsyncSession] = async_sessionmaker(
 )
 
 #세션 동작부
-async def get_session() -> AsyncGenerator[AsyncSession]: #None은 무슨역할인지?
+async def get_session() -> AsyncGenerator[AsyncSession]:
     async with SessionFactory() as session:
         try:
             yield session #일 하라고 보내놓고 대기
