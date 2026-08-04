@@ -1,3 +1,3 @@
 .idea
-.env
-src/crawler_api/atlas-credentials.env
+*.env
+*.pyc
