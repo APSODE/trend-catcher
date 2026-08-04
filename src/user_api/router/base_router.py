@@ -8,13 +8,12 @@ from src.user_api.service.base_service import BaseService
 T = TypeVar("T", bound = BaseService)
 
 
-class BaseRouter(APIRouter, Generic[T], ABC):
+class BaseRouter(APIRouter, ABC):
     def __init__(
             self,
             prefix: str,
             tags: List[str],
-            response: Dict[int, Dict[str, Any]],
-            get_service: Callable[..., Awaitable[T]],
+            response: Dict[int, Dict[str, Any]]
     ):
         super().__init__(
             prefix = prefix,
@@ -22,7 +21,6 @@ class BaseRouter(APIRouter, Generic[T], ABC):
             responses = response,
         )
 
-        self._get_service = get_service
         self.setup_routes()
 
     @abstractmethod
