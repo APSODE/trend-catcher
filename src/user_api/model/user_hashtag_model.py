@@ -5,11 +5,11 @@ from src.user_api.model.base_model import BaseModel
 
 if TYPE_CHECKING:
     from src.user_api.model.user_model import UserModel
-    from src.user_api.model.category_model import CategoryModel
+    from src.user_api.model.hashtag_model import HashtagModel
 
 
-class UserCategoryModel(BaseModel):
-    __tablename__ = "user_interest_category"
+class UserHashtagModel(BaseModel):
+    __tablename__ = "user_hashtag"
 
     user_fk: Mapped[int] = mapped_column(ForeignKey("user.pk"))
     hashtag_fk: Mapped[int] = mapped_column(ForeignKey("hashtag.pk"))
@@ -19,8 +19,8 @@ class UserCategoryModel(BaseModel):
         back_populates = "interest",
     )
 
-    category_model: Mapped["CategoryModel"] = relationship(
-        "CategoryModel",
+    hashtag_model: Mapped["HashtagModel"] = relationship(
+        "HashtagModel",
         back_populates = "interested_user"
     )
 
