@@ -1,8 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
-def normalize_datetime(dt: datetime | None) -> datetime | None:
-    if dt is None:
-        return None
-    if dt.tzinfo is not None:
-        dt = dt.replace(tzinfo = None)
+
+def normalize_datetime(dt: datetime) -> datetime:
+    dt = dt.replace(tzinfo = None, microsecond = 0)
     return dt

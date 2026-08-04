@@ -5,6 +5,7 @@ from beanie import PydanticObjectId, SortDirection
 from src.crawler_api.model.article import Article
 from src.crawler_api.repository.base_repository import BaseRepository
 from src.crawler_api.schemas.article import ArticleCreate, ArticleUpdate
+from src.crawler_api.util.normalize_datetime import normalize_datetime
 
 
 class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
@@ -15,7 +16,7 @@ class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
         exist_data = await self.get_by_url(schema.url)
         if exist_data:
             update_date = schema.model_dump(exclude_unset = True, exclude_none= True)
-            update_date["db_updated_at"] = datetime.now()
+            update_date["db_updated_at"] = normalize_datetime(datetime.now())
             await exist_data.set(update_date)
             return exist_data.id
         document = Article(**schema.model_dump())
@@ -31,7 +32,7 @@ class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
                 update_schema = (ArticleUpdate(**schema.model_dump()))
                 update_data = update_schema.model_dump(exclude_unset=True, exclude_none=True)
 
-                update_data["db_updated_at"] = datetime.now()
+                update_data["db_updated_at"] = normalize_datetime(datetime.now())
                 await exist_data.set(update_data)
                 if exist_data.id is not None:
                     ids.append(exist_data.id)
@@ -53,12 +54,27 @@ class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
         update_data = schema.model_dump(exclude_unset = True, exclude_none= True)
         if not update_data:
             return None
-        update_data["db_updated_at"] = datetime.now()
+        update_data["db_updated_at"] = normalize_datetime(datetime.now())
 
         result = await self.update({"url": url}, update_data = update_data)
         if result is None:
             return None
         return result[0]
+
+
+    async def update_by_id(self, target_id : PydanticObjectId, update_date : dict) -> Article | None:
+        if not update_date:
+            return None
+        update_date["db_updated_at"] = normalize_datetime(datetime.now())
+
+        document = await self.get_by_id(target_id)
+
+        if document is None:
+            return None
+
+        await document.set(update_date)
+        return document
+
 
 
     async def get_by_company(

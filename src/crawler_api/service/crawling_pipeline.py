@@ -6,6 +6,7 @@ from src.crawler_api.schemas.article import ArticleCreate
 from src.crawler_api.service.url_extractor.url_extractor_factory import UrlExtractorFactory
 from src.crawler_api.service.url_fetcher.url_fetcher_factory import UrlFetcherFactory
 from src.crawler_api.service.url_parser.url_parser_factory import UrlParserFactory
+from src.crawler_api.util.normalize_datetime import normalize_datetime
 
 
 class CrawlingPipeline:
@@ -22,7 +23,7 @@ class CrawlingPipeline:
         self.__parser = UrlParserFactory.create(source)
 
     async def run(self, date: datetime, limit: int | None = None) -> list[ArticleCreate]:
-        sitemap_url = self.__source.value.get_url(date)
+        sitemap_url = self.__source.value.get_url(normalize_datetime(date))
 
         sitemap_content = await self.__fetcher.fetch(sitemap_url)
         urls = await self.__extractor.parse(sitemap_content, self.__source.value.selector, sitemap_url)
@@ -41,7 +42,7 @@ class CrawlingPipeline:
         parsed_result = await asyncio.gather(*(self.__parser.parse(content) for _, content in valid_pairs), return_exceptions=True)
 
         articles : list[ArticleCreate] = []
-        crawled_at = datetime.now()
+        crawled_at = normalize_datetime(datetime.now())
         for url, parsed in zip(valid_urls, parsed_result):
 
             if isinstance(parsed, Exception):
@@ -63,7 +64,7 @@ class CrawlingPipeline:
         return articles
 
     async def run_today(self, limit: int | None = None) -> list[ArticleCreate]:
-        return await self.run(datetime.today(), limit=limit)
+        return await self.run(normalize_datetime(datetime.today()), limit=limit)
 
     @staticmethod
     async def run_all(sources : list[NewsSitemap] | None, date : datetime, limit: int | None = None) ->list[ArticleCreate]:

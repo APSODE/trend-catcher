@@ -58,6 +58,6 @@ class ChosunPageParser(BasePageParser):
             content=" ".join(p.get_text(strip = True) for p in section.find_all("p") if p.get_text(strip = True)),
             reporter=reporter.get_text(strip=True) if reporter else None,
             category=category.get_text(strip=True) if category else None,
-            published_at=normalize_datetime(published_at),
+            published_at=normalize_datetime(published_at) if published_at else None,
             img_urls=img_urls)
 
