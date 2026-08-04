@@ -60,10 +60,7 @@ class BaseRepository(Generic[ModelType, IdType]):
         return await documents.to_list()
 
 
-    async def update_by_id(self,
-                           target_id : IdType,
-                           update_date : dict
-                           ) -> ModelType | None:
+    async def update_by_id(self, target_id : IdType, update_date : dict) -> ModelType | None:
         if not update_date:
             return None
 
