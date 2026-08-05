@@ -36,7 +36,7 @@ class BaseRepository(Generic[ModelType]):
         results = await self.find(filter, amount = 1)
         return results[0] if results else None
 
-    async def find_all(self, filter: Optional[ColumnElement[bool]] = None) -> List[Optional[ModelType]]:
+    async def find_all(self, filter: Optional[ColumnElement[bool]] = None) -> List[ModelType]:
         return await self.find(filter)
 
     async def get_by_pk(self, target_pk: int) -> Optional[ModelType]:
