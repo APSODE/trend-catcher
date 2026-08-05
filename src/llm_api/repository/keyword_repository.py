@@ -1,22 +1,20 @@
-from sqlalchemy.ext.asyncio import AsyncSession
+from src.llm_api.repository.base_repository import AbstractBaseRepository
 from src.llm_api.model.keyword_model import KeywordModel
-from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-class KeywordRepository:
-    #겹치는거 있나 조회
-    async def get(self, session: AsyncSession, keyword: str) -> KeywordModel | None:
-        query = select(KeywordModel).where(KeywordModel.keyword == keyword)
-        result = await session.execute(query)
-        return result.scalar_one_or_none()
+class KeywordRepository(AbstractBaseRepository[KeywordModel]):
+    def __init__(self, session: AsyncSession):
+        super().__init__(session, KeywordModel)
 
-    #새 키워드 추가
-    async def create(self, session:AsyncSession, keyword: str, embedding: list[float]) -> KeywordModel:
-        keyword = KeywordModel(keyword = keyword, embedding = embedding)
-        session.add(keyword)
-        await session.flush()
-        return keyword
+    #키워드로 찾기
+    async def find_by_keyword(self, keyword: str) -> KeywordModel | None:
+        return await self._find_one(KeywordModel.keyword == keyword)
 
-    #다 반환
-    async def get_all(self, session: AsyncSession) -> list[KeywordModel]:
-        result = await session.execute(select(KeywordModel))
-        return list(result.scalars().all())
+    #다 꺼내기
+    async def find_all(self) -> list[KeywordModel]:
+        return await self._find_all()
+
+    #모델 포장
+    async def create_keyword(self, keyword: str, embedding: list[float]) -> KeywordModel:
+        new_keyword = KeywordModel(keyword = keyword, embedding = embedding)
+        return await self.save(new_keyword)
