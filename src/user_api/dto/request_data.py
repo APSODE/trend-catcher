@@ -33,6 +33,13 @@ class FollowHashtagRequest(BaseModel):
 class UnfollowHashtagRequest(BaseModel):
     target_hashtag: HashtagData
 
+class NameQueryRequest(BaseModel):
+    name: str
+
+class PKQueryRequest(BaseModel):
+    pk: int
+
+
 # # ==== 사용..? 안할수도...?
 # class CreateHashtagRequest(HashtagData):
 #     pass # 이후 필요시 해싱값 추가 예정
