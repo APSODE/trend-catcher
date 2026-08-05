@@ -1,8 +1,5 @@
 from typing import Optional, Sequence
-
-from sqlalchemy.orm import InstrumentedAttribute
-
-from src.user_api.db.db_controller import DatabaseController
+from src.user_api.db import DatabaseController, RelationPath
 from src.user_api.model import HashtagModel
 from src.user_api.repository.base_repository import BaseRepository
 
@@ -21,7 +18,7 @@ class HashtagRepository(BaseRepository[HashtagModel]):
 
     async def get_by_tag_name(self,
                               target_name: str,
-                              load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> Optional[HashtagModel]:
+                              load_relations: Optional[Sequence[RelationPath]] = None) -> Optional[HashtagModel]:
         return await self.find_one(
             filter = self.model_class.name == target_name,
             load_relations = load_relations
@@ -37,7 +34,7 @@ class HashtagRepository(BaseRepository[HashtagModel]):
     async def delete_by_tag_name(self,
                                  target_name: str,
                                  with_flush: bool = False,
-                                 load_relations: Optional[Sequence[InstrumentedAttribute]] = None):
+                                 load_relations: Optional[Sequence[RelationPath]] = None):
         await self.delete(
             filter = self.model_class.name == target_name,
             load_relations = load_relations,
@@ -46,7 +43,7 @@ class HashtagRepository(BaseRepository[HashtagModel]):
 
     async def is_exist_by_tag_name(self,
                                    target_name: str,
-                                   load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> bool:
+                                   load_relations: Optional[Sequence[RelationPath]] = None) -> bool:
         return await self.is_exist(
             filter = self.model_class.name == target_name,
             load_relations = load_relations

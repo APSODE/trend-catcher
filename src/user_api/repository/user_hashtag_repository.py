@@ -1,8 +1,5 @@
 from typing import Optional, Sequence
-
-from sqlalchemy.orm import InstrumentedAttribute
-
-from src.user_api.db.db_controller import DatabaseController
+from src.user_api.db import DatabaseController, RelationPath
 from src.user_api.model import UserHashtagModel
 from src.user_api.repository.base_repository import BaseRepository
 
@@ -19,7 +16,7 @@ class UserHashtagRepository(BaseRepository[UserHashtagModel]):
     async def delete_relation(self,
                               user_pk: int,
                               hashtag_pk: int,
-                              load_relations: Optional[Sequence[InstrumentedAttribute]] = None,
+                              load_relations: Optional[Sequence[RelationPath]] = None,
                               with_flush: bool = False) -> None:
         await self.delete(
             filter = (self.model_class.user_fk == user_pk) & (self.model_class.hashtag_fk == hashtag_pk),
@@ -30,7 +27,7 @@ class UserHashtagRepository(BaseRepository[UserHashtagModel]):
     async def is_exist_relation(self,
                                 user_pk: int,
                                 hashtag_pk: int,
-                                load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> bool:
+                                load_relations: Optional[Sequence[RelationPath]] = None) -> bool:
         return await self.is_exist(
             filter = (self.model_class.user_fk == user_pk) & (self.model_class.hashtag_fk == hashtag_pk),
             load_relations = load_relations

@@ -1,9 +1,6 @@
 from typing import Optional, List, Sequence
-
-from sqlalchemy.orm import InstrumentedAttribute
-
 from src.user_api.constant.permission import Permission
-from src.user_api.db.db_controller import DatabaseController
+from src.user_api.db import DatabaseController, RelationPath
 from src.user_api.model.user_model import UserModel
 from src.user_api.repository.base_repository import BaseRepository
 
@@ -52,7 +49,7 @@ class UserRepository(BaseRepository[UserModel]):
 
     async def get_by_name(self,
                           target_name: str,
-                          load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> List[UserModel]:
+                          load_relations: Optional[Sequence[RelationPath]] = None) -> List[UserModel]:
         return await self.find_all(
             filter = self.model_class.name == target_name,
             load_relations = load_relations
@@ -61,7 +58,7 @@ class UserRepository(BaseRepository[UserModel]):
 
     async def is_exist_pk(self,
                           target_pk: int,
-                          load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> bool:
+                          load_relations: Optional[Sequence[RelationPath]] = None) -> bool:
         return await self.is_exist(
             filter = self.model_class.pk == target_pk,
             load_relations = load_relations

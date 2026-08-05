@@ -1,9 +1,6 @@
 from typing import Generic, List, Optional, Type, TypeVar, Sequence
-
-from sqlalchemy.orm import InstrumentedAttribute
 from sqlalchemy.sql.elements import ColumnElement
-
-from src.user_api.db.db_controller import DatabaseController
+from src.user_api.db import DatabaseController, RelationPath
 from src.user_api.model.base_model import BaseModel
 
 ModelType = TypeVar("ModelType", bound = BaseModel)
@@ -30,7 +27,7 @@ class BaseRepository(Generic[ModelType]):
 
     async def find(self,
                    filter: Optional[ColumnElement[bool]] = None,
-                   load_relations: Optional[Sequence[InstrumentedAttribute]] = None,
+                   load_relations: Optional[Sequence[RelationPath]] = None,
                    amount: int = 0) -> List[ModelType]:
         return await self._db_controller.get(
             model_class = self._model_class,
@@ -41,13 +38,13 @@ class BaseRepository(Generic[ModelType]):
 
     async def find_one(self,
                        filter: Optional[ColumnElement[bool]] = None,
-                       load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> Optional[ModelType]:
+                       load_relations: Optional[Sequence[RelationPath]] = None) -> Optional[ModelType]:
         results = await self.find(filter, load_relations, amount = 1)
         return results[0] if results else None
 
     async def find_all(self,
                        filter: Optional[ColumnElement[bool]] = None,
-                       load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> List[ModelType]:
+                       load_relations: Optional[Sequence[RelationPath]] = None) -> List[ModelType]:
         return await self.find(filter, load_relations)
 
     async def get_by_pk(self, target_pk: int) -> Optional[ModelType]:
@@ -75,7 +72,7 @@ class BaseRepository(Generic[ModelType]):
 
     async def delete(self,
                      filter: Optional[ColumnElement[bool]] = None,
-                     load_relations: Optional[Sequence[InstrumentedAttribute]] = None,
+                     load_relations: Optional[Sequence[RelationPath]] = None,
                      amount: int = 1,
                      with_flush: bool = False) -> None:
         await self._db_controller.delete(
@@ -88,7 +85,7 @@ class BaseRepository(Generic[ModelType]):
 
     async def delete_by_pk(self,
                            target_id: int,
-                           load_relations: Optional[Sequence[InstrumentedAttribute]] = None,
+                           load_relations: Optional[Sequence[RelationPath]] = None,
                            with_flush: bool = False) -> None:
         await self.delete(
             filter = self._model_class.pk == target_id,
@@ -99,7 +96,7 @@ class BaseRepository(Generic[ModelType]):
 
     async def is_exist(self,
                        filter: ColumnElement[bool],
-                       load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> bool:
+                       load_relations: Optional[Sequence[RelationPath]] = None) -> bool:
         results = await self._db_controller.get(
             model_class = self._model_class,
             filter = filter,

@@ -1,8 +1,6 @@
 from typing import Optional, Sequence
 
-from sqlalchemy.orm import InstrumentedAttribute
-
-from src.user_api.db.db_controller import DatabaseController
+from src.user_api.db import DatabaseController, RelationPath
 from src.user_api.model.account_model import AccountModel
 from src.user_api.repository.base_repository import BaseRepository
 from src.user_api.utils.hash_util import HashedString
@@ -30,7 +28,7 @@ class AccountRepository(BaseRepository[AccountModel]):
 
     async def get_account_by_pk(self,
                                 account_pk: int,
-                                load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> Optional[AccountModel]:
+                                load_relations: Optional[Sequence[RelationPath]] = None) -> Optional[AccountModel]:
         return await self.find_one(
             filter = self.model_class.pk == account_pk,
             load_relations = load_relations
@@ -38,7 +36,7 @@ class AccountRepository(BaseRepository[AccountModel]):
 
     async def get_account_by_login_id(self,
                                       login_id: str,
-                                      load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> Optional[AccountModel]:
+                                      load_relations: Optional[Sequence[RelationPath]] = None) -> Optional[AccountModel]:
         return await self.find_one(
             filter = self.model_class.login_id == login_id,
             load_relations = load_relations
@@ -55,7 +53,7 @@ class AccountRepository(BaseRepository[AccountModel]):
 
     async def delete_by_login_id(self,
                                  target_login_id: str,
-                                 load_relations: Optional[Sequence[InstrumentedAttribute]] = None):
+                                 load_relations: Optional[Sequence[RelationPath]] = None):
         await self.delete(
             filter = self.model_class.login_id == target_login_id,
             load_relations = load_relations
@@ -63,7 +61,7 @@ class AccountRepository(BaseRepository[AccountModel]):
 
     async def is_already_exist_login_id(self,
                                         new_login_id: str,
-                                        load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> bool:
+                                        load_relations: Optional[Sequence[RelationPath]] = None) -> bool:
         return await self.is_exist(
             filter = self.model_class.login_id == new_login_id,
             load_relations = load_relations
