@@ -1,8 +1,9 @@
 from collections.abc import Iterable
-from typing import List, Optional, Type, TypeVar, Any
+from typing import List, Optional, Type, TypeVar, Any, Sequence
 
 from sqlalchemy import select, update, Select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import InstrumentedAttribute, selectinload
 from sqlalchemy.sql.elements import ColumnElement
 
 from src.user_api.model.base_model import BaseModel
@@ -20,11 +21,16 @@ class DatabaseController:
 
     @staticmethod
     def __build_select(model_class: ModelType | Type[ModelType],
-                       filter: Optional[ColumnElement[bool]] = None) -> Select[tuple[Any]]:
+                       filter: Optional[ColumnElement[bool]] = None,
+                       load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> Select[tuple[Any]]:
         statement = select(model_class)
 
         if filter is not None:
             statement = statement.where(filter)
+
+        if load_relations:
+            for relation in load_relations:
+                statement = statement.options(selectinload(relation))
 
         return statement
 
@@ -48,9 +54,9 @@ class DatabaseController:
     async def get(self,
                   model_class: ModelType | Type[ModelType],
                   filter: Optional[ColumnElement[bool]] = None,
-                  amount: int = 0
-                  ) -> List[ModelType]:
-        statement = self.__build_select(model_class, filter)
+                  load_relations: Optional[Sequence[InstrumentedAttribute]] = None,
+                  amount: int = 0) -> List[ModelType]:
+        statement = self.__build_select(model_class, filter, load_relations)
         if amount > 0:
             statement = statement.limit(amount)
 
@@ -61,9 +67,7 @@ class DatabaseController:
                      model_class: ModelType | Type[ModelType],
                      update_data: dict[str, Any],
                      filter: Optional[ColumnElement[bool]] = None,
-                     with_flush: bool = False
-                     ) -> None:
-
+                     with_flush: bool = False) -> None:
         statement = update(model_class).values(**update_data)
         if filter is not None:
             statement = statement.where(filter)
@@ -76,11 +80,15 @@ class DatabaseController:
     async def delete(self,
                      model_class: ModelType | Type[ModelType],
                      filter: Optional[ColumnElement[bool]] = None,
+                     load_relations: Optional[Sequence[InstrumentedAttribute]] = None,
                      amount: int = 1,
-                     with_flush: bool = False
-                     ) -> None:
-
-        targets = await self.get(model_class, filter, amount)
+                     with_flush: bool = False) -> None:
+        targets = await self.get(
+            model_class = model_class,
+            filter = filter,
+            load_relations = load_relations,
+            amount = amount
+        )
 
         if targets is None:
             return

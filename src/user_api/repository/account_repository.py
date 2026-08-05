@@ -1,4 +1,6 @@
-from typing import Optional
+from typing import Optional, Sequence
+
+from sqlalchemy.orm import InstrumentedAttribute
 
 from src.user_api.db.db_controller import DatabaseController
 from src.user_api.model.account_model import AccountModel
@@ -26,11 +28,21 @@ class AccountRepository(BaseRepository[AccountModel]):
             with_flush = with_flush
         )
 
-    async def get_account_by_pk(self, account_pk: int) -> Optional[AccountModel]:
-        return await self.find_one(self.model_class.pk == account_pk)
+    async def get_account_by_pk(self,
+                                account_pk: int,
+                                load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> Optional[AccountModel]:
+        return await self.find_one(
+            filter = self.model_class.pk == account_pk,
+            load_relations = load_relations
+        )
 
-    async def get_account_by_login_id(self, login_id: str) -> Optional[AccountModel]:
-        return await self.find_one(self.model_class.login_id == login_id)
+    async def get_account_by_login_id(self,
+                                      login_id: str,
+                                      load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> Optional[AccountModel]:
+        return await self.find_one(
+            filter = self.model_class.login_id == login_id,
+            load_relations = load_relations
+        )
 
     # 반드시 new_password는 hash된 문자열이여야함.
     # 추후 리팩토링 고려
@@ -41,11 +53,21 @@ class AccountRepository(BaseRepository[AccountModel]):
             with_flush = with_flush
         )
 
-    async def delete_by_login_id(self, target_login_id: str):
-        await self.delete(self.model_class.login_id == target_login_id)
+    async def delete_by_login_id(self,
+                                 target_login_id: str,
+                                 load_relations: Optional[Sequence[InstrumentedAttribute]] = None):
+        await self.delete(
+            filter = self.model_class.login_id == target_login_id,
+            load_relations = load_relations
+        )
 
-    async def is_already_exist_login_id(self, new_login_id: str) -> bool:
-        return await self.is_exist(self.model_class.login_id == new_login_id)
+    async def is_already_exist_login_id(self,
+                                        new_login_id: str,
+                                        load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> bool:
+        return await self.is_exist(
+            filter = self.model_class.login_id == new_login_id,
+            load_relations = load_relations
+        )
 
 
 

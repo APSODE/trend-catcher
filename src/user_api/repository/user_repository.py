@@ -1,4 +1,6 @@
-from typing import Optional, List
+from typing import Optional, List, Sequence
+
+from sqlalchemy.orm import InstrumentedAttribute
 
 from src.user_api.constant.permission import Permission
 from src.user_api.db.db_controller import DatabaseController
@@ -48,12 +50,22 @@ class UserRepository(BaseRepository[UserModel]):
             with_flush = with_flush
         )
 
-    async def get_by_name(self, target_name: str) -> List[UserModel]:
-        return await self.find_all(self.model_class.name == target_name)
+    async def get_by_name(self,
+                          target_name: str,
+                          load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> List[UserModel]:
+        return await self.find_all(
+            filter = self.model_class.name == target_name,
+            load_relations = load_relations
+        )
 
 
-    async def is_exist_pk(self, target_pk: int) -> bool:
-        return await self.is_exist(filter = self.model_class.pk == target_pk)
+    async def is_exist_pk(self,
+                          target_pk: int,
+                          load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> bool:
+        return await self.is_exist(
+            filter = self.model_class.pk == target_pk,
+            load_relations = load_relations
+        )
 
 
 
