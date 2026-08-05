@@ -1,6 +1,3 @@
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-
 from src.user_api.exceptions.auth_exceptions import InvalidToken, ExpiredToken, MismatchTokenType
 from src.user_api.handler.exception_handler.base_exception_handler import BaseExceptionHandler
 

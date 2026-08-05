@@ -1,12 +1,11 @@
 import os.path
-
-from asyncio import run
-import src.user_api.model
 from urllib.parse import quote_plus
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+
 from sqlalchemy.engine.base import Connection
-from src.user_api.utils.json_read_write import JsonReadWrite
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+
 from src.user_api.model.base_model import BaseModel
+from src.user_api.utils.json_read_write import JsonReadWrite
 
 
 class _DatabaseAccount:

@@ -1,6 +1,5 @@
 from fastapi import Depends
 
-from src.user_api.db.db_creator import DatabaseCreator
 from src.user_api.router.base_router import BaseRouter
 from src.user_api.service.test_service import TestService, get_test_service
 

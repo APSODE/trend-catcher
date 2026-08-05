@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import List, Optional, Type, TypeVar, Any, Dict
+from typing import List, Optional, Type, TypeVar, Any
 
 from sqlalchemy import select, update, Select
 from sqlalchemy.ext.asyncio import AsyncSession

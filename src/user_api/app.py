@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import List
+from typing import List, Type
 
 from fastapi import FastAPI
 

@@ -3,9 +3,7 @@ from typing import List
 from pydantic import BaseModel
 
 from src.user_api.constant.permission import Permission
-from src.user_api.dto.account_data import AccountData
 from src.user_api.dto.hashtag_data import HashtagData
-from src.user_api.dto.user_data import UserData
 
 
 class RegisterRequest(BaseModel):
