@@ -1,27 +1,42 @@
-from typing import Dict, List, Type, TypeVar, Callable, Any
+from typing import Dict, List, Type, TypeVar, Callable, Any, Union, Sequence, Optional
 
 from pydantic import BaseModel as _PydanticModel
+from sqlalchemy.orm import InstrumentedAttribute
 
-from src.user_api.model.base_model import BaseModel as _ORMBaseModel
+from src.user_api.model import BaseModel as _ORMBaseModel
 
 _ORM = TypeVar("_ORM", bound = _ORMBaseModel)
 _DTO = TypeVar("_DTO", bound = _PydanticModel)
 
 
 FieldTransformer = Callable[[Any], Any]
+RelationPath = Union[InstrumentedAttribute, Sequence[InstrumentedAttribute]]
+
 
 class ModelSerializer:
     _registry: Dict[type, Type[_PydanticModel]] = {}
     _field_transformers: Dict[type, Dict[str, FieldTransformer]] = {}
+    _relations: Dict[type, List[RelationPath]] = {}
 
     @classmethod
-    def bind_model(cls, orm_class: Type[_ORM], **transformers: FieldTransformer):
+    def bind_model(
+        cls,
+        orm_class: Type[_ORM],
+        relations: Optional[List[RelationPath]] = None,
+        **transformers: FieldTransformer,
+    ):
         def decorator(dto_class: Type[_DTO]) -> Type[_DTO]:
             cls._registry[orm_class] = dto_class
             if transformers:
                 cls._field_transformers[orm_class] = transformers
+            if relations:
+                cls._relations[orm_class] = relations
             return dto_class
         return decorator
+
+    @classmethod
+    def required_relations(cls, orm_class: type) -> List[RelationPath]:
+        return cls._relations.get(orm_class, [])
 
     @classmethod
     def serialize(cls, instance: _ORM, expected_type: Type[_DTO]) -> _DTO:
@@ -32,7 +47,7 @@ class ModelSerializer:
             raise ValueError(f"No DTO registered for '{type(instance).__name__}'.")
 
         transformers = cls._field_transformers.get(orm_class, {})
-        
+
         if not transformers:
             result = dto_class.model_validate(instance)
         else:

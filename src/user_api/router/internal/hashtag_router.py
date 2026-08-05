@@ -24,13 +24,13 @@ class HashtagRouter(BaseRouter):
             )
 
         @self.get("/get-by-name", response_model = HashtagData)
-        async def get_hashtag_by_name(request: NameQueryRequest,
+        async def get_hashtag_by_name(request: Annotated[NameQueryRequest, Query()],
                                       service: HashtagService = Depends(get_hashtag_service)):
             return await service.query_hashtag_by_name(request.name)
 
         @self.get("/get-by-pk", response_model = HashtagData)
-        async def get_hashtag_by_pk(request: PKQueryRequest,
-                                      service: HashtagService = Depends(get_hashtag_service)):
+        async def get_hashtag_by_pk(request: Annotated[PKQueryRequest, Query()],
+                                    service: HashtagService = Depends(get_hashtag_service)):
             return await service.query_hashtag_by_pk(request.pk)
 
 

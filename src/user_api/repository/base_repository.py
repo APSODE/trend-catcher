@@ -47,8 +47,13 @@ class BaseRepository(Generic[ModelType]):
                        load_relations: Optional[Sequence[RelationPath]] = None) -> List[ModelType]:
         return await self.find(filter, load_relations)
 
-    async def get_by_pk(self, target_pk: int) -> Optional[ModelType]:
-        return await self.find_one(filter = self._model_class.pk == target_pk)
+    async def get_by_pk(self,
+                        target_pk: int,
+                        load_relations: Optional[Sequence[RelationPath]] = None) -> Optional[ModelType]:
+        return await self.find_one(
+            filter = self._model_class.pk == target_pk,
+            load_relations = load_relations
+        )
 
     async def update(self,
                      filter: ColumnElement[bool],

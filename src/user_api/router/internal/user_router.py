@@ -24,7 +24,7 @@ class UserRouter(BaseRouter):
             )
 
         @self.get("/get-by-name", response_model = DataCollectionResponse)
-        async def get_users_by_name(request: NameQueryRequest,
+        async def get_users_by_name(request: Annotated[NameQueryRequest, Query()],
                                     service: UserService = Depends(get_user_service)):
             users = await service.query_user_by_name(request.name)
             return DataCollectionResponse(
@@ -33,6 +33,6 @@ class UserRouter(BaseRouter):
             )
 
         @self.get("/get-by-pk", response_model = UserData)
-        async def get_user_by_pk(request: PKQueryRequest,
+        async def get_user_by_pk(request: Annotated[PKQueryRequest, Query()],
                                  service: UserService = Depends(get_user_service)):
             return await service.query_user_by_pk(request.pk)
