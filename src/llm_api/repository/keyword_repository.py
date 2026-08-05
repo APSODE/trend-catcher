@@ -1,8 +1,8 @@
-from src.llm_api.repository.base_repository import AbstractBaseRepository
+from src.llm_api.repository.base_repository import BaseRepository
 from src.llm_api.model.keyword_model import KeywordModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-class KeywordRepository(AbstractBaseRepository[KeywordModel]):
+class KeywordRepository(BaseRepository[KeywordModel]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, KeywordModel)
 
@@ -10,7 +10,7 @@ class KeywordRepository(AbstractBaseRepository[KeywordModel]):
     async def find_by_keyword(self, keyword: str) -> KeywordModel | None:
         return await self._find_one(KeywordModel.keyword == keyword)
 
-    #다 꺼내기
+    #다 꺼내기 #TODO:위로올렷
     async def find_all(self) -> list[KeywordModel]:
         return await self._find_all()
 

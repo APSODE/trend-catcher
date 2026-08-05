@@ -1,10 +1,10 @@
-from src.llm_api.repository.base_repository import AbstractBaseRepository
+from src.llm_api.repository.base_repository import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.llm_api.model.topic_model import TopicModel
 from datetime import datetime
 from sqlalchemy import update
 
-class TopicRepository(AbstractBaseRepository[TopicModel]):
+class TopicRepository(BaseRepository[TopicModel]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, TopicModel)
 
@@ -14,8 +14,7 @@ class TopicRepository(AbstractBaseRepository[TopicModel]):
 
     #주제 중복도 증가
     async def increment_count(self, pk: int) -> None:
-        stmt = update(TopicModel).where(TopicModel.pk == pk).values(count = TopicModel.count + 1)
-        await self._session.execute(stmt)
+        await self._update(TopicModel.pk == pk, {"count" : TopicModel.count + 1})
 
     #모델 포장
     async def create_topic(self, topic: str, representative_crawled_id: str, representative_embedding: list[float]) -> TopicModel:

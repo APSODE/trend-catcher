@@ -1,9 +1,9 @@
-from src.llm_api.repository.base_repository import AbstractBaseRepository
+from src.llm_api.repository.base_repository import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.llm_api.model.news_keyword_map_model import NewsKeywordMapModel
 from sqlalchemy import select
 
-class NewsKeywordMapRepository(AbstractBaseRepository[NewsKeywordMapModel]):
+class NewsKeywordMapRepository(BaseRepository[NewsKeywordMapModel]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, NewsKeywordMapModel)
 
@@ -11,10 +11,7 @@ class NewsKeywordMapRepository(AbstractBaseRepository[NewsKeywordMapModel]):
     async def find_news_fks_by_keyword_fks(self, keyword_fks: list[int]) -> list[int]:
         if not keyword_fks: #빈 리스트 들어와서 터지는거 방지
             return []
-
-        stmt = select(NewsKeywordMapModel.news_fk).where(NewsKeywordMapModel.keyword_fk.in_(keyword_fks)).distinct()
-        result = await self._session.scalars(stmt)
-        return list(result.all())
+        return await self._find_column(NewsKeywordMapModel.news_fk, NewsKeywordMapModel.keyword_fk.in_(keyword_fks), distinct = True)
 
     # 모델 포장
     async def create_maps(

@@ -1,9 +1,9 @@
-from src.llm_api.repository.base_repository import AbstractBaseRepository
+from src.llm_api.repository.base_repository import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.llm_api.model.news_analysis_model import NewsAnalysisModel
 
 
-class NewsAnalysisRepository(AbstractBaseRepository[NewsAnalysisModel]):
+class NewsAnalysisRepository(BaseRepository[NewsAnalysisModel]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, NewsAnalysisModel)
 
