@@ -18,6 +18,9 @@ class LoginRequest(BaseModel):
     login_id: str
     password: str
 
+class LogoutRequest(BaseModel):
+    access_token: str
+
 class DeleteRequest(BaseModel):
     login_id: str
 
