@@ -1,22 +1,12 @@
 from hmac import compare_digest
 from uuid import uuid4
-
-from fastapi import Depends
-
-from src.user_api.auth.jwt_auth import TokenWhitelist
 from src.user_api.constant.account_constant import SALT_LENGTH
-from src.user_api.db.context.user_account_context import (
-    UserAccountContext,
-    get_user_account_context as _get_user_account_context
-)
-from src.user_api.dto.request_data import LoginRequest, RegisterRequest, DeleteRequest
-from src.user_api.dto.token_data import TokenPair, TokenType
 from src.user_api.exceptions.account_exceptions import IsAlreadyExistLoginID, InvalidCredentialData
-from src.user_api.repository.account_repository import AccountRepository
-from src.user_api.repository.user_repository import UserRepository
-from src.user_api.service.base_service import BaseService
-from src.user_api.utils.hash_util import HashUtil
-from src.user_api.utils.jwt_util import JwtUtil
+from src.user_api.auth import TokenWhitelist
+from src.user_api.dto import LoginRequest, RegisterRequest, DeleteRequest, TokenPair, TokenType
+from src.user_api.repository import AccountRepository, UserRepository
+from src.user_api.service import BaseService
+from src.user_api.utils import HashUtil, JwtUtil
 
 
 class UserAccountService(BaseService):

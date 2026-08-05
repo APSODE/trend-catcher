@@ -4,10 +4,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.user_api.constant.permission import Permission
 from src.user_api.constant.user_model_constant import MAX_NAME_LENGTH
 from src.user_api.model.base_model import BaseModel
-from src.user_api.model.user_hashtag_model import UserHashtagModel
 
 if TYPE_CHECKING:
-    from src.user_api.model.account_model import AccountModel
+    from src.user_api.model import AccountModel, UserHashtagModel
 
 
 class UserModel(BaseModel):

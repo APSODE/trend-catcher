@@ -4,8 +4,7 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from src.user_api.model.base_model import BaseModel
 
 if TYPE_CHECKING:
-    from src.user_api.model.user_model import UserModel
-    from src.user_api.model.hashtag_model import HashtagModel
+    from src.user_api.model import UserModel, HashtagModel
 
 
 class UserHashtagModel(BaseModel):

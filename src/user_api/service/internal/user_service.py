@@ -1,11 +1,11 @@
 from typing import List
 
-from src.user_api.dto import serialize, serialize_many
-from src.user_api.dto.user_data import UserData
 from src.user_api.exceptions.user_exceptions import UnknownUserData
 from src.user_api.model import UserModel
-from src.user_api.repository.user_repository import UserRepository
-from src.user_api.service.base_service import BaseService
+from src.user_api.dto.serializer import serialize, serialize_many, required_relation
+from src.user_api.dto import UserData
+from src.user_api.repository import UserRepository
+from src.user_api.service import BaseService
 
 
 class UserService(BaseService):

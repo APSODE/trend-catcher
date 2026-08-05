@@ -1,18 +1,10 @@
-from fastapi import Depends
-
-from src.user_api.db.context.user_hashtag_context import (
-    UserHashtagContext,
-    get_user_hashtag_context as _get_user_hashtag_context
-)
-from src.user_api.dto.request_data import FollowHashtagRequest, UnfollowHashtagRequest
 from src.user_api.exceptions.hashtag_exception import UnknownHashtagData
 from src.user_api.exceptions.user_exceptions import UnknownUserData
 from src.user_api.exceptions.relation_exceptions import NotFollowedHashtagData, AlreadyFollowedHashtagData
 from src.user_api.model import UserModel, HashtagModel
-from src.user_api.repository.hashtag_repository import HashtagRepository
-from src.user_api.repository.user_hashtag_repository import UserHashtagRepository
-from src.user_api.repository.user_repository import UserRepository
-from src.user_api.service.base_service import BaseService
+from src.user_api.dto import FollowHashtagRequest, UnfollowHashtagRequest
+from src.user_api.repository import HashtagRepository, UserHashtagRepository, UserRepository
+from src.user_api.service import BaseService
 
 
 class UserHashtagService(BaseService):

@@ -1,9 +1,9 @@
 from typing import Optional, Sequence
 
 from src.user_api.db import DatabaseController, RelationPath
-from src.user_api.model.account_model import AccountModel
+from src.user_api.model import AccountModel
 from src.user_api.repository.base_repository import BaseRepository
-from src.user_api.utils.hash_util import HashedString
+from src.user_api.utils import HashedString
 
 
 class AccountRepository(BaseRepository[AccountModel]):
@@ -18,7 +18,7 @@ class AccountRepository(BaseRepository[AccountModel]):
                              with_flush: bool = False):
         await self.add_data(
             new_data = AccountModel.create_model(
-                user_fk= user_pk,
+                user_fk = user_pk,
                 login_id = login_id,
                 hashed_password = hashed_password,
                 personal_salt = personal_salt

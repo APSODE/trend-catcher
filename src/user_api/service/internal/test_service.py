@@ -1,7 +1,7 @@
 from fastapi import Depends
 
-from src.user_api.db.db_creator import DatabaseCreator
-from src.user_api.service.base_service import BaseService
+from src.user_api.db import DatabaseCreator
+from src.user_api.service import BaseService
 
 
 class TestService(BaseService):

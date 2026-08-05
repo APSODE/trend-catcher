@@ -1,10 +1,9 @@
-from fastapi import Depends
+from typing import Annotated
 
-from src.user_api.dto.request_data import NameQueryRequest, PKQueryRequest
-from src.user_api.dto.response_data import DataCollectionResponse
-from src.user_api.dto.user_data import UserData
-from src.user_api.router.base_router import BaseRouter
-from src.user_api.service.internal.user_service import UserService, get_user_service
+from fastapi import Depends, Query
+from src.user_api.dto import NameQueryRequest, PKQueryRequest, DataCollectionResponse, UserData
+from src.user_api.router import BaseRouter
+from src.user_api.service.internal import UserService, get_user_service
 
 
 class UserRouter(BaseRouter):

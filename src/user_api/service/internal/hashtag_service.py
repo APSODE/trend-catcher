@@ -1,10 +1,10 @@
 from typing import List, Optional
-from src.user_api.dto import serialize, serialize_many
-from src.user_api.dto.hashtag_data import HashtagData
 from src.user_api.exceptions.hashtag_exception import UnknownHashtagData
 from src.user_api.model import HashtagModel
-from src.user_api.repository.hashtag_repository import HashtagRepository
-from src.user_api.service.base_service import BaseService
+from src.user_api.dto.serializer import serialize, serialize_many
+from src.user_api.dto import HashtagData
+from src.user_api.repository import HashtagRepository
+from src.user_api.service import BaseService
 
 
 class HashtagService(BaseService):

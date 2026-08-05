@@ -1,8 +1,10 @@
-from typing import Any, List
+from typing import Any, List, TYPE_CHECKING
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.user_api.model.base_model import BaseModel
-from src.user_api.model.user_hashtag_model import UserHashtagModel
+
+if TYPE_CHECKING:
+    from src.user_api.model import UserHashtagModel
 
 class HashtagModel(BaseModel):
     __tablename__ = "hashtag"

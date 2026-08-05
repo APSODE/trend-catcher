@@ -3,7 +3,7 @@ from typing import List, Dict, Any, TypeVar
 
 from fastapi import APIRouter
 
-from src.user_api.service.base_service import BaseService
+from src.user_api.service import BaseService
 
 T = TypeVar("T", bound = BaseService)
 

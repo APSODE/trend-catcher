@@ -1,4 +1,4 @@
-from src.user_api.dto.model_serializer import ModelSerializer as _serializer
+from src.user_api.dto.serializer.model_serializer import ModelSerializer as _serializer
 
 bind_model = _serializer.bind_model
 

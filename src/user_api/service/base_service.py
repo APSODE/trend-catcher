@@ -3,7 +3,7 @@ from typing import Type, TypeVar, Awaitable, Callable
 from fastapi import Depends
 
 from src.user_api.db.context import get_transaction_context, TransactionContext
-from src.user_api.repository.base_repository import BaseRepository
+from src.user_api.repository import BaseRepository
 
 T = TypeVar("T", bound = "BaseService")
 

@@ -6,7 +6,7 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 from src.user_api.constant.account_constant import MAX_ID_LENGTH, MAX_PW_LENGTH, MAX_SALT_LENGTH
 from src.user_api.model.base_model import BaseModel
 if TYPE_CHECKING:
-    from src.user_api.model.user_model import UserModel
+    from src.user_api.model import UserModel
 
 
 class AccountModel(BaseModel):

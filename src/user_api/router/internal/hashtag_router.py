@@ -1,9 +1,9 @@
-from fastapi import Depends
-from src.user_api.dto.hashtag_data import HashtagData
-from src.user_api.dto.request_data import NameQueryRequest, PKQueryRequest
-from src.user_api.dto.response_data import DataCollectionResponse
-from src.user_api.router.base_router import BaseRouter
-from src.user_api.service.internal.hashtag_service import HashtagService, get_hashtag_service
+from typing import Annotated
+
+from fastapi import Depends, Query
+from src.user_api.dto import HashtagData, NameQueryRequest, PKQueryRequest, DataCollectionResponse
+from src.user_api.router import BaseRouter
+from src.user_api.service.internal import HashtagService, get_hashtag_service
 
 
 class HashtagRouter(BaseRouter):

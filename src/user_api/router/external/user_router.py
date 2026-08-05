@@ -1,18 +1,25 @@
 from fastapi import Depends, Security
 from fastapi.security import HTTPAuthorizationCredentials
+from src.user_api.auth import get_current_account_pk, bearer_scheme
 
-from src.user_api.auth.denendencies import get_current_account_pk, bearer_scheme
-from src.user_api.dto.request_data import (
+from src.user_api.dto import (
     RegisterRequest,
     LoginRequest,
     DeleteRequest,
     RefreshRequest,
-    FollowHashtagRequest, UnfollowHashtagRequest
+    FollowHashtagRequest,
+    UnfollowHashtagRequest,
+    TokenPair
 )
-from src.user_api.dto.token_data import TokenPair
-from src.user_api.router.base_router import BaseRouter
-from src.user_api.service.external.user_account_service import UserAccountService, get_user_account_service
-from src.user_api.service.external.user_hashtag_service import UserHashtagService, get_user_hashtag_service
+
+from src.user_api.router import BaseRouter
+
+from src.user_api.service.external import(
+    UserAccountService,
+    get_user_account_service,
+    UserHashtagService,
+    get_user_hashtag_service
+)
 
 
 class UserRouter(BaseRouter):
