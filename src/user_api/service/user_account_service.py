@@ -1,14 +1,16 @@
 from hmac import compare_digest
+from uuid import uuid4
 
 from fastapi import Depends
 
+from src.user_api.auth.jwt_auth import TokenWhitelist
 from src.user_api.constant.account_constant import SALT_LENGTH
 from src.user_api.db.context.user_account_context import (
     UserAccountContext,
     get_user_account_context as _get_user_account_context
 )
 from src.user_api.dto.request_data import LoginRequest, RegisterRequest, DeleteRequest
-from src.user_api.dto.token_data import TokenPair
+from src.user_api.dto.token_data import TokenPair, TokenType
 from src.user_api.exceptions.account_exceptions import IsAlreadyExistLoginID, InvalidCredentialData
 from src.user_api.repository.account_repository import AccountRepository
 from src.user_api.repository.user_repository import UserRepository
@@ -59,19 +61,26 @@ class UserAccountService(BaseService):
         if not compare_result:
             raise InvalidCredentialData()
 
-        return TokenPair(
-            access_token = JwtUtil.create_access_token(target_account.pk),
-            refresh_token = JwtUtil.create_refresh_token(target_account.pk)
+        jwt_token_pair = JwtUtil.create_token_pair(
+            session_id = str(uuid4()),
+            account_pk = target_account.pk
         )
+        await TokenWhitelist.token_pair_register(jwt_token_pair)
+        return jwt_token_pair
 
-    async def refresh_token(self, target_token: str) -> TokenPair:
-        account_id = JwtUtil.decode_token(target_token, expected_type = "refresh")
+    async def logout(self, access_token: str):
+        user_jwt = JwtUtil.decode_token(access_token, expected_type = TokenType.ACCESS)
+        await TokenWhitelist.revoke_all_by_session(user_jwt)
 
-        return TokenPair(
-            access_token = JwtUtil.create_access_token(account_id),
-            refresh_token = JwtUtil.create_refresh_token(account_id),
+    async def refresh_token(self, refresh_token: str) -> TokenPair:
+        user_jwt = JwtUtil.decode_token(refresh_token, expected_type = TokenType.REFRESH)
+        await TokenWhitelist.revoke_all_by_session(user_jwt)
+        user_token_pair = JwtUtil.create_token_pair(
+            session_id = user_jwt.session_id,
+            account_pk = user_jwt.account_pk
         )
-
+        await TokenWhitelist.token_pair_register(user_token_pair)
+        return user_token_pair
 
     async def delete(self, delete_data: DeleteRequest):
         await self.__account_repository.delete_by_login_id(delete_data.login_id)
