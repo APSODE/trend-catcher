@@ -1,7 +1,7 @@
 from fastapi import Depends
 
 from src.user_api.router.base_router import BaseRouter
-from src.user_api.service.test_service import TestService, get_test_service
+from src.user_api.service.internal.test_service import TestService, get_test_service
 
 
 class TestRouter(BaseRouter):

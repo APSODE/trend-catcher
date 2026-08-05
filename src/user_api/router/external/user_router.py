@@ -7,12 +7,12 @@ from src.user_api.dto.request_data import (
     LoginRequest,
     DeleteRequest,
     RefreshRequest,
-    FollowHashtagRequest, UnfollowHashtagRequest, LogoutRequest
+    FollowHashtagRequest, UnfollowHashtagRequest
 )
 from src.user_api.dto.token_data import TokenPair
 from src.user_api.router.base_router import BaseRouter
-from src.user_api.service.user_account_service import UserAccountService, get_user_account_service
-from src.user_api.service.user_hashtag_service import UserHashtagService, get_user_hashtag_service
+from src.user_api.service.external.user_account_service import UserAccountService, get_user_account_service
+from src.user_api.service.external.user_hashtag_service import UserHashtagService, get_user_hashtag_service
 
 
 class UserRouter(BaseRouter):
