@@ -22,7 +22,7 @@ class ArticleService:
 
         return result
 
-    async def get_article_by_id(self, article_id: PydanticObjectId) -> ArticleRead | None:
+    async def get_article_by_id(self, article_id: PydanticObjectId) -> ArticleRead:
         article = await self._article_repository.get_by_id(article_id)
 
         if article is None:
