@@ -7,7 +7,7 @@ from src.user_api.db.context.user_hashtag_context import (
 from src.user_api.dto.request_data import FollowHashtagRequest, UnfollowHashtagRequest
 from src.user_api.exceptions.hashtag_exception import UnknownHashtagData
 from src.user_api.exceptions.user_exceptions import UnknownUserData
-from src.user_api.exceptions.relation_exceptions import NotFollowedHashtagData
+from src.user_api.exceptions.relation_exceptions import NotFollowedHashtagData, AlreadyFollowedHashtagData
 from src.user_api.model import UserModel, HashtagModel
 from src.user_api.repository.hashtag_repository import HashtagRepository
 from src.user_api.repository.user_hashtag_repository import UserHashtagRepository
@@ -25,11 +25,17 @@ class UserHashtagService(BaseService):
         self.__relation_repository = relation_repository
 
 
-    async def follow_hashtag(self, request: FollowHashtagRequest):
-        target_user = await self.require_exist_user(request.target_user_pk)
+    async def follow_hashtag(self, request: FollowHashtagRequest, user_pk: int):
+        target_user = await self.require_exist_user(
+            user_pk = user_pk
+        )
+
+
         hashtag_name = request.target_hashtag.name
 
-        target_hashtag = await self.__hashtag_repository.get_by_tag_name(target_name = hashtag_name)
+        target_hashtag = await self.__hashtag_repository.get_by_tag_name(
+            target_name = hashtag_name
+        )
 
         if target_hashtag is None:
             target_hashtag = await self.__hashtag_repository.create_hashtag(
@@ -37,14 +43,17 @@ class UserHashtagService(BaseService):
                 with_flush = True
             )
 
+        else:
+            await self.require_not_followed_hashtag(user_pk = user_pk, hashtag_pk = target_hashtag.pk)
+
         await self.__relation_repository.create_relation(
             user_pk = target_user.pk,
             hashtag_pk = target_hashtag.pk
         )
 
-    async def unfollow_hashtag(self, request: UnfollowHashtagRequest):
+    async def unfollow_hashtag(self, request: UnfollowHashtagRequest, user_pk: int):
         target_user = await self.require_exist_user(
-            user_pk = request.target_user_pk
+            user_pk = user_pk
         )
 
         target_hashtag = await self.require_exist_hashtag(
@@ -80,6 +89,10 @@ class UserHashtagService(BaseService):
     async def require_already_follow_hashtag(self, user_pk: int, hashtag_pk: int):
         if not await self.__relation_repository.is_exist_relation(user_pk = user_pk, hashtag_pk = hashtag_pk):
             raise NotFollowedHashtagData()
+
+    async def require_not_followed_hashtag(self, user_pk: int, hashtag_pk: int):
+        if await self.__relation_repository.is_exist_relation(user_pk = user_pk, hashtag_pk = hashtag_pk):
+            raise AlreadyFollowedHashtagData()
 
 
 async def get_user_hashtag_service(context: UserHashtagContext = Depends(_get_user_hashtag_context)) -> UserHashtagService:
