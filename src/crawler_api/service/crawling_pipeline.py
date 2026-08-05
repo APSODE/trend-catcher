@@ -6,7 +6,7 @@ from src.crawler_api.schemas.article import ArticleCreate
 from src.crawler_api.service.url_extractor.url_extractor_factory import UrlExtractorFactory
 from src.crawler_api.service.url_fetcher.url_fetcher_factory import UrlFetcherFactory
 from src.crawler_api.service.url_parser.url_parser_factory import UrlParserFactory
-from src.crawler_api.util.normalize_datetime import normalize_datetime
+from src.crawler_api.util.normalize_datetime import normalize_datetime, now_normalized
 
 
 class CrawlingPipeline:
@@ -42,7 +42,7 @@ class CrawlingPipeline:
         parsed_result = await asyncio.gather(*(self.__parser.parse(content) for _, content in valid_pairs), return_exceptions=True)
 
         articles : list[ArticleCreate] = []
-        crawled_at = normalize_datetime(datetime.now())
+        crawled_at = now_normalized()
         for url, parsed in zip(valid_urls, parsed_result):
 
             if isinstance(parsed, Exception):

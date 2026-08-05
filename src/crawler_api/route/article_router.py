@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from src.crawler_api.dependencies.article import get_article_service
 from src.crawler_api.schemas.article import ArticleRead, ArticleResponse, ArticleCreate, ArticleUpdate
 from src.crawler_api.service.article_service import ArticleService
-from src.crawler_api.util.normalize_datetime import normalize_datetime
+from src.crawler_api.util.normalize_datetime import normalize_datetime, now_normalized
 
 router = APIRouter(
     prefix="/article",
@@ -26,7 +26,7 @@ async def get_articles_today(
 
 @router.get("/articles_date", response_model = list[ArticleResponse])
 async def get_articles_by_date(
-        datetime_value: datetime = Query(default = datetime.now().replace(microsecond = 0)),
+        datetime_value: datetime = Query(default_factory = now_normalized),
         service : ArticleService = Depends(get_article_service)
 ):
     return await service.get_article_by_date(normalize_datetime(datetime_value))

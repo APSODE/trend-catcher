@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 
 from src.crawler_api.exception.selector_value_exception import SelectorValueException
+from src.crawler_api.util.normalize_datetime import now_normalized
 
 
 class SitemapType(Enum):
@@ -27,7 +28,7 @@ class NewsUrlData:
         if self.sitemap_type != SitemapType.PAGE and self.selector:
             raise SelectorValueException()
 
-    def get_url(self, date : datetime = datetime.today()):
+    def get_url(self, date : datetime = now_normalized()):
         return self.url.format(
             yyyy = date.strftime("%Y"),
             yyyymmdd = date.strftime("%Y%m%d"),
