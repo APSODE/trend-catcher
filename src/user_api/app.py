@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import List, Type
+from typing import List
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,9 +13,8 @@ from src.user_api.handler.exception_handler.hashtag_exception_handler import Unk
     AlreadyFollowedHashtagDataExceptionHandler
 from src.user_api.handler.exception_handler.relation_exception_handler import NotFollowedHashtagExceptionHandler
 from src.user_api.handler.exception_handler.user_exception_handler import UnknownUserDataExceptionHandler
-from src.user_api.router.base_router import BaseRouter
-from src.user_api.router.test_router import TestRouter
-from src.user_api.router.user_router import UserRouter
+from src.user_api.router.internal import INTERNAL_ROUTERS
+from src.user_api.router.external import EXTERNAL_ROUTERS
 
 
 
@@ -64,10 +63,7 @@ class UserAPI(FastAPI):
         )
 
     def _setup_routers(self) -> None:
-        routers: List[BaseRouter] = [
-            UserRouter(),
-            TestRouter()
-        ]
+        routers = INTERNAL_ROUTERS + EXTERNAL_ROUTERS
 
         for router in routers:
             self.include_router(router)
