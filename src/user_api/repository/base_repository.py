@@ -40,7 +40,7 @@ class BaseRepository(Generic[ModelType]):
         return await self.find(filter)
 
     async def get_by_pk(self, target_pk: int) -> Optional[ModelType]:
-        return await self.find_one(filter =self._model_class.pk == target_pk)
+        return await self.find_one(filter = self._model_class.pk == target_pk)
 
     async def update(self,
                      filter: ColumnElement[bool],
