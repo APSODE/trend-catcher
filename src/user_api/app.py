@@ -2,13 +2,15 @@ from contextlib import asynccontextmanager
 from typing import List, Type
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.user_api.db.db_creator import DatabaseCreator
 from src.user_api.handler.exception_handler.auth_exception_handler import ExpiredTokenExceptionHandler, \
     MismatchTokenTypeExceptionHandler
 from src.user_api.handler.exception_handler.base_exception_handler import BaseExceptionHandler
 from src.user_api.handler.exception_handler.account_exception_handler import InvalidCredentialDataHandler, IsAlreadyExistLoginIDHandler
-from src.user_api.handler.exception_handler.hashtag_exception_handler import UnknownHashtagDataExceptionHandler
+from src.user_api.handler.exception_handler.hashtag_exception_handler import UnknownHashtagDataExceptionHandler, \
+    AlreadyFollowedHashtagDataExceptionHandler
 from src.user_api.handler.exception_handler.relation_exception_handler import NotFollowedHashtagExceptionHandler
 from src.user_api.handler.exception_handler.user_exception_handler import UnknownUserDataExceptionHandler
 from src.user_api.router.base_router import BaseRouter
@@ -24,7 +26,7 @@ class UserAPI(FastAPI):
             description = "user manage API",
             lifespan = self.lifespan
         )
-
+        self._set_up_middlewares()
         self._setup_exception_handlers()
         self._setup_routers()
 
@@ -46,13 +48,20 @@ class UserAPI(FastAPI):
             NotFollowedHashtagExceptionHandler(),
             InvalidCredentialDataHandler(),
             ExpiredTokenExceptionHandler(),
-            MismatchTokenTypeExceptionHandler()
+            MismatchTokenTypeExceptionHandler(),
+            AlreadyFollowedHashtagDataExceptionHandler()
         ]
 
         for handler in handlers:
             self.add_exception_handler(handler.exception_type, handler)  # exception_type으로 등록
 
-
+    def _set_up_middlewares(self):
+        self.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
     def _setup_routers(self) -> None:
         routers: List[BaseRouter] = [
