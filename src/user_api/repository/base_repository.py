@@ -32,11 +32,11 @@ class BaseRepository(Generic[ModelType]):
                    amount: int = 0) -> List[ModelType]:
         return await self._db_controller.get(self._model_class, filter = filter, amount = amount)
 
-    async def find_one(self, filter: ColumnElement[bool]) -> Optional[ModelType]:
+    async def find_one(self, filter: Optional[ColumnElement[bool]] = None) -> Optional[ModelType]:
         results = await self.find(filter, amount = 1)
         return results[0] if results else None
 
-    async def find_all(self, filter: ColumnElement[bool]) -> List[ModelType]:
+    async def find_all(self, filter: Optional[ColumnElement[bool]] = None) -> List[ModelType]:
         return await self.find(filter)
 
     async def get_by_pk(self, target_pk: int) -> Optional[ModelType]:
@@ -58,7 +58,7 @@ class BaseRepository(Generic[ModelType]):
                            update_data: dict,
                            with_flush: bool = False) -> None:
 
-        await self.update(filter =self._model_class.pk == target_pk,
+        await self.update(filter = self._model_class.pk == target_pk,
                           update_data = update_data,
                           with_flush = with_flush)
 
@@ -77,7 +77,7 @@ class BaseRepository(Generic[ModelType]):
                            target_id: int,
                            with_flush: bool = False) -> None:
         await self.delete(
-            filter =self._model_class.pk == target_id,
+            filter = self._model_class.pk == target_id,
             amount = 1,
             with_flush = with_flush,
         )
