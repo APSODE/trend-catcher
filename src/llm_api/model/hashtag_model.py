@@ -1,4 +1,4 @@
-from src.llm_api.model.base import AbstractBaseModel
+from src.llm_api.model.base_model import AbstractBaseModel
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, JSON
 

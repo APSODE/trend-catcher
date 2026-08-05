@@ -1,5 +1,5 @@
 from sqlalchemy import ForeignKey, UniqueConstraint
-from src.llm_api.model.base import AbstractBaseModel
+from src.llm_api.model.base_model import AbstractBaseModel
 from sqlalchemy.orm import Mapped, mapped_column
 
 class NewsKeywordMapModel(AbstractBaseModel):
