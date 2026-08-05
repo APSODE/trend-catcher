@@ -11,5 +11,8 @@ class UnknownHashtagData(AppException):
 
 
 
-
-
+class InvalidHashtagAmount(AppException):
+    status_code = HTTPStatus.BAD_REQUEST
+    
+    def __init__(self):
+        super().__init__("Invalid hashtag amount")
