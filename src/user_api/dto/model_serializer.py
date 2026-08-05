@@ -36,5 +36,5 @@ class ModelSerializer:
         return result
 
     @classmethod
-    def serialize_many(cls, instances: List[_ORM]) -> List[_PydanticModel]:
-        return [cls.serialize(instance) for instance in instances]
+    def serialize_many(cls, instances: List[_ORM], expected_type: Type[_DTO]) -> List[_DTO]:
+        return [cls.serialize(instance, expected_type) for instance in instances]
