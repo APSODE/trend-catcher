@@ -1,4 +1,6 @@
-from typing import Optional
+from typing import Optional, Sequence
+
+from sqlalchemy.orm import InstrumentedAttribute
 
 from src.user_api.db.db_controller import DatabaseController
 from src.user_api.model import HashtagModel
@@ -17,8 +19,13 @@ class HashtagRepository(BaseRepository[HashtagModel]):
         )
         return new_hashtag
 
-    async def get_by_tag_name(self, target_name: str) -> Optional[HashtagModel]:
-        return await self.find_one(filter = self.model_class.name == target_name)
+    async def get_by_tag_name(self,
+                              target_name: str,
+                              load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> Optional[HashtagModel]:
+        return await self.find_one(
+            filter = self.model_class.name == target_name,
+            load_relations = load_relations
+        )
 
     async def update_tag_name(self, target_name: str, new_name: str, with_flush: bool = False):
         await self.update(
@@ -27,12 +34,21 @@ class HashtagRepository(BaseRepository[HashtagModel]):
             with_flush = with_flush
         )
 
-    async def delete_by_tag_name(self, target_name: str, with_flush: bool = False):
+    async def delete_by_tag_name(self,
+                                 target_name: str,
+                                 with_flush: bool = False,
+                                 load_relations: Optional[Sequence[InstrumentedAttribute]] = None):
         await self.delete(
             filter = self.model_class.name == target_name,
+            load_relations = load_relations,
             with_flush = with_flush
         )
 
-    async def is_exist_by_tag_name(self, target_name: str) -> bool:
-        return await self.is_exist(filter = self.model_class.name == target_name)
+    async def is_exist_by_tag_name(self,
+                                   target_name: str,
+                                   load_relations: Optional[Sequence[InstrumentedAttribute]] = None) -> bool:
+        return await self.is_exist(
+            filter = self.model_class.name == target_name,
+            load_relations = load_relations
+        )
 
