@@ -1,7 +1,7 @@
 from functools import lru_cache
 
 
-from pydantic import SecretStr
+from pydantic import SecretStr, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from pathlib import Path
@@ -18,8 +18,8 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    mongodb_uri : SecretStr
-    mongodb_name : str
+    mongodb_uri : SecretStr = Field(validation_alias="MONGODB_URI")
+    mongodb_name : str = Field(validation_alias="MONGODB_NAME")
 
     app_name: str = "Crawler API"
 
