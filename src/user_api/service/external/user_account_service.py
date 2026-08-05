@@ -92,9 +92,8 @@ class UserAccountService(BaseService):
         return True
 
 
-async def get_user_account_service(context: UserAccountContext = Depends(_get_user_account_context)) -> UserAccountService:
-    return UserAccountService(
-        account_repository = context.accounts,
-        user_repository = context.users,
-    )
+get_user_account_service = UserAccountService.create_dependency(
+    user_repository = UserRepository,
+    account_repository = AccountRepository
+)
 

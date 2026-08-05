@@ -95,11 +95,10 @@ class UserHashtagService(BaseService):
             raise AlreadyFollowedHashtagData()
 
 
-async def get_user_hashtag_service(context: UserHashtagContext = Depends(_get_user_hashtag_context)) -> UserHashtagService:
-    return UserHashtagService(
-        user_repository = context.users,
-        hashtag_repository = context.hashtags,
-        relation_repository = context.relations
-    )
+get_user_hashtag_service = UserHashtagService.create_dependency(
+    user_repository = UserRepository,
+    hashtag_repository = HashtagRepository,
+    relation_repository = UserHashtagRepository
+)
 
 
