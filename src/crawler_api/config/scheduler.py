@@ -46,7 +46,7 @@ def init_scheduler(app : FastAPI) -> AsyncIOScheduler:
     scheduler.add_job(
         run_scheduled_crawl,
         args = [app],
-        trigger = CronTrigger(hour = CrawlingTime.EVENING.value, minute = 9),
+        trigger = CronTrigger(hour = CrawlingTime.EVENING.value, minute = 0),
         id = "crawl_evening",
         replace_existing = True,
         misfire_grace_time = 3600,
