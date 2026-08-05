@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
+from uuid import uuid4
 
 from jwt import (
     encode as encodeJWT,
@@ -11,40 +12,51 @@ from jwt import (
 from src.user_api.constant.auth_constant import (
     SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
 )
+from src.user_api.dto.token_data import JsonWebToken, TokenPair, TokenType
 from src.user_api.exceptions.auth_exceptions import InvalidToken, ExpiredToken
 
-#TODO JWT 인증과정을 Redis를 이용한 별도의 인증과정으로 구현해야함
 
 class JwtUtil:
     @staticmethod
-    def create_access_token(account_id: int) -> str:
+    def _create_access_token(session_id: str, account_pk: int) -> str:
         return JwtUtil.__create_token(
-            account_id = account_id,
-            token_type = "access",
+            session_id = session_id,
+            account_pk = account_pk,
+            token_type = TokenType.ACCESS,
             expires_delta = timedelta(minutes = ACCESS_TOKEN_EXPIRE_MINUTES),
         )
 
     @staticmethod
-    def create_refresh_token(account_id: int) -> str:
+    def _create_refresh_token(session_id: str, account_pk: int) -> str:
         return JwtUtil.__create_token(
-            account_id = account_id,
-            token_type = "refresh",
+            session_id = session_id,
+            account_pk = account_pk,
+            token_type = TokenType.REFRESH,
             expires_delta = timedelta(days = REFRESH_TOKEN_EXPIRE_DAYS),
         )
 
     @staticmethod
-    def __create_token(account_id: int, token_type: str, expires_delta: timedelta) -> str:
+    def create_token_pair(session_id: str, account_pk: int) -> TokenPair:
+        return TokenPair(
+            access_token = JwtUtil._create_access_token(session_id, account_pk),
+            refresh_token = JwtUtil._create_refresh_token(session_id, account_pk)
+        )
+
+    @staticmethod
+    def __create_token(session_id: str, account_pk: int, token_type: TokenType, expires_delta: timedelta) -> str:
         now = datetime.now(timezone.utc)
         payload: Dict[str, Any] = {
-            "sub": str(account_id),
-            "type": token_type,
+            "jwt_id": str(uuid4()),
+            "account_pk": str(account_pk),
+            "type": token_type.value,
             "iat": now,
             "exp": now + expires_delta,
+            "session_id": session_id
         }
         return encodeJWT(payload, SECRET_KEY, algorithm = ALGORITHM)
 
     @staticmethod
-    def decode_token(token: str, expected_type: str) -> int:
+    def decode_token(token: str, expected_type: TokenType) -> JsonWebToken:
         try:
             payload = decodeJWT(token, SECRET_KEY, algorithms = [ALGORITHM])
         except ExpiredSignatureError:
@@ -52,7 +64,7 @@ class JwtUtil:
         except InvalidTokenError:
             raise InvalidToken()
 
-        if payload.get("type") != expected_type:
+        if payload.get("type") != expected_type.value:
             raise InvalidToken()
 
-        return int(payload.get("sub"))
+        return JsonWebToken.model_validate(payload)
