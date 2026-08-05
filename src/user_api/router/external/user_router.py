@@ -19,7 +19,7 @@ class UserRouter(BaseRouter):
     def __init__(self):
         super().__init__(
             prefix = "/user",
-            tags = ["dev"],
+            tags = ["external"],
             response = {404: {"description": "Not Found"}}
         )
 

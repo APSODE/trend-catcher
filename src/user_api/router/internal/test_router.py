@@ -8,7 +8,7 @@ class TestRouter(BaseRouter):
     def __init__(self):
         super().__init__(
             prefix = "/test",
-            tags = ["dev-only"],
+            tags = ["internal"],
             response = {403: {"description": "개발 환경에서만 사용 가능"}},
         )
 
