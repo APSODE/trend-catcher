@@ -1,22 +1,24 @@
 from datetime import datetime, time
 
 from beanie import PydanticObjectId, SortDirection
+from pymongo.asynchronous.client_session import AsyncClientSession
 
 from src.crawler_api.model.article import Article
 from src.crawler_api.repository.base_repository import BaseRepository
 from src.crawler_api.schemas.article import ArticleCreate, ArticleUpdate
-from src.crawler_api.util.normalize_datetime import normalize_datetime
+from src.crawler_api.util.normalize_datetime import now_normalized
 
 
 class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
-    def __init__(self):
-        super().__init__(Article)
+    def __init__(self, session : AsyncClientSession | None = None):
+        super().__init__(Article, session)
+
 
     async def create_one(self, schema : ArticleCreate) -> PydanticObjectId | None:
         exist_data = await self.get_by_url(schema.url)
         if exist_data:
             update_date = schema.model_dump(exclude_unset = True, exclude_none= True)
-            update_date["db_updated_at"] = normalize_datetime(datetime.now())
+            update_date["db_updated_at"] = now_normalized()
             await exist_data.set(update_date)
             return exist_data.id
         document = Article(**schema.model_dump())
@@ -32,8 +34,8 @@ class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
                 update_schema = (ArticleUpdate(**schema.model_dump()))
                 update_data = update_schema.model_dump(exclude_unset=True, exclude_none=True)
 
-                update_data["db_updated_at"] = normalize_datetime(datetime.now())
-                await exist_data.set(update_data)
+                update_data["db_updated_at"] = now_normalized()
+                await exist_data.set(update_data, session=self._session)
                 if exist_data.id is not None:
                     ids.append(exist_data.id)
 
@@ -54,7 +56,7 @@ class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
         update_data = schema.model_dump(exclude_unset = True, exclude_none= True)
         if not update_data:
             return None
-        update_data["db_updated_at"] = normalize_datetime(datetime.now())
+        update_data["db_updated_at"] = now_normalized()
 
         result = await self.update({"url": url}, update_data = update_data)
         if result is None:
@@ -65,14 +67,13 @@ class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
     async def update_by_id(self, target_id : PydanticObjectId, update_date : dict) -> Article | None:
         if not update_date:
             return None
-        update_date["db_updated_at"] = normalize_datetime(datetime.now())
-
+        update_date["db_updated_at"] = now_normalized()
         document = await self.get_by_id(target_id)
 
         if document is None:
             return None
 
-        await document.set(update_date)
+        await document.set(update_date, session = self._session)
         return document
 
 
