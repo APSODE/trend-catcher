@@ -8,3 +8,9 @@ class NotFollowedHashtagData(AppException):
 
     def __init__(self):
         super().__init__(f"Current hashtag is unfollowed")
+
+class AlreadyFollowedHashtagData(AppException):
+    status_code = HTTPStatus.BAD_REQUEST
+
+    def __init__(self):
+        super().__init__(f"Current hashtag already followed")
