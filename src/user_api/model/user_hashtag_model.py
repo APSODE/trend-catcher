@@ -24,4 +24,10 @@ class UserHashtagModel(BaseModel):
         back_populates = "interested_user"
     )
 
+    def __init__(self, user_fk: int, hashtag_fk: int, **kw: Any):
+        super().__init__(**kw)
+        self.user_fk = user_fk
+        self.hashtag_fk = hashtag_fk
+
+
 
