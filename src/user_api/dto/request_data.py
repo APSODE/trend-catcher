@@ -39,6 +39,9 @@ class NameQueryRequest(BaseModel):
 class PKQueryRequest(BaseModel):
     pk: int
 
+class LoginIDQueryRequest(BaseModel):
+    login_id: str
+
 
 # # ==== 사용..? 안할수도...?
 # class CreateHashtagRequest(HashtagData):

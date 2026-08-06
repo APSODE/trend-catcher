@@ -5,6 +5,7 @@ from src.user_api.dto.token_data import JsonWebToken, TokenType, TokenPair
 from src.user_api.dto.request_data import (
     PKQueryRequest,
     NameQueryRequest,
+    LoginIDQueryRequest,
     RefreshRequest,
     RegisterRequest,
     LoginRequest,

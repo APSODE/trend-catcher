@@ -13,3 +13,8 @@ class InvalidCredentialData(AppException):
     status_code = HTTPStatus.NOT_FOUND
     def __init__(self):
         super().__init__("Invalid username or password")
+
+class UnknownAccountData(AppException):
+    status_code = HTTPStatus.NOT_FOUND
+    def __init__(self):
+        super().__init__("unknown account data, please check data")

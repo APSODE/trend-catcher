@@ -1,4 +1,4 @@
-from typing import Optional, Sequence
+from typing import Optional, Sequence, List
 
 from src.user_api.db import DatabaseController, RelationPath
 from src.user_api.model import AccountModel
@@ -39,6 +39,14 @@ class AccountRepository(BaseRepository[AccountModel]):
                                       load_relations: Optional[Sequence[RelationPath]] = None) -> Optional[AccountModel]:
         return await self.find_one(
             filter = self.model_class.login_id == login_id,
+            load_relations = load_relations
+        )
+
+    async def get_account_by_user_pk(self,
+                                     user_pk: int,
+                                     load_relations: Optional[Sequence[RelationPath]] = None) -> List[AccountModel]:
+        return await self.find_all(
+            filter = self.model_class.user_fk == user_pk,
             load_relations = load_relations
         )
 
