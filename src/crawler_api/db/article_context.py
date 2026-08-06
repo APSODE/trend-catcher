@@ -1,4 +1,4 @@
-from src.crawler_api.db.data_acess_context import DataAccessContext
+from src.crawler_api.db.data_access_context import DataAccessContext
 from src.crawler_api.repository.article_repository import ArticleRepository
 
 
