@@ -2,7 +2,6 @@ from fastapi import HTTPException
 
 class BaseErrorException(HTTPException):
     def __init__(self, message : str | None = None, status_code : int = 404):
-        self.status_code = 404
         if message:
             super().__init__(detail = message, status_code = status_code)
         else:
