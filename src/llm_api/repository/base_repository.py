@@ -26,6 +26,10 @@ class BaseRepository(Generic[ModelType]):
         await self._session.flush()
         return models
 
+    #전부 반환
+    async def find_all(self) -> list[ModelType]:
+        return await self._find_all()
+
     #외래키로 탐색
     async def get_by_pk(self, pk: int) -> ModelType | None:
         return await self._session.get(self._model_class, pk)

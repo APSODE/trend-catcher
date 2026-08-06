@@ -10,10 +10,6 @@ class KeywordRepository(BaseRepository[KeywordModel]):
     async def find_by_keyword(self, keyword: str) -> KeywordModel | None:
         return await self._find_one(KeywordModel.keyword == keyword)
 
-    # 다 꺼내기
-    async def find_all(self) -> list[KeywordModel]:
-        return await self._find_all()
-
     #모델 포장
     async def create_keyword(self, keyword: str, embedding: list[float]) -> KeywordModel:
         new_keyword = KeywordModel(keyword = keyword, embedding = embedding)
