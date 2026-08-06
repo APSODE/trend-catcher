@@ -1,9 +1,10 @@
+import logging
 import urllib.robotparser
 from urllib.parse import urlparse, urljoin
 
 import httpx
 
-
+logger = logging.getLogger(__name__)
 class CheckRobots:
     def __init__(self, url: str):
         parse_url = urlparse(url)
@@ -24,7 +25,8 @@ class CheckRobots:
 
                 self.__rp.parse(response.text.splitlines())
                 self.__is_loaded = True
-        except Exception:
+        except Exception as e:
+            logger.exception("robot.txt 설정 오류 발생 : %s",e)
             self.__is_loaded = False
             return
 

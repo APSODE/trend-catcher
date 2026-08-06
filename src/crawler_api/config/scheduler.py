@@ -22,14 +22,14 @@ async def run_scheduled_crawl(app : FastAPI):
 
     try:
         result = await CrawlingPipeline.run_all_today(sources = list(NewsSitemap))
-    except Exception:
-        logger.exception("크롤링 중 오류 발생")
+    except Exception as e:
+        logger.exception("크롤링 중 오류 발생 : %s", e)
         return
 
     try:
         await service.create_articles(result)
-    except Exception:
-        logger.exception("크롤링데이터 저장 실패")
+    except Exception as e:
+        logger.exception("크롤링데이터 저장 실패 : %s", e)
 
 def init_scheduler(app : FastAPI) -> AsyncIOScheduler:
     scheduler = AsyncIOScheduler(timezone="Asia/Seoul")
