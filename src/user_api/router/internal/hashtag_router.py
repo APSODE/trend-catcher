@@ -20,7 +20,7 @@ class HashtagRouter(BaseRouter):
             hashtags = await service.query_all_hashtag()
             return DataCollectionResponse(
                 amount = len(hashtags),
-                datas= hashtags
+                datas = hashtags
             )
 
         @self.get("/get-by-name", response_model = HashtagData)
