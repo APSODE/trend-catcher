@@ -19,6 +19,12 @@ class UnknownAccountData(AppException):
     def __init__(self):
         super().__init__("unknown account data, please check data")
 
+class NotExistAccountData(AppException):
+    status_code = HTTPStatus.NOT_FOUND
+
+    def __init__(self):
+        super().__init__("Not exist data, please check data")
+
 class AlreadyLinkedAccount(AppException):
     status_code = HTTPStatus.CONFLICT
 

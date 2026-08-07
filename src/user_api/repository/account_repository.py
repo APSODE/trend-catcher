@@ -49,8 +49,8 @@ class LocalAccountRepository(BaseRepository[LocalAccountModel]):
 
     async def get_account_by_user_pk(self,
                                      user_pk: int,
-                                     load_relations: Optional[Sequence[RelationPath]] = None) -> List[LocalAccountModel]:
-        return await self.find_all(
+                                     load_relations: Optional[Sequence[RelationPath]] = None) -> Optional[LocalAccountModel]:
+        return await self.find_one(
             filter = self.model_class.user_fk == user_pk,
             load_relations = load_relations
         )
@@ -131,6 +131,15 @@ class SocialAccountRepository(BaseRepository[SocialAccountModel]):
                                       load_relations: Optional[Sequence[RelationPath]] = None) -> List[SocialAccountModel]:
         return await self.find_all(
             filter = self.model_class.user_fk == user_pk,
+            load_relations = load_relations
+        )
+
+    async def get_account_by_user_pk_and_provider(self,
+                                                  user_pk: int,
+                                                  provider: AccountProvider,
+                                                  load_relations: Optional[Sequence[RelationPath]] = None) -> Optional[SocialAccountModel]:
+        return await self.find_one(
+            filter = (self.model_class.user_fk == user_pk) & (self.model_class.provider == provider),
             load_relations = load_relations
         )
 
