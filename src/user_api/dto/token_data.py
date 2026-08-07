@@ -3,8 +3,10 @@ from enum import Enum
 
 from pydantic import BaseModel, field_validator
 
+from src.user_api.dto.account_data import AccountData
 
-class TokenType(Enum):
+
+class TokenType(str, Enum):
     ACCESS = "access"
     REFRESH = "refresh"
 
@@ -16,16 +18,12 @@ class TokenPair(BaseModel):
 
 class JsonWebToken(BaseModel):
     jwt_id: str
-    account_pk: int
+    account: AccountData
     type: TokenType
     iat: datetime
     exp: datetime
     session_id: str
 
-    @field_validator("account_pk", mode = "before")
-    @classmethod
-    def parse_account_pk(cls, value):
-        return int(value)
 
 class RefreshJWT(BaseModel):
     access_token_id: str

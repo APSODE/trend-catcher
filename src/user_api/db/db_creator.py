@@ -18,8 +18,8 @@ class _DatabaseAccount:
 
     def _read_data(self) -> None:
         ac_data = JsonReadWrite.read(self._account_data_file)
-        self._id = quote_plus(ac_data.get("id"))
-        self._pw = quote_plus(ac_data.get("pw"))
+        self._id = ac_data.get("id")
+        self._pw = ac_data.get("pw")
 
     @property
     def id(self):
@@ -75,7 +75,7 @@ class DatabaseCreator:
 
     def _create_engine(self) -> AsyncEngine:
         return create_async_engine(
-            f"oracle+oracledb_async://{self._database_account.id}:{self._database_account.pw}@localhost:51521/?service_name=trend_catcher",
+            f"oracle+oracledb_async://{self._database_account.id}:{quote_plus(self._database_account.pw)}@172.22.114.34:51521/?service_name=trend_catcher",
             echo = True,
         )
 

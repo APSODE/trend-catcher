@@ -2,7 +2,7 @@ from typing import Callable, Dict, Type, TypeVar, AsyncGenerator
 
 from src.user_api.db.db_controller import DatabaseController
 from src.user_api.db.db_creator import DatabaseCreator
-from src.user_api.repository.account_repository import AccountRepository
+from src.user_api.repository.account_repository import LocalAccountRepository, SocialAccountRepository
 from src.user_api.repository.base_repository import BaseRepository
 from src.user_api.repository.hashtag_repository import HashtagRepository
 from src.user_api.repository.user_hashtag_repository import UserHashtagRepository
@@ -44,7 +44,8 @@ class TransactionContext:
 
 _REPOSITORY_FACTORIES: Dict[Type[BaseRepository], Callable] = {
     UserRepository: UserRepository,
-    AccountRepository: AccountRepository,
+    LocalAccountRepository: LocalAccountRepository,
+    SocialAccountRepository: SocialAccountRepository,
     HashtagRepository: HashtagRepository,
     UserHashtagRepository: UserHashtagRepository,
 }

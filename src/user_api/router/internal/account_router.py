@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends, Query
 
-from src.user_api.dto import DataCollectionResponse, AccountData, LoginIDQueryRequest, PKQueryRequest
+from src.user_api.dto import DataCollectionResponse, LocalAccountData, LoginIDQueryRequest, PKQueryRequest
 from src.user_api.router import BaseRouter
 from src.user_api.service.internal import AccountService, get_account_service
 
@@ -24,7 +24,7 @@ class AccountRouter(BaseRouter):
                 datas = accounts
             )
 
-        @self.get("/get-by-login-id", response_model = AccountData)
+        @self.get("/get-by-login-id", response_model = LocalAccountData)
         async def get_by_login_id(request: Annotated[LoginIDQueryRequest, Query()],
                                   service: AccountService = Depends(get_account_service)):
             return await service.query_by_login_id(request.login_id)
@@ -38,7 +38,7 @@ class AccountRouter(BaseRouter):
                 datas = accounts
             )
 
-        @self.get("/get-by-pk", response_model = AccountData)
+        @self.get("/get-by-pk", response_model = LocalAccountData)
         async def get_by_pk(request: Annotated[PKQueryRequest, Query()],
                             service: AccountService = Depends(get_account_service)):
             return await service.query_by_pk(request.pk)

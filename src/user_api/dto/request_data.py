@@ -2,11 +2,12 @@ from typing import List
 
 from pydantic import BaseModel
 
+from src.user_api.constant.account_constant import AccountProvider
 from src.user_api.constant.permission import Permission
 from src.user_api.dto.hashtag_data import HashtagData
 
 
-class RegisterRequest(BaseModel):
+class LocalRegisterData(BaseModel):
     name: str
     permission: int | Permission = Permission.GUEST
     interest: List[int] = []
@@ -14,9 +15,22 @@ class RegisterRequest(BaseModel):
     login_id: str
     password: str
 
-class LoginRequest(BaseModel):
+class SocialRegisterData(BaseModel):
+    provider: AccountProvider
+    provider_access_token: str
+    permission: int | Permission = Permission.GUEST
+
+class LocalLoginRequest(BaseModel):
     login_id: str
     password: str
+
+class SocialLoginRequest(BaseModel):
+    provider: AccountProvider
+    provider_access_token: str
+
+class SocialLinkRequest(BaseModel):
+    provider: AccountProvider
+    provider_access_token: str
 
 class LogoutRequest(BaseModel):
     access_token: str
@@ -41,7 +55,6 @@ class PKQueryRequest(BaseModel):
 
 class LoginIDQueryRequest(BaseModel):
     login_id: str
-
 
 # # ==== 사용..? 안할수도...?
 # class CreateHashtagRequest(HashtagData):

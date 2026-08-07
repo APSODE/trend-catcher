@@ -7,7 +7,7 @@ from src.user_api.exceptions.app_exception import AppException
 
 E = TypeVar("E", bound = AppException)
 
-
+#TODO 보일러플레이트로 인한 문제가 발생할 가능성이 높음 -> 추후 Handler 등록과정에 대해 전반적인 개편 예정
 class BaseExceptionHandler(Generic[E]):
     def __init__(self, exception_type: Type[E]):
         self._exception_type = exception_type

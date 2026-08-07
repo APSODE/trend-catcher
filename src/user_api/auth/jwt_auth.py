@@ -7,7 +7,7 @@ from src.user_api.utils.jwt_util import JwtUtil
 class TokenWhitelist:
     @staticmethod
     def __create_key(jwt: JsonWebToken) -> str:
-        return f"whitelist:{jwt.type}:{jwt.account_pk}:{jwt.session_id}"
+        return f"whitelist:{jwt.type}:{jwt.account.account_type}:{jwt.account.pk}:{jwt.session_id}"
 
     @staticmethod
     def __create_ttl(token_type: TokenType) -> int:
@@ -32,13 +32,13 @@ class TokenWhitelist:
     @staticmethod
     async def is_registered(jwt: JsonWebToken, raw_token: str) -> bool:
         stored_token = await RedisCreator().client.get(
-            TokenWhitelist.__create_key(jwt=jwt)
+            TokenWhitelist.__create_key(jwt = jwt)
         )
         return stored_token == raw_token
 
     @staticmethod
-    async def revoke_all_by_session(jwt: JsonWebToken) -> None:  # 이름도 명확하게
+    async def revoke_all_by_session(jwt: JsonWebToken) -> None:
         client = RedisCreator().client
-        pattern = f"whitelist:*:{jwt.account_pk}:{jwt.session_id}"  # account_pk도 함께 특정하는 게 더 안전
+        pattern = f"whitelist:*:{jwt.account.account_type}:{jwt.account.pk}:{jwt.session_id}"
         async for key in client.scan_iter(match = pattern):
             await client.delete(key)

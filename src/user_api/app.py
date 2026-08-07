@@ -4,6 +4,7 @@ from typing import List
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.user_api.auth import OAuth2Client
 from src.user_api.db.db_creator import DatabaseCreator
 from src.user_api.handler.exception_handler.auth_exception_handler import ExpiredTokenExceptionHandler, \
     MismatchTokenTypeExceptionHandler
@@ -35,7 +36,7 @@ class UserAPI(FastAPI):
         await DatabaseCreator().init_db()
 
         yield
-
+        await OAuth2Client.close()
         await DatabaseCreator().engine.dispose()
 
     def _setup_exception_handlers(self) -> None:
