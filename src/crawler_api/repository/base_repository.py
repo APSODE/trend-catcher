@@ -66,8 +66,8 @@ class BaseRepository(Generic[ModelType, IdType]):
         return await documents.to_list()
 
 
-    async def update_by_id(self, target_id : IdType, update_date : dict) -> ModelType | None:
-        if not update_date:
+    async def update_by_id(self, target_id : IdType, update_data : dict) -> ModelType | None:
+        if not update_data:
             return None
 
         document = await self.get_by_id(target_id)
@@ -75,13 +75,16 @@ class BaseRepository(Generic[ModelType, IdType]):
         if document is None:
             return None
 
-        await document.set(update_date, session = self._session)
+        await document.set(update_data, session = self._session)
         return document
 
     async def delete(self,
                      filter_data: FilterType | None = None,
                       amount : int = 1) -> bool:
-        query = self._model.find(filter_data) if filter_data else self._model.find_all()
+        if filter_data is not None:
+            query = self._model.find(filter_data, session = self._session)
+        else:
+            query = self._model.find_all(session = self._session)
 
         if amount == 1: #1건 삭제인경우
             document = await query.first_or_none()
@@ -106,8 +109,5 @@ class BaseRepository(Generic[ModelType, IdType]):
         return True
 
     async def is_exist(self, filter_data : FilterType) -> bool:
-        result = await self._model.find(filter_data, session = self._session).limit(1).to_list()
-        return len(result) > 0
-
-
-    #TODO Session 관리
+        result = await self._model.find(filter_data, session = self._session).count()
+        return result > 0
