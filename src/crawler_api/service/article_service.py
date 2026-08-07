@@ -19,7 +19,7 @@ class ArticleService:
 
     async def get_all_articles(self) -> list[ArticleRead]:
         result : list[ArticleRead] = []
-        for article in await self._article_repository.find_all(sort = [("crawled_at", SortDirection.DESCENDING)]):
+        for article in await self._article_repository.find_all(sort = [("crawled_at", SortDirection.DESCENDING), ("published_at", SortDirection.ASCENDING)]):
             if article is not None:
                 result.append(ArticleRead.model_validate(article))
 
