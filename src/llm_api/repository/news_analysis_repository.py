@@ -23,14 +23,14 @@ class NewsAnalysisRepository(BaseRepository[NewsAnalysisModel]):
         return list(result.all())
 
     #점수 채우기
-    async def update_score(self, news: NewsAnalysisModel, score: float, score_detail: dict[str, float]):
+    async def update_score(self, news: NewsAnalysisModel, score: float, cross_check_score: float):
         news.score = score
-        news.score_detail = score_detail
+        news.cross_check_score = cross_check_score
         await self._session.flush()
 
     #모델 포장
-    async def create_analysis(self, crawled_id: str, category: str | None, topic_fk: int, score_detail: dict[str, float]) -> NewsAnalysisModel:
-        new_analysis = NewsAnalysisModel(crawled_id = crawled_id, category = category, topic_fk = topic_fk, score_detail = score_detail)
+    async def create_analysis(self, crawled_id: str, category: str | None, topic_fk: int, content_score: float) -> NewsAnalysisModel:
+        new_analysis = NewsAnalysisModel(crawled_id = crawled_id, category = category, topic_fk = topic_fk, content_score = content_score)
         return await self.save(new_analysis)
 
     #TODO: 알림용 이번 타임 뉴스만 반환 메소드 필요

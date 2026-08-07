@@ -11,5 +11,6 @@ class NewsAnalysisModel(AbstractBaseModel):
     category: Mapped[str | None] = mapped_column(String(50)) #카테고리
     topic_fk: Mapped[int] = mapped_column(ForeignKey("topic.pk")) #주제 pk
     score: Mapped[float | None] = mapped_column(Float) #최종 신뢰점수
-    score_detail: Mapped[dict[str, float]] = mapped_column(JSON) #디버깅용, 신뢰점수 구하는 과정 저장
+    content_score: Mapped[float] = mapped_column(Float)  # LLM 자체 평가 (분석 시점)
+    cross_check_score: Mapped[float | None] = mapped_column(Float)  # 중복도 (산정 시점)
     analyzed_at: Mapped[datetime] = mapped_column(default = DateTimeUtil.get_now_kst) #분석한 시간

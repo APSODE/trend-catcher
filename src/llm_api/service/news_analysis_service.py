@@ -45,7 +45,7 @@ class NewsAnalysisService:
             crawled_id = news.crawled_id,
             category = news.category,
             topic_fk = topic.pk,
-            score_detail = {"content_score" : extraction.content_score}
+           content_score = extraction.content_score
         )
 
         #뉴스-키워드 연결
