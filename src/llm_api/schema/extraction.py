@@ -8,4 +8,4 @@ class ExtractionResultData(BaseModel):
     @field_validator("keywords") #keywords는 자동으로 여기 빨려들어가서 빈 문자 날리는 작업을 거침
     @classmethod
     def clean_keywords(cls, value: list[str]) -> list[str]:
-        return [k.strip() for k in value if k.strip()]
+        return [word.strip() for word in value if word.strip()]
