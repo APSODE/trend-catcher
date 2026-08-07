@@ -14,35 +14,47 @@ class KeywordAssignmentService:
         self._keyword_repository = keyword_repository
 
     async def assign(self, keywords: list[str]) -> list[KeywordModel]:
-        keywords = list(dict.fromkeys(keywords)) #중복제거
-
+        keywords = list(dict.fromkeys(keywords))
         candidates = await self._keyword_repository.find_all()
 
-        #완전히 겹치는 키워드들을 걸러냄
-        result: dict[str, KeywordModel] = {}
+        matched, unmatched = self._filter_already_exist(keywords, candidates)
+        matched |= await self._resolve_unmatched(unmatched, candidates)
+
+        return self._deduplicate(keywords, matched)
+
+    #이미 있는 키워드들 필터링
+    def _filter_already_exist(self, keywords: list[str], candidates: list[KeywordModel]) -> tuple[dict[str, KeywordModel], list[str]]:
+        matched: dict[str, KeywordModel] = {}
         unmatched: list[str] = []
+
         for keyword in keywords:
-            exact = self._find_already_exist(keyword, candidates)
+            exact = KeywordAssignmentService._find_already_exist(keyword, candidates)
             if exact is not None:
-                result[keyword] = exact
+                matched[keyword] = exact
             else:
                 unmatched.append(keyword)
+        return matched, unmatched
 
-        #안겹치는 것들 임베딩
-        if unmatched:
-            embeddings = await self._client.create_embeddings(unmatched, EmbeddingInputType.PASSAGE)
+    #매칭 안된것들 일괄포장
+    async def _resolve_unmatched(self, unmatched: list[str], candidates: list[KeywordModel]) -> dict[str, KeywordModel]:
+        if not unmatched:
+            return {}
 
-            #유사도 판정 후 적용
-            for keyword, embedding in zip(unmatched, embeddings):
-                model = await self._match_or_create(keyword, embedding, candidates)
-                result[keyword] = model
-                if model not in candidates:
-                    candidates.append(model)
+        embeddings = await self._client.create_embeddings(unmatched, EmbeddingInputType.PASSAGE)
 
-        #임베딩 뒤 중복 제거 후 순서 맞춰 리턴
+        resolved: dict[str, KeywordModel] = {}
+        for keyword, embedding in zip(unmatched, embeddings):
+            model = await self._match_or_create(keyword, embedding, candidates)
+            resolved[keyword] = model
+            if model not in candidates:
+                candidates.append(model)
+        return resolved
+
+    #중복 제거
+    def _deduplicate(self, keywords: list[str], matched: dict[str, KeywordModel]) -> list[KeywordModel]:
         unique: dict[int, KeywordModel] = {}
         for keyword in keywords:
-            model = result[keyword]
+            model = matched[keyword]
             unique.setdefault(model.pk, model)
         return list(unique.values())
 
