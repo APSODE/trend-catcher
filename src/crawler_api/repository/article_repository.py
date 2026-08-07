@@ -2,6 +2,7 @@ from datetime import datetime, time
 
 from beanie import PydanticObjectId, SortDirection
 from pymongo.asynchronous.client_session import AsyncClientSession
+from pymongo.errors import DuplicateKeyError
 
 from src.crawler_api.model.article import Article
 from src.crawler_api.repository.base_repository import BaseRepository
@@ -13,37 +14,46 @@ class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
     def __init__(self, session : AsyncClientSession | None = None):
         super().__init__(Article, session)
 
+    async def _apply_update(self, exist_data : Article, schema : ArticleCreate) -> PydanticObjectId | None:
+        update_data = ArticleUpdate(**schema.model_dump()).model_dump(exclude_none=True)
+        update_data["db_updated_at"] = now_normalized()
+        await exist_data.set(update_data, session=self._session)
+        return exist_data.id
 
     async def create_one(self, schema : ArticleCreate) -> PydanticObjectId | None:
         exist_data = await self.get_by_url(schema.url)
         if exist_data:
-            update_date = schema.model_dump(exclude_unset = True, exclude_none= True)
-            update_date["db_updated_at"] = now_normalized()
-            await exist_data.set(update_date)
-            return exist_data.id
+            return await self._apply_update(exist_data, schema)
         document = Article(**schema.model_dump())
-        return await self.add_one(document)
+        try:
+            return await self.add_one(document)
+        except DuplicateKeyError:
+            exist_data = await self.get_by_url(schema.url)
+            if exist_data is not None:
+                return await self._apply_update(exist_data, schema)
 
     async def create_many(self, schemas : list[ArticleCreate]) -> list[PydanticObjectId]:
         ids : list[PydanticObjectId] = []
-        schemas = list(filter(lambda x: x.url, schemas))
+        schemas = [schema for schema in schemas if schema.url]
 
         for schema in schemas:
             exist_data = await self.get_by_url(schema.url)
             if exist_data:
-                update_schema = (ArticleUpdate(**schema.model_dump()))
-                update_data = update_schema.model_dump(exclude_unset=True, exclude_none=True)
-
-                update_data["db_updated_at"] = now_normalized()
-                await exist_data.set(update_data, session=self._session)
-                if exist_data.id is not None:
-                    ids.append(exist_data.id)
-
-            else:
-                document = Article(**schema.model_dump())
-                result = await self.add_one(document)
+                result = await self._apply_update(exist_data, schema)
                 if result is not None:
                     ids.append(result)
+                continue
+            document = Article(**schema.model_dump())
+            try:
+                result = await self.add_one(document) #동시에 다른 요청이 insert를 실행한 경우 duplicatekey error 발생
+                if result is not None:
+                    ids.append(result)
+            except DuplicateKeyError: #따라서 동시 요청으로 인한 오류 발생시 업데이트하도록 변경
+                exist_data = await self.get_by_url(schema.url)
+                if exist_data is not None:
+                    result = await self._apply_update(exist_data, schema)
+                    if result is not None:
+                        ids.append(result)
         return ids
 
     async def get_by_url(self, url: str)  -> Article | None:
@@ -64,16 +74,16 @@ class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
         return result[0]
 
 
-    async def update_by_id(self, target_id : PydanticObjectId, update_date : dict) -> Article | None:
-        if not update_date:
+    async def update_by_id(self, target_id : PydanticObjectId, update_data : dict) -> Article | None:
+        if not update_data:
             return None
-        update_date["db_updated_at"] = now_normalized()
+        update_data["db_updated_at"] = now_normalized()
         document = await self.get_by_id(target_id)
 
         if document is None:
             return None
 
-        await document.set(update_date, session = self._session)
+        await document.set(update_data, session = self._session)
         return document
 
 
