@@ -1,4 +1,4 @@
-import asyncio
+import asyncio, logging
 from datetime import datetime
 
 from src.crawler_api.constant.news_sitemap import NewsSitemap
@@ -8,6 +8,7 @@ from src.crawler_api.service.url_fetcher.url_fetcher_factory import UrlFetcherFa
 from src.crawler_api.service.url_parser.url_parser_factory import UrlParserFactory
 from src.crawler_api.util.normalize_datetime import normalize_datetime, now_normalized
 
+logger = logging.getLogger(__name__)
 
 class CrawlingPipeline:
     """
@@ -23,45 +24,51 @@ class CrawlingPipeline:
         self.__parser = UrlParserFactory.create(source)
 
     async def run(self, date: datetime, limit: int | None = None) -> list[ArticleCreate]:
-        sitemap_url = self.__source.value.get_url(normalize_datetime(date))
+        try:
+            sitemap_url = self.__source.value.get_url(normalize_datetime(date))
 
-        sitemap_content = await self.__fetcher.fetch(sitemap_url)
-        urls = await self.__extractor.parse(sitemap_content, self.__source.value.selector, sitemap_url)
-        if not urls:
-            return []
-        if limit is not None:
-            urls = urls[:limit]
+            sitemap_content = await self.__fetcher.fetch(sitemap_url)
+            urls = await self.__extractor.parse(sitemap_content, self.__source.value.selector, sitemap_url)
+            if not urls:
+                return []
+            if limit is not None:
+                urls = urls[:limit]
 
-        page_contents = await self.__fetcher.fetch_by_all(urls, sitemap_url)
+            page_contents = await self.__fetcher.fetch_by_all(urls, sitemap_url)
 
-        valid_pairs = [(url, content) for url, content in zip(urls, page_contents) if content != ""]
-        if not valid_pairs:
-            return []
+            valid_pairs = [(url, content) for url, content in zip(urls, page_contents) if content != ""]
+            if not valid_pairs:
+                return []
 
-        valid_urls = [url for url, _ in valid_pairs]
-        parsed_result = await asyncio.gather(*(self.__parser.parse(content) for _, content in valid_pairs), return_exceptions=True)
+            valid_urls = [url for url, _ in valid_pairs]
+            parsed_result = await asyncio.gather(*(self.__parser.parse(content) for _, content in valid_pairs), return_exceptions=True)
 
-        articles : list[ArticleCreate] = []
-        crawled_at = now_normalized()
-        for url, parsed in zip(valid_urls, parsed_result):
+            articles : list[ArticleCreate] = []
+            crawled_at = now_normalized()
+            for url, parsed in zip(valid_urls, parsed_result):
 
-            if isinstance(parsed, Exception):
-                continue
-            if parsed is None:
-                continue
-            articles.append(
-                ArticleCreate(
-                    url = url,
-                    title = parsed.title.replace("\n", " "),
-                    content = parsed.content.replace("\n", " "),
-                    published_at = parsed.published_at,
-                    crawled_at = crawled_at,
-                    company_name = self.__source.value.company_name,
-                    reporter = parsed.reporter.replace("\n", " ") if parsed.reporter else None,
-                    category = parsed.category.replace("\n", " ") if parsed.category else None,
-                    img_list = parsed.img_urls)
-            )
-        return articles
+                if isinstance(parsed, Exception):
+                    logger.exception("파싱 중 오류 발생 : %s", parsed)
+                    continue
+                if parsed is None:
+                    continue
+                articles.append(
+                    ArticleCreate(
+                        url = url,
+                        title = parsed.title.replace("\n", " "),
+                        content = parsed.content.replace("\n", " "),
+                        published_at = parsed.published_at,
+                        crawled_at = crawled_at,
+                        company_name = self.__source.value.company_name,
+                        reporter = parsed.reporter.replace("\n", " ") if parsed.reporter else None,
+                        category = parsed.category.replace("\n", " ") if parsed.category else None,
+                        img_list = parsed.img_urls)
+                )
+
+            return articles
+        finally:
+            if hasattr(self.__fetcher, "close"): #fetcher에 close가 있는경우(selenium인 경우)
+                self.__fetcher.close()
 
     async def run_today(self, limit: int | None = None) -> list[ArticleCreate]:
         return await self.run(normalize_datetime(datetime.today()), limit=limit)
@@ -75,6 +82,7 @@ class CrawlingPipeline:
         articles : list[ArticleCreate] = []
         for source, result in zip(sources, results):
             if isinstance(result, Exception):
+                logger.exception("오류 발생 : %s ", result)
                 continue
             articles.extend(result)
         return articles
