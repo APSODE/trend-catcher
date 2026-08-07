@@ -1,6 +1,7 @@
 from src.llm_api.infrastructure.nvidia_client import NvidiaClient
 from src.llm_api.model.keyword_model import KeywordModel
 from src.llm_api.repository.keyword_repository import KeywordRepository
+from src.llm_api.constant.llm_constant import EmbeddingInputType
 from src.llm_api.constant.scoring_constant import ScoringConstant
 from src.llm_api.util.similarity_util import SimilarityUtil
 import logging
@@ -29,7 +30,7 @@ class KeywordAssignmentService:
 
         #안겹치는 것들 임베딩
         if unmatched:
-            embeddings = await self._client.create_embeddings(unmatched, "passage")
+            embeddings = await self._client.create_embeddings(unmatched, EmbeddingInputType.PASSAGE)
 
             #유사도 판정 후 적용
             for keyword, embedding in zip(unmatched, embeddings):

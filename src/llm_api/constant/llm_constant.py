@@ -1,3 +1,5 @@
+from enum import Enum
+
 class LLMConstant:
     BASE_URL = "https://integrate.api.nvidia.com/v1"
 
@@ -53,3 +55,8 @@ class LLMConstant:
     EXTRACTION_RETRY_ATTEMPTS = 2
     RETRY_BASE_DELAY = 1.0
     HASHTAG_RETRY_ATTEMPTS = 2
+
+#임베딩 타입 enum
+class EmbeddingInputType(str, Enum):
+    QUERY = "query"
+    PASSAGE = "passage"
