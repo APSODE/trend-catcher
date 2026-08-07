@@ -14,14 +14,14 @@ class UserService(BaseService):
 
     async def query_all_user(self) -> List[UserData]:
         user_models = await self.__user_repository.find_all(
-            load_relations = required_relation(UserModel)
+            load_relations = required_relation(UserData)
         )
         return serialize_many(user_models, UserData)
 
     async def query_user_by_name(self, user_name: str) -> List[UserData]:
         user_models = await self.__user_repository.get_by_name(
             target_name = user_name,
-            load_relations = required_relation(UserModel)
+            load_relations = required_relation(UserData)
         )
         return serialize_many(user_models, UserData)
 
@@ -32,7 +32,7 @@ class UserService(BaseService):
     async def require_exist_user(self, user_pk) -> UserModel:
         maybe_user_model = await self.__user_repository.get_by_pk(
             target_pk = user_pk,
-            load_relations = required_relation(UserModel)
+            load_relations = required_relation(UserData)
         )
 
         if maybe_user_model is None:
