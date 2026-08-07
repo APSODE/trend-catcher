@@ -17,5 +17,5 @@ async def get_article_service(ctx : ArticleContext = Depends(get_article_context
                               event_publisher : EventPublisher = Depends(get_event_publisher)) -> ArticleService:
     return ArticleService(article_repository = ctx.articles, event_publisher = event_publisher)
 
-async def create_article_service(ctx : ArticleContext, event_publisher : EventPublisher) -> ArticleService:
+async def create_article_service(ctx : ArticleContext, event_publisher : EventPublisher) -> ArticleService: #스케줄러용 service create
     return ArticleService(article_repository = ctx.articles, event_publisher = event_publisher)
