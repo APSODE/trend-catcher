@@ -14,7 +14,7 @@ class ExtractionService:
         self._client = client
 
     #추출
-    async def _extract(self, title: str, content: str) -> ExtractionResultData:
+    async def extract(self, title: str, content: str) -> ExtractionResultData:
         prompt = LLMConstant.EXTRACTION_PROMPT_TEMPLATE.format(title = title, content = content)
 
         for attempt in range(LLMConstant.EXTRACTION_RETRY_ATTEMPTS):
