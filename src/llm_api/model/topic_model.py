@@ -11,4 +11,4 @@ class TopicModel(AbstractBaseModel):
     representative_crawled_id: Mapped[str] = mapped_column(String(32))#클러스터 만든 뉴스 id. 디버깅용
     representative_embedding: Mapped[list[float]] = mapped_column(JSON) #클러스터 만든 뉴스의 임베딩 벡터. 이후 들어오는건 이것과 비교
     count: Mapped[int] = mapped_column(default = 1) #중복도
-    first_found_at: Mapped[datetime] = mapped_column(default = DateTimeUtil.now_kst, index = True) #클러스터 만들어진 시간
+    first_found_at: Mapped[datetime] = mapped_column(default = DateTimeUtil.get_now_kst, index = True) #클러스터 만들어진 시간
