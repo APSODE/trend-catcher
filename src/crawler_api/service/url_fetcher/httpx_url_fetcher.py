@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import random
 
 import httpx
@@ -7,6 +8,7 @@ from src.crawler_api.service.url_fetcher.base_url_fetcher import BaseUrlFetcher
 from src.crawler_api.util.check_robots import CheckRobots
 
 headers = {"User-Agent": "Mozilla/5.0"}
+logger = logging.getLogger(__name__)
 
 class HTTPXUrlFetcher(BaseUrlFetcher):
     def __init__(self):
@@ -22,10 +24,12 @@ class HTTPXUrlFetcher(BaseUrlFetcher):
             async with httpx.AsyncClient(headers=headers, timeout=10.0) as client:
                 response = await client.get(url)
                 if response.status_code != 200:
-                    raise Exception()
+                    raise FetchValueException(f"상태코드 : {response.status_code} : {url}")
                 return response.text
-        except Exception:
-            raise FetchValueException()
+        except FetchValueException:
+            raise
+        except Exception as e:
+            raise FetchValueException(str(e)) from e
 
     async def _fetch_one(self, client: httpx.AsyncClient, url: str, robots: CheckRobots) -> str | None:
         async with self.__semaphore:
@@ -37,13 +41,11 @@ class HTTPXUrlFetcher(BaseUrlFetcher):
                     return ""
                 return response.text
             except httpx.TimeoutException:
-                #print(f"[TIMEOUT] {url}")
                 return ""
-            except httpx.RequestError as e:
-                #print(f"[REQUEST ERROR {type(e).__name__}] {url}: {e}")
+            except httpx.RequestError:
                 return ""
             except Exception as e:
-                #print(f"[UNKNOWN ERROR {type(e).__name__}] {url}: {e}")
+                logger.exception("httpx fetch  all 오류 발생 : %s",e)
                 return ""
             finally:
                 await asyncio.sleep(random.uniform(1.5, 3.5))
