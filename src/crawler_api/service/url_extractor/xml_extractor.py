@@ -2,15 +2,20 @@ from bs4 import BeautifulSoup
 
 from src.crawler_api.service.url_extractor.base_extractor import BaseExtractor
 
+
 class XMLExtractor(BaseExtractor):
+
     async def parse(
-            self,
-            raw_content : str,
-            selector : str | None = None,
-            base_url : str | None = None) -> list[str]:
+        self,
+        raw_content:  str,
+        selector: str | None = None,
+        base_url: str | None = None
+    ) -> list[str]:
+
         soup = BeautifulSoup(raw_content, "xml")
-        items : list[str] = []
-        seems : set[str] = set()
+        items: list[str] = []
+        seems: set[str] = set()
+
         for item in soup.find_all("url"):
             loc = item.find("loc")
             if not loc:

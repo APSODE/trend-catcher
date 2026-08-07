@@ -1,19 +1,21 @@
 import asyncio
 import logging
+
 from abc import ABC, abstractmethod
 
 from src.crawler_api.event.event_types import DomainEvent
+
 
 logger = logging.getLogger(__name__)
 
 class EventObserver(ABC):
     @abstractmethod
-    async def on_event(self, event : DomainEvent) -> None:
+    async def on_event(self, event: DomainEvent) -> None:
         pass
 
 class LoggingObserver(EventObserver):
 
-    async def on_event(self, event : DomainEvent):
+    async def on_event(self, event: DomainEvent):
         logger.info(
             "모델=%s 이벤트=%s id=%s 시간=%s",
             event.entity,
@@ -24,17 +26,20 @@ class LoggingObserver(EventObserver):
 
 class EventPublisher:
     def __init__(self):
-        self._observers : list[EventObserver] = []
+        self._observers: list[EventObserver] = []
 
-    def subscribe(self, observer : EventObserver):
+    def subscribe(self, observer: EventObserver):
         self._observers.append(observer)
 
-    def unsubscribe(self, observer : EventObserver):
+    def unsubscribe(self, observer: EventObserver):
         self._observers.remove(observer)
 
-    async def publish(self, event : DomainEvent) -> None:
+    async def publish(self, event: DomainEvent) -> None:
 
-        results = await asyncio.gather(*[observer.on_event(event) for observer in self._observers], return_exceptions=True)
+        results = await asyncio.gather(
+            *[observer.on_event(event) for observer in self._observers],
+            return_exceptions=True
+        )
 
         for observer, result in zip(self._observers, results):
             if isinstance(result, Exception):

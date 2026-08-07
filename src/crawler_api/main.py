@@ -1,5 +1,4 @@
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 
 from src.crawler_api.config.scheduler import init_scheduler
@@ -31,9 +30,9 @@ async def lifespan(app: FastAPI):
 
 
 CrawlerAPI = FastAPI(
-    title = "Crawler API",
-    lifespan = lifespan,
-    description = "Crawler API",
+    title="Crawler API",
+    lifespan=lifespan,
+    description="Crawler API",
 )
 
 CrawlerAPI.include_router(article_router.router)

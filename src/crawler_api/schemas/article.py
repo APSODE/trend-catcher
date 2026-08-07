@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from beanie import PydanticObjectId
 from pydantic import BaseModel, ConfigDict, field_serializer
 
@@ -26,7 +25,7 @@ class ArticleUpdate(BaseModel):
 
 class ArticleResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    url : str
+    url: str
     id: PydanticObjectId
     title: str
     company_name: str
@@ -37,10 +36,11 @@ class ArticleResponse(BaseModel):
     @field_serializer("id")
     def serialize_object_id(self, value):
         return str(value)
+
 class ArticleRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: PydanticObjectId
-    url : str
+    url: str
     title: str
     content: str
     company_name: str

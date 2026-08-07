@@ -1,8 +1,6 @@
-
 from datetime import datetime
 from enum import Enum
 from typing import Any
-
 from pydantic import BaseModel, Field
 
 from src.crawler_api.util.normalize_datetime import now_normalized

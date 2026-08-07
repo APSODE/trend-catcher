@@ -13,7 +13,9 @@ async def init_db() -> AsyncMongoClient:
     settings = get_settings()
     client = AsyncMongoClient(settings.mongodb_uri.get_secret_value())
 
-    await init_beanie(database=client[settings.mongodb_name],
+    await init_beanie(
+        database=client[settings.mongodb_name],
         #model 추가 시 수정
-        document_models=[Article])
+        document_models=[Article]
+    )
     return client

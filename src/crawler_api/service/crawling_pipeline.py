@@ -1,4 +1,5 @@
 import asyncio, logging
+
 from datetime import datetime
 
 from src.crawler_api.constant.news_sitemap import NewsSitemap
@@ -7,6 +8,7 @@ from src.crawler_api.service.url_extractor.url_extractor_factory import UrlExtra
 from src.crawler_api.service.url_fetcher.url_fetcher_factory import UrlFetcherFactory
 from src.crawler_api.service.url_parser.url_parser_factory import UrlParserFactory
 from src.crawler_api.util.normalize_datetime import normalize_datetime, now_normalized
+
 
 logger = logging.getLogger(__name__)
 
@@ -17,78 +19,113 @@ class CrawlingPipeline:
     -> 파싱한 데이터 (url list) 다시 fetch (fetch_by_all)
     -> fetch한 뉴스 기사 html 다시 파싱 (parser parse)
     """
-    def __init__(self, source : NewsSitemap):
-        self.__source = source
-        self.__fetcher = UrlFetcherFactory.create(source)
-        self.__extractor = UrlExtractorFactory.create(source)
-        self.__parser = UrlParserFactory.create(source)
+    def __init__(self, source: NewsSitemap):
+        self._source = source
+        self._fetcher = UrlFetcherFactory.create(source)
+        self._extractor = UrlExtractorFactory.create(source)
+        self._parser = UrlParserFactory.create(source)
 
-    async def run(self, date: datetime, limit: int | None = None) -> list[ArticleCreate]:
+    async def run(
+        self,
+        date: datetime,
+        limit: int | None = None
+    ) -> list[ArticleCreate]:
+
         try:
-            sitemap_url = self.__source.value.get_url(normalize_datetime(date))
+            sitemap_url = self._source.value.get_url(normalize_datetime(date))
 
-            sitemap_content = await self.__fetcher.fetch(sitemap_url)
-            urls = await self.__extractor.parse(sitemap_content, self.__source.value.selector, sitemap_url)
+            sitemap_content = await self._fetcher.fetch(sitemap_url)
+
+            urls = await self._extractor.parse(
+                raw_content=sitemap_content,
+                selector=self._source.value.selector,
+                base_url=sitemap_url
+            )
+
             if not urls:
                 return []
+
             if limit is not None:
                 urls = urls[:limit]
 
-            page_contents = await self.__fetcher.fetch_by_all(urls, sitemap_url)
+            page_contents = await self._fetcher.fetch_by_all(urls=urls, base_url=sitemap_url)
 
             valid_pairs = [(url, content) for url, content in zip(urls, page_contents) if content != ""]
             if not valid_pairs:
                 return []
 
             valid_urls = [url for url, _ in valid_pairs]
-            parsed_result = await asyncio.gather(*(self.__parser.parse(content) for _, content in valid_pairs), return_exceptions=True)
+            parsed_result = await asyncio.gather(
+                *(self._parser.parse(content) for _, content in valid_pairs),
+                return_exceptions=True
+            )
 
             articles : list[ArticleCreate] = []
             crawled_at = now_normalized()
             for url, parsed in zip(valid_urls, parsed_result):
-
                 if isinstance(parsed, Exception):
                     logger.exception("파싱 중 오류 발생 : %s", parsed)
                     continue
+
                 if parsed is None:
                     continue
-                articles.append(
-                    ArticleCreate(
-                        url = url,
-                        title = parsed.title.replace("\n", " "),
-                        content = parsed.content.replace("\n", " "),
-                        published_at = parsed.published_at,
-                        crawled_at = crawled_at,
-                        company_name = self.__source.value.company_name,
-                        reporter = parsed.reporter.replace("\n", " ") if parsed.reporter else None,
-                        category = parsed.category.replace("\n", " ") if parsed.category else None,
-                        img_list = parsed.img_urls)
+
+                articles.append(ArticleCreate(
+                    url = url,
+                    title = parsed.title.replace("\n", " "),
+                    content = parsed.content.replace("\n", " "),
+                    published_at = parsed.published_at,
+                    crawled_at = crawled_at,
+                    company_name = self._source.value.company_name,
+                    reporter = parsed.reporter.replace("\n", " ") if parsed.reporter else None,
+                    category = parsed.category.replace("\n", " ") if parsed.category else None,
+                    img_list = parsed.img_urls)
                 )
 
             return articles
+
         finally:
-            if hasattr(self.__fetcher, "close"): #fetcher에 close가 있는경우(selenium인 경우)
-                self.__fetcher.close()
+            if hasattr(self._fetcher, "close"): #fetcher에 close가 있는경우(selenium인 경우)
+                self._fetcher.close()
 
     async def run_today(self, limit: int | None = None) -> list[ArticleCreate]:
-        return await self.run(normalize_datetime(datetime.today()), limit=limit)
+        return await self.run(date=normalize_datetime(datetime.today()), limit=limit)
 
     @staticmethod
-    async def run_all(sources : list[NewsSitemap] | None, date : datetime, limit: int | None = None) ->list[ArticleCreate]:
+    async def run_all(
+        sources: list[NewsSitemap] | None,
+        date: datetime,
+        limit: int | None = None
+    ) ->list[ArticleCreate]:
+
         if not sources:
             sources = list(NewsSitemap)
+
         pipelines = [CrawlingPipeline(source) for source in sources]
-        results = await asyncio.gather(*(pipe.run(date = date, limit=limit) for pipe in pipelines), return_exceptions=True)
+
+        results = await asyncio.gather(
+            *(pipe.run(date=date, limit=limit) for pipe in pipelines),
+            return_exceptions=True
+        )
+
         articles : list[ArticleCreate] = []
+
         for source, result in zip(sources, results):
             if isinstance(result, Exception):
                 logger.exception("오류 발생 : %s ", result)
                 continue
+
             articles.extend(result)
+
         return articles
 
     @staticmethod
-    async def run_all_today(sources : list[NewsSitemap] | None = None, limit: int | None = None) ->list[ArticleCreate]:
+    async def run_all_today(
+        sources: list[NewsSitemap] | None = None,
+        limit: int | None = None
+    ) ->list[ArticleCreate]:
+
         if sources is None:
             sources = list(NewsSitemap)
-        return await CrawlingPipeline.run_all(sources, datetime.today(), limit=limit)
+
+        return await CrawlingPipeline.run_all(sources=sources, date=datetime.today(), limit=limit)

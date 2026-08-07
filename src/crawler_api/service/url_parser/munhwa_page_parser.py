@@ -1,6 +1,6 @@
 from datetime import datetime
-
 from bs4 import BeautifulSoup
+
 from src.crawler_api.service.url_parser.base_page_parser import BasePageParser, ParsedData
 from src.crawler_api.util.normalize_datetime import normalize_datetime
 
@@ -19,7 +19,6 @@ class MunhwaPageParser(BasePageParser):
         reporter = soup.select_one("#container > div.inner > div > header > div.article-header-bottom > div.byline > p.writer > span > a")
 
         if not title or not section:
-            #raise ParsingFailException("문화일보 제목이나 내용이 존재하지않습니다")
             return None
 
         img_urls = []
@@ -40,10 +39,12 @@ class MunhwaPageParser(BasePageParser):
                 published_at = datetime.strptime(date_text, "%Y-%m-%d %H:%M")
             except ValueError:
                 pass
+
         return ParsedData(
             title=title.get_text(strip=True),
-            content=" ".join(p.get_text(strip = True) for p in section.find_all("p") if p.get_text(strip = True)),
+            content=" ".join(p.get_text(strip=True) for p in section.find_all("p") if p.get_text(strip=True)),
             reporter=reporter.get_text(strip=True) + " 기자" if reporter else None,
             category=category.get_text(strip=True) if category else None,
             published_at=normalize_datetime(published_at) if published_at else None,
-            img_urls=img_urls)
+            img_urls=img_urls
+        )
