@@ -13,12 +13,12 @@ RelationPath = Union[InstrumentedAttribute, Sequence[InstrumentedAttribute]]
 
 
 class ModelSerializer:
-    _registry: Dict[type, Type[_PydanticModel]] = {}
-    _field_transformers: Dict[type, Dict[str, FieldTransformer]] = {}
-    _relations: Dict[type, List[RelationPath]] = {}
+    _registry: Dict[Type[_ORMBaseModel], List[Type[_PydanticModel]]] = {}
+    _field_transformers: Dict[Type[_PydanticModel], Dict[str, FieldTransformer]] = {}
+    _relations: Dict[Type[_PydanticModel], List[RelationPath]] = {}
 
-    _pending_transformers: Dict[type, Dict[str, FieldTransformer]] = {}
-    _pending_relations: Dict[type, List[RelationPath]] = {}
+    _pending_transformers: Dict[Type[_PydanticModel], Dict[str, FieldTransformer]] = {}
+    _pending_relations: Dict[Type[_PydanticModel], List[RelationPath]] = {}
 
     @staticmethod
     def _resolve_relation_chain(instance: _ORMBaseModel, *attribute_names: str) -> List[_ORMBaseModel]:
@@ -57,50 +57,54 @@ class ModelSerializer:
         return decorator
 
     @classmethod
-    def bind_model(cls, orm_class: Type[_ORM]):
+    def bind_model(cls, *orm_classes: Type[_ORM]):
         def decorator(dto_class: Type[_DTO]) -> Type[_DTO]:
-            cls._registry[orm_class] = dto_class
+            for orm_class in orm_classes:
+                cls._registry.setdefault(orm_class, []).append(dto_class)
 
-            pending_transformers = cls._pending_transformers.pop(dto_class, None)
+            pending_transformers = cls._pending_transformers.get(dto_class)
             if pending_transformers:
-                cls._field_transformers[orm_class] = pending_transformers
+                cls._field_transformers[dto_class] = pending_transformers
 
-            pending_relations = cls._pending_relations.pop(dto_class, None)
+            pending_relations = cls._pending_relations.get(dto_class)
             if pending_relations:
-                cls._relations[orm_class] = pending_relations
+                cls._relations[dto_class] = pending_relations
 
             return dto_class
+
         return decorator
 
     @classmethod
-    def required_relations(cls, orm_class: type) -> List[RelationPath]:
-        return cls._relations.get(orm_class, [])
+    def required_relations(cls, dto_class: Type[_PydanticModel]) -> List[RelationPath]:
+        return cls._relations.get(dto_class, [])
 
     @classmethod
     def serialize(cls, instance: _ORM, expected_type: Type[_DTO]) -> _DTO:
         orm_class = type(instance)
-        dto_class = cls._registry.get(orm_class)
+        dto_classes = cls._registry.get(orm_class, [])
 
-        if dto_class is None:
+        if expected_type not in dto_classes:
             raise ValueError(f"No DTO registered for '{orm_class.__name__}'.")
 
         transformers = cls._field_transformers.get(orm_class, {})
 
         if not transformers:
-            result = dto_class.model_validate(instance)
+            result = expected_type.model_validate(instance)
         else:
             data = {}
-            for field_name in dto_class.model_fields:
+            # expected_type 자체가 Pydantic.BaseModel의 하위 타입이기에
+            # 공변성이 성립함 -> 경고가 무시되어 있으나 타입체커의 오진이니 안전함
+            for field_name in expected_type.model_fields:  # type: ignore[attr-defined]
                 if field_name in transformers:
                     data[field_name] = transformers[field_name](instance)
                 else:
                     data[field_name] = getattr(instance, field_name)
-            result = dto_class.model_validate(data)
+            result = expected_type.model_validate(data)
 
         if not isinstance(result, expected_type):
             raise TypeError(
                 f"Expected '{expected_type.__name__}', "
-                f"but the registered DTO for '{orm_class.__name__}' is '{dto_class.__name__}'."
+                f"but the registered DTO for '{orm_class.__name__}' is '{expected_type.__name__}'."
             )
         return result
 
