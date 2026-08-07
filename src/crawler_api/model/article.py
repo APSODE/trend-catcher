@@ -24,5 +24,5 @@ class Article(Document):
         name = "article"
         # 인덱스 생성
         indexes = [
-            [("published_at",pymongo.DESCENDING), ("crawled_at", pymongo.ASCENDING)]
+            [("published_at",pymongo.ASCENDING), ("crawled_at", pymongo.DESCENDING)]
         ]
