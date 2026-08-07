@@ -19,7 +19,7 @@ SessionFactory: async_sessionmaker[AsyncSession] = async_sessionmaker(
 )
 
 #세션 동작부
-async def get_session() -> AsyncGenerator[AsyncSession]:
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with SessionFactory() as session:
         try:
             yield session #일 하라고 보내놓고 대기
