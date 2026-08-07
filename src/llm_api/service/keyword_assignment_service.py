@@ -57,7 +57,7 @@ class KeywordAssignmentService:
             best_match_index, best_match_similarity = best_match
 
             #기준점수 이상이면 그걸 리턴
-            if best_match_similarity >= SimilarityConstant.KEYWORD_SIMILARITY_THRESHOLD:
+            if best_match_similarity >= SimilarityConstant.KEYWORD_MERGE_THRESHOLD:
                 logger.debug("키워드 매칭 성공: [keyword: %s, 편입된 키워드: %s, 유사도: %.3f]", keyword, candidates[best_match_index].keyword, best_match_similarity)
                 return candidates[best_match_index]
             else:

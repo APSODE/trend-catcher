@@ -28,7 +28,7 @@ class TopicMatchingService:
         best_match_index, best_match_similarity = best_match
 
         matched_topic = candidates[best_match_index]
-        if best_match_similarity >= SimilarityConstant.TOPIC_SIMILARITY_THRESHOLD: #기준점수 이상이면 거기 편입
+        if best_match_similarity >= SimilarityConstant.TOPIC_THRESHOLD: #기준점수 이상이면 거기 편입
             await self._topic_repository.increment_count(matched_topic.pk)
             logger.debug("토픽 편입 성공 [pk: %d, 편입된 주제:%s, 유사도=%.3f]",matched_topic.pk, candidates[best_match_index].topic, best_match_similarity)
             return matched_topic
