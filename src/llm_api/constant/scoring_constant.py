@@ -1,10 +1,9 @@
 class ScoringConstant:
     #주제 유사도 기준
-    TOPIC_HIGH_SIMILARITY_THRESHOLD = 0.75
-    TOPIC_LOW_SIMILARITY_THRESHOLD = 0.5
+    TOPIC_SIMILARITY_THRESHOLD = 0.75
     
     #키워드 유사도 기준
-    KEYWORD_SIMILARITY_THRESHOLD = 0.9  #실험해보면서 조정 필요
+    KEYWORD_SIMILARITY_THRESHOLD = 0.92  #실험해보면서 조정 필요
     
     #신뢰도 점수 가중치 및 뉴스사 수
     CONTENT_WEIGHT = 0.35 #자체평가 점수 가중치
