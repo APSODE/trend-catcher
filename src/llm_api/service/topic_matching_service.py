@@ -4,7 +4,7 @@ from src.llm_api.repository.topic_repository import TopicRepository
 from src.llm_api.util.datetime_util import DateTimeUtil
 from src.llm_api.util.similarity_util import SimilarityUtil
 from src.llm_api.constant.period_constant import PeriodConstant
-from src.llm_api.constant.scoring_constant import ScoringConstant
+from src.llm_api.constant.similarity_constant import SimilarityConstant
 import logging
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ class TopicMatchingService:
         best_match_index, best_match_similarity = best_match
 
         matched_topic = candidates[best_match_index]
-        if best_match_similarity >= ScoringConstant.TOPIC_SIMILARITY_THRESHOLD: #기준점수 이상이면 거기 편입
+        if best_match_similarity >= SimilarityConstant.TOPIC_SIMILARITY_THRESHOLD: #기준점수 이상이면 거기 편입
             await self._topic_repository.increment_count(matched_topic.pk)
             logger.debug("토픽 편입 성공 [pk: %d, 편입된 주제:%s, 유사도=%.3f]",matched_topic.pk, candidates[best_match_index].topic, best_match_similarity)
             return matched_topic

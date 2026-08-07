@@ -2,7 +2,7 @@ from src.llm_api.infrastructure.nvidia_client import NvidiaClient
 from src.llm_api.model.keyword_model import KeywordModel
 from src.llm_api.repository.keyword_repository import KeywordRepository
 from src.llm_api.constant.llm_constant import EmbeddingInputType
-from src.llm_api.constant.scoring_constant import ScoringConstant
+from src.llm_api.constant.similarity_constant import SimilarityConstant
 from src.llm_api.util.similarity_util import SimilarityUtil
 import logging
 
@@ -57,7 +57,7 @@ class KeywordAssignmentService:
             best_match_index, best_match_similarity = best_match
 
             #기준점수 이상이면 그걸 리턴
-            if best_match_similarity >= ScoringConstant.KEYWORD_SIMILARITY_THRESHOLD:
+            if best_match_similarity >= SimilarityConstant.KEYWORD_SIMILARITY_THRESHOLD:
                 logger.debug("키워드 매칭 성공: [keyword: %s, 편입된 키워드: %s, 유사도: %.3f]", keyword, candidates[best_match_index].keyword, best_match_similarity)
                 return candidates[best_match_index]
             else:
