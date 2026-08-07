@@ -2,13 +2,12 @@ from src.llm_api.repository.base_repository import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.llm_api.model.topic_model import TopicModel
 from datetime import datetime
-from sqlalchemy import update
 
 class TopicRepository(BaseRepository[TopicModel]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, TopicModel)
 
-    #12시간 범위 검색
+    #기준시간 이후 요소만 검색
     async def find_recent(self, since: datetime) -> list[TopicModel]:
         return await self._find_all(TopicModel.first_found_at >= since)
 
