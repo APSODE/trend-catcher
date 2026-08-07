@@ -28,8 +28,14 @@ class DataAccessContext:
     async def __aenter__(self) -> "DataAccessContext":
         if self._transaction:
             session = self._client.start_session()
+
+            try:
+                await session.start_transaction()
+            except Exception:
+                await session.end_session()
+                raise
+            
             self._session = session
-            await session.start_transaction()
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
