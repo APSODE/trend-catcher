@@ -26,4 +26,4 @@ class ExtractionService:
                     raise
                 logger.warning("추출 실패, 재시도 (%d회차)", attempt + 1)
                 await asyncio.sleep(LLMConstant.RETRY_BASE_DELAY)
-        raise RuntimeError("추출 재시도 횟수 설정이 잘못됨")
+        raise RuntimeError("추출 재시도 횟수 설정 잘못됨")
