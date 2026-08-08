@@ -66,8 +66,8 @@ class DispatchLogModel(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(BigInteger, index=True, nullable=False)
     subscription_id: Mapped[int] = mapped_column(BigInteger, index=True, nullable=False)
-
-    slot: Mapped[str] = mapped_column(String(20), nullable=False)       # MORNING / EVENING
+    # 슬롯 : MORNING / EVENING
+    slot: Mapped[str] = mapped_column(String(20), nullable=False)
     channel: Mapped[str] = mapped_column(String(20), nullable=False)
     dispatch_date: Mapped[str] = mapped_column(String(10), index=True, nullable=False)  # YYYY-MM-DD
 
