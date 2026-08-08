@@ -1,9 +1,7 @@
-from typing import Generic, List, Optional, Type, TypeVar
-
+from typing import Generic, List, Optional, Type, TypeVar, Sequence
 from sqlalchemy.sql.elements import ColumnElement
-
-from src.user_api.db.db_controller import DatabaseController
-from src.user_api.model.base_model import BaseModel
+from src.user_api.db import DatabaseController, RelationPath
+from src.user_api.model import BaseModel
 
 ModelType = TypeVar("ModelType", bound = BaseModel)
 
@@ -29,18 +27,33 @@ class BaseRepository(Generic[ModelType]):
 
     async def find(self,
                    filter: Optional[ColumnElement[bool]] = None,
+                   load_relations: Optional[Sequence[RelationPath]] = None,
                    amount: int = 0) -> List[ModelType]:
-        return await self._db_controller.get(self._model_class, filter = filter, amount = amount)
+        return await self._db_controller.get(
+            model_class = self._model_class,
+            filter = filter,
+            load_relations = load_relations,
+            amount = amount
+        )
 
-    async def find_one(self, filter: ColumnElement[bool]) -> Optional[ModelType]:
-        results = await self.find(filter, amount = 1)
+    async def find_one(self,
+                       filter: Optional[ColumnElement[bool]] = None,
+                       load_relations: Optional[Sequence[RelationPath]] = None) -> Optional[ModelType]:
+        results = await self.find(filter, load_relations, amount = 1)
         return results[0] if results else None
 
-    async def find_all(self, filter: ColumnElement[bool]) -> List[ModelType]:
-        return await self.find(filter)
+    async def find_all(self,
+                       filter: Optional[ColumnElement[bool]] = None,
+                       load_relations: Optional[Sequence[RelationPath]] = None) -> List[ModelType]:
+        return await self.find(filter, load_relations)
 
-    async def get_by_id(self, target_id: int) -> Optional[ModelType]:
-        return await self.find_one(filter = self._model_class.id == target_id)
+    async def get_by_pk(self,
+                        target_pk: int,
+                        load_relations: Optional[Sequence[RelationPath]] = None) -> Optional[ModelType]:
+        return await self.find_one(
+            filter = self._model_class.pk == target_pk,
+            load_relations = load_relations
+        )
 
     async def update(self,
                      filter: ColumnElement[bool],
@@ -53,36 +66,47 @@ class BaseRepository(Generic[ModelType]):
             with_flush = with_flush,
         )
 
-    async def update_by_id(self,
-                           target_id: int,
+    async def update_by_pk(self,
+                           target_pk: int,
                            update_data: dict,
                            with_flush: bool = False) -> None:
 
-        await self.update(filter = self._model_class.id == target_id,
+        await self.update(filter = self._model_class.pk == target_pk,
                           update_data = update_data,
                           with_flush = with_flush)
 
     async def delete(self,
                      filter: Optional[ColumnElement[bool]] = None,
+                     load_relations: Optional[Sequence[RelationPath]] = None,
                      amount: int = 1,
                      with_flush: bool = False) -> None:
         await self._db_controller.delete(
             self._model_class,
             filter = filter,
             amount = amount,
-            with_flush = with_flush,
+            load_relations = load_relations,
+            with_flush = with_flush
         )
 
-    async def delete_by_id(self,
+    async def delete_by_pk(self,
                            target_id: int,
+                           load_relations: Optional[Sequence[RelationPath]] = None,
                            with_flush: bool = False) -> None:
         await self.delete(
-            filter = self._model_class.id == target_id,
+            filter = self._model_class.pk == target_id,
+            load_relations = load_relations,
             amount = 1,
             with_flush = with_flush,
         )
 
-    async def is_exist(self, filter: ColumnElement[bool]) -> bool:
-        results = await self._db_controller.get(self._model_class, filter = filter, amount = 1)
+    async def is_exist(self,
+                       filter: ColumnElement[bool],
+                       load_relations: Optional[Sequence[RelationPath]] = None) -> bool:
+        results = await self._db_controller.get(
+            model_class = self._model_class,
+            filter = filter,
+            load_relations = load_relations,
+            amount = 1
+        )
         return len(results) > 0
 

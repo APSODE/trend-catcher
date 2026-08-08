@@ -5,7 +5,7 @@ from sqlalchemy import inspect, Identity
 class BaseModel(DeclarativeBase):
     __abstract__ = True
 
-    id: Mapped[int] = mapped_column(Identity(start = 1, increment = 1), primary_key = True)
+    pk: Mapped[int] = mapped_column(Identity(start = 1, increment = 1), primary_key = True)
 
     def __repr__(self):
         table_keys = inspect(self.__class__).mapper.columns.keys()

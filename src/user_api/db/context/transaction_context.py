@@ -1,7 +1,12 @@
-from typing import AsyncGenerator, Callable, Dict, Type, TypeVar
+from typing import Callable, Dict, Type, TypeVar, AsyncGenerator
 
 from src.user_api.db.db_controller import DatabaseController
+from src.user_api.db.db_creator import DatabaseCreator
+from src.user_api.repository.account_repository import LocalAccountRepository, SocialAccountRepository
 from src.user_api.repository.base_repository import BaseRepository
+from src.user_api.repository.hashtag_repository import HashtagRepository
+from src.user_api.repository.user_hashtag_repository import UserHashtagRepository
+from src.user_api.repository.user_repository import UserRepository
 
 R = TypeVar("R", bound = BaseRepository)
 
@@ -35,3 +40,21 @@ class TransactionContext:
                 await self._controller.rollback()
         finally:
             await self._session.close()
+
+
+_REPOSITORY_FACTORIES: Dict[Type[BaseRepository], Callable] = {
+    UserRepository: UserRepository,
+    LocalAccountRepository: LocalAccountRepository,
+    SocialAccountRepository: SocialAccountRepository,
+    HashtagRepository: HashtagRepository,
+    UserHashtagRepository: UserHashtagRepository,
+}
+
+
+async def _get_transaction_context() -> AsyncGenerator[TransactionContext, None]:
+    context = TransactionContext(
+        session_factory = DatabaseCreator().session,
+        repository_factories = _REPOSITORY_FACTORIES,
+    )
+    async with context:
+        yield context
