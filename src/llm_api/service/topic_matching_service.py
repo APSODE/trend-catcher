@@ -5,6 +5,7 @@ from src.llm_api.util.datetime_util import DateTimeUtil
 from src.llm_api.util.similarity_util import SimilarityUtil
 from src.llm_api.constant.period_constant import PeriodConstant
 from src.llm_api.constant.similarity_constant import SimilarityConstant
+from src.llm_api.constant.llm_constant import EmbeddingInputType
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ class TopicMatchingService:
         self._topic_repository = topic_repository
 
     async def match_or_create(self, topic:str, crawled_id: str) -> TopicModel:
-        embedding = await self._client.create_embedding(topic, "passage") #주제 임베딩
+        embedding = await self._client.create_embedding(topic, EmbeddingInputType.PASSAGE) #주제 임베딩
         since = DateTimeUtil.get_current_period_start(PeriodConstant.MORNING_HOUR, PeriodConstant.EVENING_HOUR)
         candidates = await self._topic_repository.find_recent(since) #이번타임 주제목록
 
