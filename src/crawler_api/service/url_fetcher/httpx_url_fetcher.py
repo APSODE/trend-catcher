@@ -64,7 +64,7 @@ class HTTPXUrlFetcher(BaseUrlFetcher):
                 return ""
 
             except Exception as e:
-                logger.exception("httpx fetch  all 오류 발생 : %s",e)
+                logger.exception("httpx fetch_all error occurred : %s",e)
                 return ""
 
             finally:

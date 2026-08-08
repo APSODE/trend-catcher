@@ -17,7 +17,7 @@ class LoggingObserver(EventObserver):
 
     async def on_event(self, event: DomainEvent):
         logger.info(
-            "모델=%s 이벤트=%s id=%s 시간=%s",
+            "model = %s event = %s id = %s time = %s",
             event.entity,
             event.event_type.value,
             event.entity_id,
@@ -28,10 +28,10 @@ class EventPublisher:
     def __init__(self):
         self._observers: list[EventObserver] = []
 
-    def subscribe(self, observer: EventObserver):
+    def add_observer(self, observer: EventObserver):
         self._observers.append(observer)
 
-    def unsubscribe(self, observer: EventObserver):
+    def remove_observer(self, observer: EventObserver):
         self._observers.remove(observer)
 
     async def publish(self, event: DomainEvent) -> None:
@@ -49,4 +49,4 @@ class EventPublisher:
                     exc_info=result
                 )
 
-event_publisher = EventPublisher()
+#TODO 소켓통신, https 생각

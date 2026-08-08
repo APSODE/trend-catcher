@@ -6,6 +6,7 @@ from urllib.parse import urlparse, urljoin
 
 
 logger = logging.getLogger(__name__)
+
 class CheckRobots:
     def __init__(self, url: str):
         parse_url = urlparse(url)
@@ -29,7 +30,7 @@ class CheckRobots:
 
         except Exception as e:
 
-            logger.exception("robot.txt 설정 오류 발생 : %s",e)
+            logger.exception("robot.txt setting error occurred: %s",e)
             self._is_loaded = False
             return
 

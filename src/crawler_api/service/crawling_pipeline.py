@@ -64,7 +64,7 @@ class CrawlingPipeline:
             crawled_at = now_normalized()
             for url, parsed in zip(valid_urls, parsed_result):
                 if isinstance(parsed, Exception):
-                    logger.exception("파싱 중 오류 발생 : %s", parsed)
+                    logger.exception("parsing error occurred : %s", parsed)
                     continue
 
                 if parsed is None:
@@ -112,7 +112,7 @@ class CrawlingPipeline:
 
         for source, result in zip(sources, results):
             if isinstance(result, Exception):
-                logger.exception("오류 발생 : %s ", result)
+                logger.exception("error occurred : %s ", result)
                 continue
 
             articles.extend(result)

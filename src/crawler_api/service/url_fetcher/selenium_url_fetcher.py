@@ -97,7 +97,7 @@ class SeleniumURLFetcher(BaseUrlFetcher):
                 results.append("")
 
             except WebDriverException as e:
-                logger.exception("selenium fetch all 오류발생 : %s", e)
+                logger.exception("selenium fetch_all error occurred : %s", e)
                 results.append("")
 
         return results
