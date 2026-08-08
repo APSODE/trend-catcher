@@ -1,71 +1,66 @@
 from src.llm_api.model.news_analysis_model import NewsAnalysisModel
 from src.llm_api.repository.news_analysis_repository import NewsAnalysisRepository
-from src.llm_api.service.embedding_service import EmbeddingService
+from src.llm_api.repository.news_keyword_map_repository import NewsKeywordMapRepository
+from src.llm_api.schema.article import CrawledArticleData
 from src.llm_api.service.extraction_service import ExtractionService
-from src.llm_api.service.reliability_service import ReliabilityService
-from src.llm_api.service.topic_matching_service import TopicMatchingService
 from src.llm_api.service.keyword_assignment_service import KeywordAssignmentService
-from sqlalchemy.ext.asyncio import AsyncSession
+from src.llm_api.service.topic_matching_service import TopicMatchingService
+import logging
+
+logger = logging.getLogger(__name__)
 
 class NewsAnalysisService:
-    def __init__(self, news_analysis_repo: NewsAnalysisRepository, extraction_service: ExtractionService, embedding_service: EmbeddingService, topic_matching_service: TopicMatchingService, keyword_assignment_service: KeywordAssignmentService, reliability_service: ReliabilityService):
-        self.news_analysis_repo = news_analysis_repo
-        self.extraction_service = extraction_service
-        self.embedding_service = embedding_service
-        self.topic_matching_service = topic_matching_service
-        self.keyword_assignment_service = keyword_assignment_service
-        self.reliability_service = reliability_service
+    def __init__(
+        self,
+        extraction_service: ExtractionService,
+        topic_matching_service: TopicMatchingService,
+        keyword_assignment_service: KeywordAssignmentService,
+        news_analysis_repository: NewsAnalysisRepository,
+        news_keyword_map_repository: NewsKeywordMapRepository
+    ):
+        self._extraction_service = extraction_service
+        self._topic_matching_service = topic_matching_service
+        self._keyword_assignment_service = keyword_assignment_service
+        self._news_analysis_repository = news_analysis_repository
+        self._news_keyword_map_repository = news_keyword_map_repository
 
-    #분석한다 뉴스: 크롤러 DICT를 그대로 받아 사용
-    async def analyze_news(self, session: AsyncSession, news: dict) -> NewsAnalysisModel | None:
-        news_id = news["id"]
-        title = news["title"]
-        content = news["content"]
-        category = news["category"]
-
-        #체크한다 이미 한 건지
-        if await self.news_analysis_repo.is_exist(session, news_id):
+    #기사 하나 분석
+    async def analyze(self, news: CrawledArticleData) -> NewsAnalysisModel | None:
+        #분석된 기사면 스킵
+        if await self._news_analysis_repository.is_exist_by_crawled_id(news.crawled_id):
+            logger.info("분석된 기사 스킵: %s", news.crawled_id)
             return None
 
-        #추출한다 주제 그리고 키워드
-        extracted_data = await self.extraction_service.extract(title, content)
-        if extracted_data is None: #크레이지 AI 안 한다면 일 똑바로 쫓아낸다
-            return None
+        #주제, 키워드, 점수 추출
+        extraction = await self._extraction_service.extract(news.title, news.content)
 
-        #디버깅용======================================================
-        extracted_data = await self.extraction_service.extract(title, content)
-        if extracted_data is None:
-            return None
+        #주제 적용
+        topic = await self._topic_matching_service.match_or_create(extraction.topic, news.crawled_id)
 
-        print(f"# {news_id}, title={title}")
-        print(f"  → topic: {extracted_data['topic']}")
-        print(f"  → keywords: {extracted_data['keywords']}")
-        #=============================================================
+        #키워드 적용
+        keywords = await self._keyword_assignment_service.assign(extraction.keywords)
 
-        #한다 임베딩
-        target_text = f"{title}. {extracted_data['topic']}"
-        embedding = await self.embedding_service.get_embedding(target_text)
+        #결과 저장
+        analysis = await self._news_analysis_repository.create_analysis(news.crawled_id, topic.pk, extraction.content_score)
 
-        #여기부턴 db 손대는 영역이라 try
-        try:
-            match_data = await self.topic_matching_service.create_topic_match_data(session, embedding, news_id, extracted_data["topic"])
-            analysis = await self.news_analysis_repo.save(session, NewsAnalysisModel(news_id = news_id, category = category, topic_id = match_data.main_topic_id, score = None, score_detail = {"content_score": extracted_data["content_score"]}))
-            await self.topic_matching_service.save_topic_match_data(session, analysis.id, match_data)
-            await self.keyword_assignment_service.assign_keywords(session, analysis.id, extracted_data["keywords"])
-            await session.commit()
-            return analysis
-        except Exception:
-            await session.rollback()
-            raise
+        #뉴스-키워드 연결
+        await self._news_keyword_map_repository.create_maps(analysis.pk, [keyword.pk for keyword in keywords])
+        logger.info("분석 완료: [crawled_id: %s, topic_pk: %d, keywords: %d]", news.crawled_id, topic.pk, len(keywords))
+        return analysis
 
-    #여러 개 받아서 처리
-    async def analyze_news_list(self, session: AsyncSession, news_list: list[dict]) -> list[NewsAnalysisModel]:
-        results = []
+    #기사 여럿 분석: 실패한 건 로그남기고 건너뜀
+    async def analyze_all(self, news_list: list[CrawledArticleData]) -> list[NewsAnalysisModel]:
+        results: list[NewsAnalysisModel] = []
+
         for news in news_list:
             try:
-                analysis = await self.analyze_news(session, news)
-                if analysis is not None:
-                    results.append(analysis)
-            except Exception as e:
-                print(f"처리 실패: news_id = {news.get('id')}, error = {e}")
+                analysis = await self.analyze(news)
+            except Exception:
+                logger.exception("분석 실패: [crawled_id: %s]", news.crawled_id)
+                continue
+
+            if analysis is not None:
+                results.append(analysis)
+
+        logger.info("다중 분석 완료: 요청 %d건 중 %d건 완료", len(news_list), len(results))
         return results
