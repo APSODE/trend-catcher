@@ -8,7 +8,7 @@ class NewsAnalysisModel(AbstractBaseModel):
     __tablename__ = "news_analysis"
 
     crawled_id: Mapped[str] = mapped_column(String(32), unique=True, index = True) #크롤러에서 받는 id
-    category: Mapped[str | None] = mapped_column(String(50)) #카테고리
+    # category: Mapped[str | None] = mapped_column(String(50)) #카테고리
     topic_fk: Mapped[int] = mapped_column(ForeignKey("topic.pk")) #주제 pk
     score: Mapped[float | None] = mapped_column(Float) #최종 신뢰점수
     content_score: Mapped[float] = mapped_column(Float)  # LLM 자체 평가 (분석 시점)

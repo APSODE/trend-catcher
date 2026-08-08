@@ -29,8 +29,8 @@ class NewsAnalysisRepository(BaseRepository[NewsAnalysisModel]):
         await self._session.flush()
 
     #모델 포장
-    async def create_analysis(self, crawled_id: str, category: str | None, topic_fk: int, content_score: float) -> NewsAnalysisModel:
-        new_analysis = NewsAnalysisModel(crawled_id = crawled_id, category = category, topic_fk = topic_fk, content_score = content_score)
+    async def create_analysis(self, crawled_id: str, topic_fk: int, content_score: float) -> NewsAnalysisModel:
+        new_analysis = NewsAnalysisModel(crawled_id = crawled_id, topic_fk = topic_fk, content_score = content_score)
         return await self.save(new_analysis)
 
     #TODO: 알림용 이번 타임 뉴스만 반환 메소드 필요

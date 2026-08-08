@@ -41,7 +41,7 @@ class NewsAnalysisService:
         keywords = await self._keyword_assignment_service.assign(extraction.keywords)
 
         #결과 저장
-        analysis = await self._news_analysis_repository.create_analysis(news.crawled_id, news.category, topic.pk, extraction.content_score)
+        analysis = await self._news_analysis_repository.create_analysis(news.crawled_id, topic.pk, extraction.content_score)
 
         #뉴스-키워드 연결
         await self._news_keyword_map_repository.create_maps(analysis.pk, [keyword.pk for keyword in keywords])
