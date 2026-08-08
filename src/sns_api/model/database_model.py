@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import DeclarativeBase
 
-from ..config import get_settings
+from src.sns_api.config import get_settings
 
 settings = get_settings()
 
