@@ -23,19 +23,29 @@ class ArticleUpdate(BaseModel):
     img_list: list[str] | None = None
     published_at: datetime | None = None
 
-class ArticleResponse(BaseModel):
+class ArticleResponseLLM(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: PydanticObjectId
+    title: str
+    content: str
+
+    @field_serializer("id")
+    def serialize_object_id(self, value):
+        return str(value)
+
+class ArticleResponseSNS(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     url: str
     id: PydanticObjectId
     title: str
     company_name: str
-    crawled_at: datetime
-    content: str
-    category: str | None = None
+    published_at: datetime
+    img_list: list[str] | None = None
 
     @field_serializer("id")
     def serialize_object_id(self, value):
         return str(value)
+
 
 class ArticleRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)

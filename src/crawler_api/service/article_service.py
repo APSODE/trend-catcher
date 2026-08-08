@@ -7,7 +7,8 @@ from src.crawler_api.event.event_types import EventType, DomainEvent
 from src.crawler_api.exception.create_error_exception import CreateErrorException
 from src.crawler_api.exception.not_found_exception import NotFoundException
 from src.crawler_api.repository.article_repository import ArticleRepository
-from src.crawler_api.schemas.article import ArticleRead, ArticleResponse, ArticleCreate, ArticleUpdate
+from src.crawler_api.schemas.article import ArticleRead, ArticleCreate, ArticleUpdate, ArticleResponseLLM, \
+    ArticleResponseSNS
 from src.crawler_api.service.crawling_pipeline import CrawlingPipeline
 
 
@@ -41,12 +42,21 @@ class ArticleService:
 
         return ArticleRead.model_validate(article)
 
-    async def get_article_by_date(self, date: datetime) -> list[ArticleResponse]:
-        result: list[ArticleResponse] = []
+    async def get_article_by_date_llm(self, date: datetime) -> list[ArticleResponseLLM]:
+        result: list[ArticleResponseLLM] = []
 
         for article in await self._article_repository.get_by_date(date=date):
             if article is not None:
-                result.append(ArticleResponse.model_validate(article))
+                result.append(ArticleResponseLLM.model_validate(article))
+
+        return result
+
+    async def get_article_by_date_sns(self, date: datetime) -> list[ArticleResponseSNS]:
+        result: list[ArticleResponseSNS] = []
+
+        for article in await self._article_repository.get_by_date(date=date):
+            if article is not None:
+                result.append(ArticleResponseSNS.model_validate(article))
 
         return result
 
