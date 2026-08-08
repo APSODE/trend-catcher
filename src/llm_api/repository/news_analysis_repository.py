@@ -1,29 +1,36 @@
+from src.llm_api.repository.base_repository import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.llm_api.model.news_analysis_model import NewsAnalysisModel
-from sqlalchemy import select
 
 
-class NewsAnalysisRepository:
-    #새 뉴스 추가
-    async def save(self, session: AsyncSession, news_analysis: NewsAnalysisModel) -> NewsAnalysisModel:
-        session.add(news_analysis)
-        await session.flush()
-        return news_analysis
+class NewsAnalysisRepository(BaseRepository[NewsAnalysisModel]):
+    def __init__(self, session: AsyncSession):
+        super().__init__(session, NewsAnalysisModel)
 
-    #분석여부 확인
-    async def is_exist(self, session: AsyncSession, target_id: str)-> bool:
-        query = select(NewsAnalysisModel).where(NewsAnalysisModel.news_id == target_id)
-        result = await session.execute(query)
-        return result.scalar_one_or_none() is not None
+    #분석된 뉴스인지 검색
+    async def is_exist_by_crawled_id(self, crawled_id: str) -> bool:
+        result = await self._find_one(NewsAnalysisModel.crawled_id == crawled_id)
+        return result is not None
 
-    #주요 뉴스 반환: 커트라인 점수 이상인 뉴스 중 상위 n개
-    async def get_main_news(self, session: AsyncSession, cutoff_score: float, limit: int) -> list[NewsAnalysisModel]:
-        query = select(NewsAnalysisModel).where(NewsAnalysisModel.score >= cutoff_score).order_by(NewsAnalysisModel.score.desc()).limit(limit)
-        result = await session.execute(query)
-        return list(result.scalars().all())
+    #크롤러id로 검색
+    async def find_by_crawled_id(self, crawled_id: str) -> NewsAnalysisModel | None:
+        return await self._find_one(NewsAnalysisModel.crawled_id == crawled_id)
 
-    #점수없는것들 반환
-    async def get_unscored_news(self, session: AsyncSession) -> list[NewsAnalysisModel]:
-        query = select(NewsAnalysisModel).where(NewsAnalysisModel.score.is_(None))
-        result = await session.execute(query)
-        return list(result.scalars().all())
+    #점수 없는애들 검색
+    async def find_unscored(self, limit: int) -> list[NewsAnalysisModel]:
+        stmt = self._select(NewsAnalysisModel.score.is_(None)).limit(limit)
+        result = await self._session.scalars(stmt)
+        return list(result.all())
+
+    #점수 채우기
+    async def update_score(self, news: NewsAnalysisModel, score: float, cross_check_score: float):
+        news.score = score
+        news.cross_check_score = cross_check_score
+        await self._session.flush()
+
+    #모델 포장
+    async def create_analysis(self, crawled_id: str, topic_fk: int, content_score: float) -> NewsAnalysisModel:
+        new_analysis = NewsAnalysisModel(crawled_id = crawled_id, topic_fk = topic_fk, content_score = content_score)
+        return await self.save(new_analysis)
+
+    #TODO: 알림용 이번 타임 뉴스만 반환 메소드 필요

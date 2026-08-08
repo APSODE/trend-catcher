@@ -1,12 +1,21 @@
-from typing import TypeVar
-from src.user_api.repository.base_repository import BaseRepository
+from typing import Type, TypeVar, Awaitable, Callable
 
-# T = TypeVar("T", bound = BaseRepository)
-# class BaseService:
-#     def __init__(self, **repository: T):
-#         for repository_name in repository.keys():
-#             self.__setattr__(repository_name, repository.keys())
+from fastapi import Depends
 
-# Service 객체인지 확인하기 위해서만 상속
+from src.user_api.db.context import get_transaction_context, TransactionContext
+from src.user_api.repository import BaseRepository
+
+T = TypeVar("T", bound = "BaseService")
+
+
 class BaseService:
-    pass
+    @classmethod
+    def create_dependency(cls: Type[T], **repository_types: Type[BaseRepository]) -> Callable[..., Awaitable[T]]:
+        async def _get_service(context: TransactionContext = Depends(get_transaction_context)) -> T:
+            kwargs = {
+                param_name: context.get_repository(repo_type)
+                for param_name, repo_type in repository_types.items()
+            }
+            return cls(**kwargs)
+
+        return _get_service

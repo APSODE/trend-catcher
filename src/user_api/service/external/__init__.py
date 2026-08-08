@@ -1,0 +1,9 @@
+from src.user_api.service.external.user_account_service import UserAccountService, get_user_account_service
+from src.user_api.service.external.user_hashtag_service import UserHashtagService, get_user_hashtag_service
+
+__all__ = [
+    "UserAccountService",
+    "get_user_account_service",
+    "UserHashtagService",
+    "get_user_hashtag_service"
+]
