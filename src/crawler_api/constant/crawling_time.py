@@ -1,6 +1,6 @@
-from enum import Enum, auto
+from enum import Enum
 
 
 class CrawlingTime(Enum):
-    MORNING = auto()
-    EVENING = auto()
+    MORNING = 9
+    EVENING = 21

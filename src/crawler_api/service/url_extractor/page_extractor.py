@@ -1,6 +1,4 @@
-
 from urllib.parse import urljoin
-
 from bs4 import BeautifulSoup
 
 from src.crawler_api.exception.selector_value_exception import SelectorValueException
@@ -8,19 +6,22 @@ from src.crawler_api.service.url_extractor.base_extractor import BaseExtractor
 
 
 class PageExtractor(BaseExtractor):
+
     async def parse(
-            self,
-            raw_content : str,
-            selector : str | None = None,
-            base_url : str | None = None) -> list[str]:
+        self,
+        raw_content: str,
+        selector: str | None = None,
+        base_url: str | None = None
+    ) -> list[str]:
+
         if not selector or not base_url:
             raise SelectorValueException()
 
         soup = BeautifulSoup(raw_content, "html.parser")
         items = soup.select(selector)
 
-        urls : list[str] = []
-        seen : set[str] = set()
+        urls: list[str] = []
+        seen: set[str] = set()
 
         for item in items:
             url = item.get("href")

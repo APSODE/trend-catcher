@@ -1,4 +1,6 @@
 .idea
+*.env
+*.pyc
 /src/user_api/db/database_account.json
 .env
 src/crawler_api/atlas-credentials.env
