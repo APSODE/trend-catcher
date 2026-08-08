@@ -1,6 +1,3 @@
-"""
-SNS 서비스 ORM 엔티티.
-"""
 from datetime import datetime
 from enum import Enum
 
@@ -25,7 +22,7 @@ class Slot(str, Enum):
 
 
 class Channel(str, Enum):
-    # 발송 대상 (일단 디코)
+    # 발송 대상
     DISCORD = "DISCORD"
 
 
@@ -34,10 +31,8 @@ class DispatchStatus(str, Enum):
     SUCCESS = "SUCCESS"
     FAILED = "FAILED"
 
-
+# 구독 테이블
 class SubscriptionModel(Base):
-    # 구독 설정
-    # user_id 는 User 서비스의 PK 를 참조
 
     __tablename__ = "SNS_SUBSCRIPTION"
 
@@ -45,8 +40,6 @@ class SubscriptionModel(Base):
     user_id: Mapped[int] = mapped_column(BigInteger, index=True, nullable=False)
 
     channel: Mapped[str] = mapped_column(String(20), default=Channel.DISCORD.value, nullable=False)
-    # Discord Webhook URL (유저/채널별). 없으면 서비스 기본 webhook 으로 fallback.
-    webhook_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
 
     # 아침/저녁 각각 수신 여부
     morning_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
@@ -56,6 +49,7 @@ class SubscriptionModel(Base):
     personalized_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     major_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
+    # 구독 활성화
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(
