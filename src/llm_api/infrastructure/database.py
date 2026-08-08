@@ -6,7 +6,7 @@ settings = get_settings()
 
 #엔진
 engine: AsyncEngine = create_async_engine(
-    settings.db_url.get_secret_value(),
+    settings.database_url.get_secret_value(),
     echo = settings.db_echo,
     pool_pre_ping = True #연결이 죽은지 감지, 자동 연결
 )
