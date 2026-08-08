@@ -32,6 +32,7 @@ class Base(DeclarativeBase):
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    # 세션 생성
     async with AsyncSessionLocal() as session:
         try:
             yield session
