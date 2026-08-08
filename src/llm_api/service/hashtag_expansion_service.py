@@ -34,7 +34,7 @@ class HashtagExpansionService:
         return list(dict.fromkeys(normalized))
 
     #이미 있는것들 걸러내기
-    async def _filter_already_exist(self, hashtags: list[str]) -> tuple[dict[str, HashtagModel], list]:
+    async def _filter_already_exist(self, hashtags: list[str]) -> tuple[dict[str, HashtagModel], list[str]]:
         matched_list = await self._hashtag_repository.find_by_hashtags(hashtags)
         matched = {model.hashtag: model for model in matched_list}
         unmatched = [hashtag for hashtag in hashtags if hashtag not in matched]
@@ -63,7 +63,7 @@ class HashtagExpansionService:
             logger.exception("해시태그 확장 호출 실패, 빈 확장 저장: %s", hashtag)
             expansion = HashtagExpansionData(aliases=[], children=[])
 
-        embedding = await self._client.create_embedding(hashtag, "query")
+        embedding = await self._client.create_embedding(hashtag, EmbeddingInputType.QUERY)
         return await self._hashtag_repository.create_hashtag(hashtag, expansion.aliases, expansion.children, embedding)
 
     #확장
