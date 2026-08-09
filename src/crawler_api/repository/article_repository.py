@@ -1,7 +1,7 @@
 from datetime import datetime, time
 from beanie import PydanticObjectId, SortDirection
+from pymongo import ReturnDocument, UpdateOne
 from pymongo.asynchronous.client_session import AsyncClientSession
-from pymongo.errors import DuplicateKeyError
 
 from src.crawler_api.model.article import Article
 from src.crawler_api.repository.base_repository import BaseRepository
@@ -13,65 +13,93 @@ class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
     def __init__(self, session: AsyncClientSession | None = None):
         super().__init__(Article, session)
 
-    async def _apply_update(
-        self,
-        exist_data: Article,
-        schema: ArticleCreate
-    ) -> PydanticObjectId | None:
-
+    async def create_one(self, schema: ArticleCreate) -> PydanticObjectId | None:
+        now_time = now_normalized()
         update_data = ArticleUpdate(**schema.model_dump()).model_dump(exclude_none=True)
-        update_data["db_updated_at"] = now_normalized()
-        await exist_data.set(update_data, session=self._session)
-        return exist_data.id
 
-    async def create_one(self, schema : ArticleCreate) -> PydanticObjectId | None:
-        exist_data = await self.get_by_url(schema.url)
+        collection = self._model.get_pymongo_collection()
 
-        if exist_data:
-            return await self._apply_update(exist_data=exist_data, schema=schema)
+        result = await collection.find_one_and_update(
+            filter={"url" : schema.url},
+            update=[{
+                "$set": {
+                    **update_data,
 
-        document = Article(**schema.model_dump())
+                    "crawled_at": {
+                        "$cond": {
+                            "if": { "$eq": [{ "$type": "$_id" }, "missing"] },
+                            "then": schema.crawled_at,
+                            "else": "$crawled_at"
+                        }
+                    },
+                    "db_updated_at": {
+                        "$cond": {
+                            "if": { "$eq": [{ "$type": "$_id" }, "missing"] },
+                            "then": "$$REMOVE",
+                            "else": now_time
+                        }
+                    }
+                }
+            }],
+            upsert=True,
+            session=self._session,
+            projection={"_id": 1},
+            return_document=ReturnDocument.AFTER
+        )
+        return PydanticObjectId(result["_id"]) if result else None
 
-        try:
-            return await self.add_one(document)
-
-        except DuplicateKeyError:
-            exist_data = await self.get_by_url(schema.url)
-
-            if exist_data is not None:
-                return await self._apply_update(exist_data=exist_data, schema=schema)
-
-    async def create_many(self, schemas : list[ArticleCreate]) -> list[PydanticObjectId]:
-        ids: list[PydanticObjectId] = []
+    async def create_many(self, schemas: list[ArticleCreate]) -> list[PydanticObjectId]:
         schemas = [schema for schema in schemas if schema.url]
+        if not schemas:
+            return []
+
+        now_time = now_normalized()
+        operations = []
 
         for schema in schemas:
-            exist_data = await self.get_by_url(schema.url)
+            update_data = ArticleUpdate(**schema.model_dump()).model_dump(exclude_none=True)
 
-            if exist_data:
-                result = await self._apply_update(exist_data=exist_data, schema=schema)
-                if result is not None:
-                    ids.append(result)
-                continue
+            operations.append(
+                UpdateOne(
+                    filter={"url": schema.url},
+                    update=[{
+                        "$set": {
+                            **update_data,
 
-            document = Article(**schema.model_dump())
+                            "crawled_at": {
+                                "$cond": {
+                                    "if": { "$eq": [{ "$type": "$_id" }, "missing"] },
+                                    "then": schema.crawled_at,
+                                    "else": "$crawled_at"
+                                }
+                            },
+                            "db_updated_at": {
+                                "$cond": {
+                                    "if": { "$eq": [{ "$type": "$_id" }, "missing"] },
+                                    "then": "$$REMOVE",
+                                    "else": now_time
+                                }
+                            }
+                        }
+                    }],
+                    upsert=True,
+                )
+            )
 
-            try:
-                # 동시에 다른 요청이 insert를 실행한 경우 Duplicate key error 발생
-                result = await self.add_one(document)
+        # UpdateOne 객체 모아서 한번에 삽입/갱신
+        collection = self._model.get_pymongo_collection()
+        await collection.bulk_write(operations, session=self._session, ordered=False)
 
-                if result is not None:
-                    ids.append(result)
+        #PK를 return할 방법이 없음 -> 재조회
+        urls = [schema.url for schema in schemas]
+        cursor = collection.find(
+            {"url": {"$in": urls}},
+            projection={"_id": 1},
+            session=self._session
+        )
+        docs = await cursor.to_list()
+        return [PydanticObjectId(doc["_id"]) for doc in docs]
 
-                # 따라서 동시 요청으로 인한 오류 발생시 업데이트하도록 변경
-            except DuplicateKeyError:
-                exist_data = await self.get_by_url(schema.url)
-
-                if exist_data is not None:
-                    result = await self._apply_update(exist_data=exist_data, schema=schema)
-                    if result is not None:
-                        ids.append(result)
-        return ids
 
     async def get_by_url(self, url: str)  -> Article | None:
         return await self.find_one({"url": url})
