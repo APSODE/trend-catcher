@@ -4,8 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.openapi.models import Example
 
 from src.crawler_api.dependencies.article import get_article_service
-from src.crawler_api.schemas.article import ArticleRead, ArticleResponse, ArticleCreate, ArticleUpdate, \
-    ArticleResponseLLM, ArticleResponseSNS
+from src.crawler_api.schemas.article import ArticleRead, ArticleCreate, ArticleUpdate
 from src.crawler_api.service.article_service import ArticleService
 from src.crawler_api.util.normalize_datetime import normalize_datetime
 
@@ -26,7 +25,8 @@ async def get_articles_today(
 ):
     return await service.create_articles_today(None, limit=limit)
 
-@router.get("/articles_date_llm", response_model=list[ArticleResponseLLM])
+
+@router.get("/articles_date", response_model=list[ArticleRead])
 async def get_articles_by_date(
     datetime_value: datetime =
         Query(openapi_examples={
@@ -36,21 +36,8 @@ async def get_articles_by_date(
         }),
     service: ArticleService = Depends(get_article_service)
 ):
+    return await service.get_article_by_date(normalize_datetime(datetime_value))
 
-    return await service.get_article_by_date_llm(normalize_datetime(datetime_value))
-
-@router.get("/articles_date_sns", response_model=list[ArticleResponseSNS])
-async def get_articles_by_date(
-    datetime_value: datetime =
-        Query(openapi_examples={
-            "default": Example(
-            summary="Example datetime value",
-            value="1900-01-01T00:00:00")
-        }),
-    service: ArticleService = Depends(get_article_service)
-):
-
-    return await service.get_article_by_date_sns(normalize_datetime(datetime_value))
 
 
 @router.delete("/delete_all", response_model=bool)
