@@ -59,6 +59,20 @@ class DiscordClient:
         response.raise_for_status()
         return response.json()["id"]
 
+    # 주요 뉴스 -> 메인 서버를 두고 채널 전송
+    @async_retry(
+        max_attempts=settings.http_max_retries,
+        exceptions=(httpx.TransportError, TransientWebhookError),
+    )
+    async def send_to_channel(self, channel_id: str, payload: dict) -> None:
+        response = await self._client.post(
+            f"{DISCORD_API_BASE}/channels/{channel_id}/messages",
+            json=payload,
+            headers=self._headers(),
+        )
+        _handle_response(response)
+
+    # 개인화된 뉴스 -> DM 전송
     @async_retry(
         max_attempts=settings.http_max_retries,
         exceptions=(httpx.TransportError, TransientWebhookError),
@@ -70,12 +84,15 @@ class DiscordClient:
             json=payload,
             headers=self._headers(),
         )
+        _handle_response(response)
 
-        if response.status_code in (200, 201):
-            return
-        elif response.status_code == 429:
-            raise TransientWebhookError("rate limited (429)")
-        elif 400 <= response.status_code < 500:
-            raise PermanentWebhookError(f"permanent error {response.status_code}")
-        else:
-            raise TransientWebhookError(f"server error {response.status_code}")
+
+def _handle_response(response) -> None:
+    if response.status_code in (200, 201):
+        return
+    elif response.status_code == 429:
+        raise TransientWebhookError("rate limited (429)")
+    elif 400 <= response.status_code < 500:
+        raise PermanentWebhookError(f"permanent error {response.status_code}")
+    else:
+        raise TransientWebhookError(f"server error {response.status_code}")
