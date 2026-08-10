@@ -1,4 +1,3 @@
-import json
 import asyncio
 from src.llm_api.model.hashtag_model import HashtagModel
 from src.llm_api.repository.hashtag_repository import HashtagRepository
@@ -6,7 +5,7 @@ from src.llm_api.infrastructure.nvidia_client import NvidiaClient
 from src.llm_api.constant.llm_constant import LLMConstant, EmbeddingInputType
 from src.llm_api.util.json_util import JsonUtil
 from src.llm_api.schema.hashtag_expansion import HashtagExpansionData
-from pydantic import ValidationError
+from src.llm_api.exception.llm_exception import NvidiaApiException, JsonParseException
 import logging
 
 logger = logging.getLogger(__name__)
@@ -56,10 +55,10 @@ class HashtagExpansionService:
     async def _expand_and_save(self, hashtag: str) -> HashtagModel:
         try:
             expansion = await self._expand(hashtag)
-        except (json.JSONDecodeError, ValidationError): #TODO: 자체 예외를 던지고 받게 수정
+        except JsonParseException:
             logger.warning("해시태그 확장 파싱 실패, 빈 확장 저장: %s", hashtag)
             expansion = HashtagExpansionData(aliases=[], children=[])
-        except Exception:
+        except NvidiaApiException:
             logger.exception("해시태그 확장 호출 실패, 빈 확장 저장: %s", hashtag)
             expansion = HashtagExpansionData(aliases=[], children=[])
 
@@ -74,7 +73,7 @@ class HashtagExpansionService:
             try:
                 raw_response = await self._client.chat_completion(prompt)
                 return JsonUtil.parse(raw_response, HashtagExpansionData)
-            except (json.JSONDecodeError, ValidationError):
+            except JsonParseException:
                 if attempt == LLMConstant.HASHTAG_RETRY_ATTEMPTS - 1:
                     raise
                 logger.warning("확장 실패, 재시도 (%d회차)", attempt + 1)
