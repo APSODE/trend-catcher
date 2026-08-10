@@ -12,7 +12,6 @@ class SubscriptionService:
         subscription = SubscriptionModel(
             user_id=payload.user_id,
             channel=payload.channel.value,
-            webhook_url=payload.webhook_url,
             morning_enabled=payload.morning_enabled,
             evening_enabled=payload.evening_enabled,
             personalized_enabled=payload.personalized_enabled,
