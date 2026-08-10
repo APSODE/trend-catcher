@@ -70,7 +70,7 @@ class DiscordClient:
             json=payload,
             headers=self._headers(),
         )
-        _handle_response(response)
+        self._handle_response(response)
 
     # 개인화된 뉴스 -> DM 전송
     @async_retry(
@@ -84,15 +84,15 @@ class DiscordClient:
             json=payload,
             headers=self._headers(),
         )
-        _handle_response(response)
+        self._handle_response(response)
 
+    def _handle_response(self, response) -> None:
 
-def _handle_response(response) -> None:
-    if response.status_code in (200, 201):
-        return
-    elif response.status_code == 429:
-        raise TransientWebhookError("rate limited (429)")
-    elif 400 <= response.status_code < 500:
-        raise PermanentWebhookError(f"permanent error {response.status_code}")
-    else:
-        raise TransientWebhookError(f"server error {response.status_code}")
+        if response.status_code in (200, 201):
+            return
+        elif response.status_code == 429:
+            raise TransientWebhookError("rate limited (429)")
+        elif 400 <= response.status_code < 500:
+            raise PermanentWebhookError(f"permanent error {response.status_code}")
+        else:
+            raise TransientWebhookError(f"server error {response.status_code}")
