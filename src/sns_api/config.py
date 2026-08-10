@@ -29,6 +29,7 @@ class Settings(BaseSettings):
 
     # --- 발송 채널 (봇 방식) ---
     discord_bot_token: str = "change-me-in-env"
+    major_news_channel_id = "change-me-in-env"
     http_timeout_seconds: float = 10.0
     http_max_retries: int = 3
 
