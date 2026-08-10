@@ -12,9 +12,11 @@ class SubscriptionRepository:
         await session.refresh(subscription)
         return subscription
 
-    # id를 통한 구독 조회
+    # id 구독 조회
     async def get_by_id(self, session: AsyncSession, sub_id: int) -> SubscriptionModel | None:
-        return await session.get(SubscriptionModel, sub_id)
+        query = select(SubscriptionModel).where(SubscriptionModel.id == sub_id)
+        result = await session.execute(query)
+        return result.scalar_one_or_none()
 
     # 유저의 구독 전체 조회
     async def get_by_user(self, session: AsyncSession, user_id: int) -> list[SubscriptionModel]:
