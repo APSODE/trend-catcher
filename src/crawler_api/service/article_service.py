@@ -7,9 +7,9 @@ from src.crawler_api.event.event_types import EventType, DomainEvent
 from src.crawler_api.exception.create_error_exception import CreateErrorException
 from src.crawler_api.exception.not_found_exception import NotFoundException
 from src.crawler_api.repository.article_repository import ArticleRepository
-from src.crawler_api.schemas.article import ArticleRead, ArticleCreate, ArticleUpdate, ArticleResponseLLM, \
-    ArticleResponseSNS
+from src.crawler_api.schemas.article import ArticleRead, ArticleCreate, ArticleUpdate
 from src.crawler_api.service.crawling_pipeline import CrawlingPipeline
+from src.crawler_api.util.normalize_datetime import normalize_datetime
 
 
 class ArticleService:
@@ -124,6 +124,19 @@ class ArticleService:
 
         today_crawled_articles = await CrawlingPipeline.run_all_today(sources=sources, limit=limit)
         return await self.create_articles(today_crawled_articles)
+
+    async def create_articles_date(
+        self,
+        sources: list[NewsSitemap] | None = None,
+        limit: int | None = None,
+        datetime_value: datetime = normalize_datetime(datetime.today())
+    ) -> list[PydanticObjectId]:
+
+        if sources is None:
+            sources = list(NewsSitemap)
+
+        date_crawled_articles = await CrawlingPipeline.run_all(sources=sources, limit=limit, date=datetime_value)
+        return await self.create_articles(date_crawled_articles)
 
     async def update_article(
         self,

@@ -19,13 +19,24 @@ async def get_all_articles(service: ArticleService = Depends(get_article_service
 
 
 @router.post("/articles_today", response_model=list[PydanticObjectId])
-async def get_articles_today(
+async def create_articles_today(
     service: ArticleService = Depends(get_article_service),
     limit: int | None = None
 ):
     return await service.create_articles_today(None, limit=limit)
 
-
+@router.post("/articles_date", response_model=list[PydanticObjectId])
+async def create_articles_by_date(
+    datetime_value: datetime =
+        Query(openapi_examples={
+            "default": Example(
+            summary="Example date value",
+            value="1900-01-01T00:00:00")
+        }),
+    service: ArticleService = Depends(get_article_service),
+    limit: int | None = None
+):
+    return await service.create_articles_date(datetime_value=normalize_datetime(datetime_value), limit=limit)
 @router.get("/articles_date", response_model=list[ArticleRead])
 async def get_articles_by_date(
     datetime_value: datetime =
