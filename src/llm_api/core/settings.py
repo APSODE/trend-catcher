@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     )
     nvidia_api_key: SecretStr
     database_url: SecretStr
+    crawler_api_url: str = "http://localhost:8001"
     db_echo: bool = True
     log_level: str = "INFO"
 
