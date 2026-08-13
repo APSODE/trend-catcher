@@ -66,6 +66,5 @@ class NewsAnalysisService:
             else:
                 result.processed.append(analysis)
 
-
         logger.info("다중 분석 완료: 요청 %d건 중 %d건 완료, %d건 스킵, %d건 실패", len(news_list), len(result.processed), result.skipped, result.failed)
         return result
