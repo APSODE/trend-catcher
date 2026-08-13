@@ -13,6 +13,10 @@ class ExternalApiException(LLMServiceException):
 class NvidiaApiException(ExternalApiException):
     pass
 
+#크롤러 api 호출 실패
+class CrawlerApiException(ExternalApiException):
+    pass
+
 #외부에서 받은 데이터 파싱 실패
 class DataParseException(LLMServiceException):
     status_code = 502
