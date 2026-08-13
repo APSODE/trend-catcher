@@ -4,7 +4,7 @@ class LLMConstant:
     BASE_URL = "https://integrate.api.nvidia.com/v1"
 
     #추출
-    EXTRACTION_URL = BASE_URL + "/chat/completions"
+    EXTRACTION_PATH = "/chat/completions"
     EXTRACTION_MODEL = "nvidia/nemotron-3-nano-30b-a3b"
     EXTRACTION_TIMEOUT = 300
     EXTRACTION_PROMPT_TEMPLATE = """
@@ -27,7 +27,7 @@ class LLMConstant:
 """
 
     #임베딩
-    EMBEDDING_URL = BASE_URL + "/embeddings"
+    EMBEDDING_PATH = "/embeddings"
     EMBEDDING_MODEL = "nvidia/llama-nemotron-embed-1b-v2"
     EMBEDDING_TIMEOUT = 30
 
