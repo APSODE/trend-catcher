@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import TypeVar, Type
 import json
 from pydantic import ValidationError
-from src.llm_api.exception.llm_exception import JsonParseException
+from src.llm_api.exception.parse_exception import JsonParseException
 import logging
 
 logger = logging.getLogger(__name__)

@@ -1,8 +1,8 @@
 import asyncio
-from src.llm_api.constant.llm_constant import LLMConstant
+from src.llm_api.constant.nvidia_constant import LLMConstant
 from src.llm_api.infrastructure.nvidia_client import NvidiaClient
 from src.llm_api.schema.extraction import ExtractionResultData
-from src.llm_api.exception.llm_exception import JsonParseException
+from src.llm_api.exception.parse_exception import JsonParseException
 from src.llm_api.util.json_util import JsonUtil
 import logging
 

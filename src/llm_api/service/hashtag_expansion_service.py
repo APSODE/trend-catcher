@@ -2,10 +2,11 @@ import asyncio
 from src.llm_api.model.hashtag_model import HashtagModel
 from src.llm_api.repository.hashtag_repository import HashtagRepository
 from src.llm_api.infrastructure.nvidia_client import NvidiaClient
-from src.llm_api.constant.llm_constant import LLMConstant, EmbeddingInputType
+from src.llm_api.constant.nvidia_constant import LLMConstant, EmbeddingInputType
 from src.llm_api.util.json_util import JsonUtil
 from src.llm_api.schema.hashtag_expansion import HashtagExpansionData
-from src.llm_api.exception.llm_exception import NvidiaApiException, JsonParseException
+from src.llm_api.exception.external_exception import NvidiaApiException
+from src.llm_api.exception.parse_exception import JsonParseException
 import logging
 
 logger = logging.getLogger(__name__)

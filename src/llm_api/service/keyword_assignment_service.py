@@ -1,7 +1,7 @@
 from src.llm_api.infrastructure.nvidia_client import NvidiaClient
 from src.llm_api.model.keyword_model import KeywordModel
 from src.llm_api.repository.keyword_repository import KeywordRepository
-from src.llm_api.constant.llm_constant import EmbeddingInputType
+from src.llm_api.constant.nvidia_constant import EmbeddingInputType
 from src.llm_api.constant.similarity_constant import SimilarityConstant
 from src.llm_api.util.similarity_util import SimilarityUtil
 import logging

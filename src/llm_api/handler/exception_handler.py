@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from src.llm_api.exception.llm_exception import LLMServiceException
+from src.llm_api.exception.base_exception import LLMServiceException
 import logging
 
 logger = logging.getLogger(__name__)

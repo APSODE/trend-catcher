@@ -5,7 +5,7 @@ from src.llm_api.util.datetime_util import DateTimeUtil
 from src.llm_api.util.similarity_util import SimilarityUtil
 from src.llm_api.constant.period_constant import PeriodConstant
 from src.llm_api.constant.similarity_constant import SimilarityConstant
-from src.llm_api.constant.llm_constant import EmbeddingInputType
+from src.llm_api.constant.nvidia_constant import EmbeddingInputType
 import logging
 
 logger = logging.getLogger(__name__)
