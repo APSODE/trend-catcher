@@ -5,6 +5,7 @@ from src.llm_api.schema.article import CrawledArticleData
 from src.llm_api.service.extraction_service import ExtractionService
 from src.llm_api.service.keyword_assignment_service import KeywordAssignmentService
 from src.llm_api.service.topic_matching_service import TopicMatchingService
+from src.llm_api.schema.analysis_result import AnalysisResultData
 import logging
 
 logger = logging.getLogger(__name__)
@@ -49,18 +50,22 @@ class NewsAnalysisService:
         return analysis
 
     #기사 여럿 분석: 실패한 건 로그남기고 건너뜀
-    async def analyze_all(self, news_list: list[CrawledArticleData]) -> list[NewsAnalysisModel]:
-        results: list[NewsAnalysisModel] = []
+    async def analyze_all(self, news_list: list[CrawledArticleData]) -> AnalysisResultData:
+        result = AnalysisResultData()
 
         for news in news_list:
             try:
                 analysis = await self.analyze(news)
             except Exception:
                 logger.exception("분석 실패: [crawled_id: %s]", news.crawled_id)
+                result.failed += 1
                 continue
 
-            if analysis is not None:
-                results.append(analysis)
+            if analysis is None:
+                result.skipped += 1
+            else:
+                result.processed.append(analysis)
 
-        logger.info("다중 분석 완료: 요청 %d건 중 %d건 완료", len(news_list), len(results))
-        return results
+
+        logger.info("다중 분석 완료: 요청 %d건 중 %d건 완료, %d건 스킵, %d건 실패", len(news_list), len(result.processed), result.skipped, result.failed)
+        return result
