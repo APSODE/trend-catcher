@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 import httpx
 from src.llm_api.constant.api_constant import CrawlerApiConstant
