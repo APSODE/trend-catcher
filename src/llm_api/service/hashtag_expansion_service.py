@@ -27,6 +27,16 @@ class HashtagExpansionService:
 
         return [cached[hashtag] for hashtag in hashtags]
 
+    #확장 안 된거 골라내기
+    async def find_missing(self, hashtags: list[str]) -> list[str]:
+        normalized = self._normalize_all(hashtags)
+        _, unmatched = await self._filter_already_exist(normalized)
+        return unmatched
+
+    #단건 확장 + 저장
+    async def expand(self, hashtag: str) -> HashtagModel:
+        return await self._expand_and_save(self._normalize(hashtag))
+
     #정규화 후 중복 제거
     @staticmethod
     def _normalize_all(hashtags: list[str]) -> list[str]:
