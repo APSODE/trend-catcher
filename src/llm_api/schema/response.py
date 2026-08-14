@@ -12,3 +12,8 @@ class ScoringRunResponseData(BaseModel):
 class NewsResponseData(BaseModel):
     crawled_id: str
     score: float
+
+class HashtagPrepareResponseData(BaseModel):
+    total: int
+    prepared: int
+    failed: int
