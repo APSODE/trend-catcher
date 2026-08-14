@@ -15,7 +15,7 @@ class CrawlerClient(BaseApiClient):
             base_url = base_url,
             exception_class = CrawlerApiException,
             retry_attempts = CrawlerApiConstant.RETRY_ATTEMPTS,
-            retry_base_delay = CrawlerApiConstant.RETRY_BASE_DEALY
+            retry_base_delay = CrawlerApiConstant.RETRY_BASE_DELAY
         )
 
     #기간 내 기사 조회
