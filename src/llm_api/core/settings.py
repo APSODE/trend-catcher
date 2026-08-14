@@ -14,7 +14,8 @@ class Settings(BaseSettings):
     )
     nvidia_api_key: SecretStr
     database_url: SecretStr
-    crawler_api_url: str = "http://localhost:8001"
+    crawler_api_url: str = "http://localhost:8001" #TODO: 맞는 링크로 수정 필요
+    user_api_url: str = "http://localhost:8001" #TODO: 맞는 링크로 수정 필요
     db_echo: bool = True
     log_level: str = "INFO"
 
