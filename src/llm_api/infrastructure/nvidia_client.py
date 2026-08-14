@@ -1,9 +1,6 @@
 import httpx
-import asyncio
 from pydantic import SecretStr
-
-from constant.nvidia_constant import EmbeddingInputType
-from src.llm_api.constant.nvidia_constant import LLMConstant
+from src.llm_api.constant.nvidia_constant import LLMConstant, EmbeddingInputType
 from src.llm_api.exception.external_exception import NvidiaApiException
 from src.llm_api.infrastructure.base_api_client import BaseApiClient
 import logging
