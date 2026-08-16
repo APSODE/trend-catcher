@@ -14,6 +14,7 @@ from src.llm_api.util.datetime_util import DateTimeUtil
 from src.llm_api.infrastructure.database import session_scope
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.llm_api.service.news_analysis_service import NewsAnalysisService
+from src.llm_api.model.news_analysis_model import NewsAnalysisModel
 import logging
 
 logger = logging.getLogger(__name__)
@@ -50,7 +51,7 @@ class AnalysisRunner:
         return result
 
     #한 건 분석: 독립 트랜잭션에서
-    async def _analyze_one(self, article: CrawledArticleData):
+    async def _analyze_one(self, article: CrawledArticleData) -> NewsAnalysisModel | None:
         async with session_scope() as session:
             service = self._build_service(session)
             return await service.analyze(article)
