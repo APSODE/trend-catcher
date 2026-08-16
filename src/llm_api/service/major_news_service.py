@@ -2,9 +2,6 @@ from datetime import datetime
 from src.llm_api.model.news_analysis_model import NewsAnalysisModel
 from src.llm_api.repository.news_analysis_repository import NewsAnalysisRepository
 from src.llm_api.schema.response import NewsResponseData
-import logging
-
-logger = logging.getLogger(__name__)
 
 class MajorNewsService:
     def __init__(self, news_analysis_repository: NewsAnalysisRepository):
