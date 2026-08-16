@@ -1,3 +1,4 @@
+from src.llm_api.model.base_model import AbstractBaseModel
 from src.llm_api.core.settings import get_settings
 from collections.abc import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, AsyncSession, async_sessionmaker
@@ -34,3 +35,8 @@ async def session_scope() -> AsyncGenerator[AsyncSession, None]:
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with session_scope() as session:
         yield session
+
+#테이블 생성
+async def init_database() -> None:
+    async with engine.begin() as connection:
+        await connection.run_sync(AbstractBaseModel.metadata.create_all)
