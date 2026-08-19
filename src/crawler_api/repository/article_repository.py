@@ -107,6 +107,19 @@ class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
     async def exists_by_url(self, url: str) -> bool:
         return await self.is_exist({"url": url})
 
+    async def exist_by_urls(self, urls: list[str]) -> set[str]:
+        if not urls:
+            return set()
+
+        collection = self._model.get_pymongo_collection()
+        cursor = collection.find(
+            {"url": {"$in": urls}},
+            projection={"url": 1, "_id": 0},
+            session=self._session,
+        )
+        docs = await cursor.to_list()
+        return {doc["url"] for doc in docs}
+
     async def update_by_url(self, url: str, schema: ArticleUpdate) -> Article | None:
         update_data = schema.model_dump(exclude_unset=True, exclude_none=True)
 

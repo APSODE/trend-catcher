@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import datetime, date
 from enum import Enum, auto
 from pydantic import BaseModel
 
 from src.crawler_api.exception.selector_value_exception import SelectorValueException
-from src.crawler_api.util.normalize_datetime import now_normalized
+from src.crawler_api.util.normalize_datetime import now_date
 
 
 class SitemapType(Enum):
@@ -28,12 +28,12 @@ class NewsUrlData(BaseModel):
         if self.sitemap_type != SitemapType.PAGE and self.selector:
             raise SelectorValueException()
 
-    def get_url(self, date: datetime=now_normalized()):
+    def get_url(self, date_value: date = now_date()):
         return self.url.format(
-            yyyy=date.strftime("%Y"),
-            yyyymmdd=date.strftime("%Y%m%d"),
-            mm=date.strftime("%m"),
-            dd=date.strftime("%d")
+            yyyy=date_value.strftime("%Y"),
+            yyyymmdd=date_value.strftime("%Y%m%d"),
+            mm=date_value.strftime("%m"),
+            dd=date_value.strftime("%d")
         )
 
 class NewsSitemap(Enum):

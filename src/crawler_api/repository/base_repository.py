@@ -72,7 +72,7 @@ class BaseRepository(Generic[ModelType, IdType]):
     async def get_by_ids(self, data_ids: list[IdType]) -> list[ModelType]:
         if not data_ids:
             return []
-        return await self.find({"id": {"$in": data_ids}})
+        return await self.find({"_id": {"$in": data_ids}})
     
     async def update(
         self,
