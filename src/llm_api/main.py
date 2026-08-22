@@ -1,6 +1,8 @@
 import httpx
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+
+from src.llm_api.config.scheduler import init_scheduler
 from src.llm_api.core.logging import setup_logging
 from src.llm_api.core.settings import get_settings
 from src.llm_api.handler.exception_handler import register_exception_handlers
@@ -9,6 +11,7 @@ from src.llm_api.infrastructure.database import init_database
 from src.llm_api.infrastructure.nvidia_client import NvidiaClient
 from src.llm_api.infrastructure.user_api_client import UserApiClient
 from src.llm_api.router import analysis_router, hashtag_router, news_router, scoring_router
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -24,10 +27,16 @@ async def lifespan(app: FastAPI):
     app.state.user_api_client = UserApiClient(http_client, settings.user_api_url)
 
     await init_database()
+
+    scheduler = init_scheduler(app)
+    scheduler.start()
+    app.state.scheduler = scheduler
+
     logger.info("llm api 구동시작")
 
     yield
 
+    scheduler.shutdown()
     await http_client.aclose()
     logger.info("llm api 구동종료")
 
