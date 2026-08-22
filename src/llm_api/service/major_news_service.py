@@ -7,10 +7,11 @@ class MajorNewsService:
     def __init__(self, news_analysis_repository: NewsAnalysisRepository):
         self._news_analysis_repository = news_analysis_repository
 
-    async def get_major_news(self, since: datetime) -> list[NewsResponseData]:
+    async def get_major_news(self, since: datetime, limit: int) -> list[NewsResponseData]:
         news_list = await self._news_analysis_repository.find_scored_since(since) #여기서 score가 None이 아닌 거만 받으므로 아래 타입경고 무시
         selected = self._pick_top_by_topic(news_list)
-        return [NewsResponseData(crawled_id = news.crawled_id, score = news.score) for news in sorted(selected, key = lambda news: news.score, reverse = True)]
+        result = sorted(selected, key = lambda news: news.score, reverse = True)
+        return [NewsResponseData(crawled_id = news.crawled_id, score = news.score) for news in result[:limit]]
 
     @staticmethod
     def _pick_top_by_topic(news_list: list[NewsAnalysisModel]) -> list[NewsAnalysisModel]:
