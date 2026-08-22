@@ -63,8 +63,14 @@ class DispatchResponseData(BaseModel):
     results: list[DispatchResultItemData]
 
 
-# LLM 서비스 응답 (수정 필요)
+# 서비스 응답
 
+# LLM과 소통시 받을 것들
+class NewsReferenceData(BaseModel):
+    crawled_id: str
+    score: float
+
+# 최종 완성된 뉴스에 필요한 것들
 class NewsItemData(BaseModel):
     title: str
     summary: str
