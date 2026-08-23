@@ -15,12 +15,13 @@ class UserClient:
         exceptions=(httpx.TransportError,),
     )
     async def get_discord_user_id(self, user_id: int) -> str | None:
-        resp = await self._client.get(
+        response = await self._client.get(
             f"{settings.user_api_base_url}/internal/account/get-by-user-pk-and-provider",
             params={"user_pk": user_id, "provider": "DISCORD"},
         )
-        if resp.status_code == 404:
+        if response.status_code == 404:
             return None
-        resp.raise_for_status()
-        data = resp.json()
+        response.raise_for_status()
+        # User의 소셜계정데이터 데이터들을 파이썬이 이해할 수 있게 변환
+        data = response.json()
         return data["provider_user_id"]
