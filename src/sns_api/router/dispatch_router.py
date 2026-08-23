@@ -31,21 +31,27 @@ async def verify_internal_token(x_internal_token: Annotated[str, Header()]) -> N
     dependencies=[Depends(verify_internal_token)],
 )
 @handle_errors
-async def trigger_dispatch(slot: Slot, request: Request, session: SessionDep):
+# 주요뉴스 전송
+async def trigger_dispatch(slot: Slot, request: Request):
     discord_client = request.app.state.discord_client
-    user_client = request.app.state.user_client
+    # user_client = request.app.state.user_client
     llm_client = request.app.state.llm_client
     crawler_client = request.app.state.crawler_client
 
-    slot_label = "아침" if slot == Slot.MORNING else "저녁"
+    if slot == Slot.MORNING:
+        slot_label = "아침"
+    else:
+        slot_label = "저녁"
 
     await service.dispatch_major(
         discord_client, llm_client, crawler_client,
         settings.major_news_channel_id, slot_label,
     )
-    await service.dispatch_personalized(
-        session, slot, slot_label,
-        discord_client, user_client, llm_client, crawler_client,
-    )
+
+    # 개인화 뉴스 전송
+    # await service.dispatch_personalized(
+    #   session, slot, slot_label,
+    #  discord_client, user_client, llm_client, crawler_client,
+    # )
 
     return {"status": "dispatch triggered", "slot": slot.value}
