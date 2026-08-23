@@ -13,12 +13,12 @@ logger = logging.getLogger("sns.scheduler")
 async def _trigger_dispatch(slot: str) -> None:
     async with httpx.AsyncClient(timeout=settings.http_timeout_seconds) as client:
         try:
-            resp = await client.post(
+            response = await client.post(
                 f"{settings.self_base_url}/dispatch/{slot}",
                 headers={"X-Internal-Token": settings.internal_token},
             )
-            resp.raise_for_status()
-            logger.info("dispatch triggered: slot=%s status=%s", slot, resp.status_code)
+            response.raise_for_status()
+            logger.info("dispatch triggered: slot=%s status=%s", slot, response.status_code)
         except Exception:
             logger.exception("dispatch trigger failed: slot=%s", slot)
 
