@@ -15,7 +15,7 @@ class LLMClient:
         max_attempts=settings.http_max_retries,
         exceptions=(httpx.TransportError,),
     )
-    # 주요뉴스
+    # 주요뉴스 (크롤러 아이디가 담긴 리스트를 가져옴)
     async def get_major_news(self, limit: int = 10) -> list[NewsReferenceData]:
         # LLM 요청부
         response = await self._client.get(

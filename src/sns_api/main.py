@@ -27,6 +27,7 @@ async def lifespan(app: FastAPI):
         app.state.crawler_client = CrawlerClient(http_client)
 
         scheduler = create_scheduler()
+
         if settings.enable_internal_scheduler:
             scheduler.start()
 
@@ -37,6 +38,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="SNS Service", version="0.1.0", lifespan=lifespan)
 
+# 라우터 등록
 app.include_router(subscription_router)
 app.include_router(dispatch_router)
 

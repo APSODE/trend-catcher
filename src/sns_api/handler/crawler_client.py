@@ -16,7 +16,7 @@ class CrawlerClient:
         max_attempts=settings.http_max_retries,
         exceptions=(httpx.TransportError,),
     )
-    # 크롤러 id -> 딕셔너리 형태로 반환
+    # 크롤러 id -> 딕셔너리 형태로 {id: 기사}를 가져옴
     async def get_articles(self, article_ids: list[str]) -> dict[str, NewsItemData]:
 
         if not article_ids:
