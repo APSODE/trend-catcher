@@ -1,6 +1,8 @@
 from fastapi import Request, Depends
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.llm_api.infrastructure.search_cache import SearchCache
 from src.llm_api.infrastructure.nvidia_client import NvidiaClient
 from src.llm_api.infrastructure.crawler_client import CrawlerClient
 from src.llm_api.infrastructure.user_api_client import UserApiClient
@@ -28,10 +30,14 @@ def get_crawler_client(request: Request) -> CrawlerClient:
 def get_user_api_client(request: Request) -> UserApiClient:
     return request.app.state.user_api_client
 
+def get_search_cache(request: Request) -> SearchCache:
+    return request.app.state.search_cache
+
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 NvidiaClientDep = Annotated[NvidiaClient, Depends(get_nvidia_client)]
 CrawlerClientDep = Annotated[CrawlerClient, Depends(get_crawler_client)]
 UserApiClientDep = Annotated[UserApiClient, Depends(get_user_api_client)]
+SearchCacheDep = Annotated[SearchCache, Depends(get_search_cache)]
 
 #서비스
 def get_scoring_service(session: SessionDep) -> ScoringService:

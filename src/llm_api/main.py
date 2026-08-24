@@ -2,6 +2,7 @@ import httpx
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
+from src.llm_api.infrastructure.search_cache import SearchCache
 from src.llm_api.config.scheduler import init_scheduler
 from src.llm_api.core.logging import setup_logging
 from src.llm_api.core.settings import get_settings
@@ -25,6 +26,7 @@ async def lifespan(app: FastAPI):
     app.state.nvidia_client = NvidiaClient(http_client, settings.nvidia_api_key)
     app.state.crawler_client = CrawlerClient(http_client, settings.crawler_api_url)
     app.state.user_api_client = UserApiClient(http_client, settings.user_api_url)
+    app.state.search_cache = SearchCache()
 
     await init_database()
 
