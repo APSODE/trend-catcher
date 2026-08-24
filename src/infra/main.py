@@ -1,0 +1,41 @@
+from contextlib import asynccontextmanager
+
+import httpx
+from fastapi import FastAPI, Request
+from starlette.middleware.cors import CORSMiddleware
+
+from src.infra.config.setting import get_settings
+import src.infra.proxy.forwarder as proxy_module
+from src.infra.middleware.auth_middleware import AuthMiddleware
+from src.infra.proxy.forwarder import proxy_request
+
+settings = get_settings()
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    proxy_module.client = httpx.AsyncClient(timeout=settings.default_timeout)
+    yield
+    await proxy_module.client.aclose()
+
+
+app = FastAPI(title=settings.app_name, lifespan=lifespan)
+
+app.add_middleware(AuthMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.frontend_origins,
+    allow_credentials=False,   # 쿠키 대신 Authorization 헤더(Bearer 토큰)를 쓰니 credentials는 불필요
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+#서버 상태 확인용 api
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
+@app.api_route("/{full_path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+async def catch_all(request: Request, _full_path: str):
+    return await proxy_request(request)
