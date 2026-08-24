@@ -59,7 +59,7 @@ def init_scheduler(app: FastAPI) -> AsyncIOScheduler:
         id="crawl_evening",
         replace_existing=True,
         misfire_grace_time=3600,
-        max_instance=1,
+        max_instances=1,
         coalesce=True
     )
 
