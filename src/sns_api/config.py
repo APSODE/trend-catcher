@@ -24,9 +24,9 @@ class Settings(BaseSettings):
     db_echo: bool = False
 
     # 외부 서비스
-    llm_api_base_url: str = "http://llm-api:8000"
-    user_api_base_url: str = "http://user-api:8000"
-    crawler_api_base_url: str = "http://crawler-api:8000"
+    llm_api_base_url: str = "http://100.96.140.48:8080"
+    user_api_base_url: str = "http://100.94.34.103:8080"
+    crawler_api_base_url: str = "http://100.106.128.75:8081"
 
     # 발송 채널 (봇 방식)
     discord_bot_token: str = "change-me-in-env"
@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     morning_cron: str = "0 9 * * *"    # 매일 09:00
     evening_cron: str = "0 21 * * *"   # 매일 21:00
     timezone: str = "Asia/Seoul"
-    self_base_url: str = "http://127.0.0.1:8002"
+    self_base_url: str = "http://127.0.0.1:8080"
 
 @lru_cache
 def get_settings() -> Settings:
