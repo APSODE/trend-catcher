@@ -20,8 +20,6 @@ class Settings(BaseSettings):
 
     app_name: str = "Crawler API"
 
-    llm_api_url : str = Field(validation_alias="LLM_API_URL")
-    sns_api_url : str = Field(validation_alias="SNS_API_URL")
 
 @lru_cache
 def get_settings() -> Settings:
