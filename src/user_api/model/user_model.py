@@ -16,6 +16,7 @@ class UserModel(BaseModel):
     interest: Mapped[List["UserHashtagModel"]] = relationship(
         "UserHashtagModel",
         back_populates = "user_model",
+        cascade = "all, delete-orphan"
     )
 
     local_accounts: Mapped[List["LocalAccountModel"]] = relationship(

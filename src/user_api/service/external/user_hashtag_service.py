@@ -1,8 +1,9 @@
+from src.user_api.dto.serializer import required_relation, serialize_many
 from src.user_api.exceptions.hashtag_exception import UnknownHashtagData
 from src.user_api.exceptions.user_exceptions import UnknownUserData
 from src.user_api.exceptions.relation_exceptions import NotFollowedHashtagData, AlreadyFollowedHashtagData
 from src.user_api.model import UserModel, HashtagModel
-from src.user_api.dto import FollowHashtagRequest, UnfollowHashtagRequest
+from src.user_api.dto import FollowHashtagRequest, UnfollowHashtagRequest, DataCollectionResponse, HashtagData, UserData
 from src.user_api.repository import HashtagRepository, UserHashtagRepository, UserRepository
 from src.user_api.service import BaseService
 
@@ -61,6 +62,28 @@ class UserHashtagService(BaseService):
             user_pk = target_user.pk,
             hashtag_pk = target_hashtag.pk
         )
+
+    async def get_followed_hashtag_list(self, user_pk: int) -> DataCollectionResponse[HashtagData]:
+        target_user = await self.__user_repository.get_by_pk(
+            target_pk = user_pk,
+            load_relations = required_relation(UserData)
+        )
+
+        if target_user is None:
+            raise UnknownUserData()
+
+        user_followed_hashtag_models = []
+
+        for relation_model in target_user.interest:
+            user_followed_hashtag_models.append(
+                await self.__hashtag_repository.get_by_pk(relation_model.hashtag_fk)
+            )
+
+        return DataCollectionResponse(
+            amount = len(target_user.interest),
+            datas = serialize_many(user_followed_hashtag_models, HashtagData)
+        )
+
 
     async def require_exist_user(self, user_pk: int) -> UserModel:
         maybe_user = await self.__user_repository.get_by_pk(user_pk)

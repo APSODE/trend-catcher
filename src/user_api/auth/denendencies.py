@@ -18,7 +18,7 @@ async def get_current_account(credentials: HTTPAuthorizationCredentials = Securi
     return jwt_token.account
 
 async def get_current_user_pk(credentials: HTTPAuthorizationCredentials = Security(bearer_scheme)) -> int:
-    jwt_token = JwtUtil.decode_token(credentials.credentials, expected_type=TokenType.ACCESS)
+    jwt_token = JwtUtil.decode_token(credentials.credentials, expected_type = TokenType.ACCESS)
 
     if not await TokenWhitelist.is_registered(jwt_token, credentials.credentials):
         raise InvalidToken()

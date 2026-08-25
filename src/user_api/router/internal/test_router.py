@@ -22,3 +22,8 @@ class TestRouter(BaseRouter):
         async def drop_db(service: TestService = Depends(get_test_service)):
             await service.drop_all()
             return {"message": "모든 테이블이 삭제되었습니다."}
+
+        @self.post("/setup-test-data")
+        async def setup_test_data(service: TestService = Depends(get_test_service)):
+            await service.seed_all()
+            return {"message": "모든 테스트 데이터의 생성이 완료되었습니다."}
