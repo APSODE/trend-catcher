@@ -18,14 +18,16 @@ EXEMPT_PATH_PREFIXES = (
     "/health",
     "/docs",
     "/openapi.json",
-    "/redoc"
+    "/redoc",
+    "/news/daily",
+    "/article/articles_ids_front",
 )
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
-
+        print("authorization path : ", path)
         if path.startswith(EXEMPT_PATH_PREFIXES):
             return await call_next(request)
 

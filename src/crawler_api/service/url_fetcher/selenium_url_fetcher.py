@@ -85,6 +85,7 @@ class SeleniumURLFetcher(BaseUrlFetcher):
         results : list[str] = []
 
         for url in urls:
+            logger.info("fetching : %s", url)
             try:
                 if not await robots.is_allowed(url):
                     results.append("")

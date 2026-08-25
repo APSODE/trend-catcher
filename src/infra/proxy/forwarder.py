@@ -37,6 +37,7 @@ async def proxy_request(request: Request) -> Response:
     print("path:", path)
     print("target_base:", target_base)
     print("target_url:", target_url)
+    print("headers", request.headers.get("Authorization", "no token"))
     forward_headers = {
         k: v for k, v in request.headers.items()
         if k.lower() not in ("host", "content-length")
@@ -44,11 +45,11 @@ async def proxy_request(request: Request) -> Response:
 
     #llm api인경우 추가시간
     timeout = settings.llm_api_timeout if target_base == settings.llm_api_url else settings.default_timeout
-    forward_params = {
-        k: v
+    forward_params = [
+        (k, v)
         for k, v in request.query_params.multi_items()
         if k != "_full_path"
-    }
+    ]
     try:
         upstream_request = client.build_request(
             method=request.method,
@@ -61,8 +62,9 @@ async def proxy_request(request: Request) -> Response:
         print("=== PROXY ===")
         print("method:", request.method)
         print("target_url:", target_url)
-        print("query_params:", dict(request.query_params))
+        print("query_params:", list(request.query_params.multi_items()))
         print("body:", await request.body())
+        print("==============================================================")
         upstream_response = await client.send(upstream_request)
     except httpx.ConnectError:
         return JSONResponse(

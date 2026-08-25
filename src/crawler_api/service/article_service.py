@@ -5,13 +5,11 @@ from beanie import SortDirection, PydanticObjectId
 from bson.errors import InvalidId
 
 from src.crawler_api.constant.news_sitemap import NewsSitemap
-from src.crawler_api.event.event_publisher import EventPublisher
-from src.crawler_api.event.event_types import EventType, DomainEvent
 from src.crawler_api.exception.create_error_exception import CreateErrorException
 from src.crawler_api.exception.not_found_exception import NotFoundException
 from src.crawler_api.repository.article_repository import ArticleRepository
 from src.crawler_api.schemas.article import ArticleRead, ArticleCreate, ArticleUpdate, ArticleResponseSNS, \
-    ArticleResponseLLM
+    ArticleResponseLLM, ArticleResponseFront
 from src.crawler_api.service.crawling_pipeline import CrawlingPipeline
 from src.crawler_api.util.normalize_datetime import now_date
 
@@ -19,30 +17,12 @@ from src.crawler_api.util.normalize_datetime import now_date
 logger = logging.getLogger(__name__)
 
 class ArticleService:
-    def __init__(
-        self,
-        article_repository: ArticleRepository,
-        event_publisher: EventPublisher
-    ):
-
+    def __init__(self, article_repository: ArticleRepository):
         self._article_repository = article_repository
-        self._event_publisher = event_publisher
 
     async def _filter_new_urls(self, urls: list[str]) -> list[str]:
         existing = await self._article_repository.exist_by_urls(urls)
         return [u for u in urls if u not in existing]
-
-    async def _dispatch_created(self, ids: list[PydanticObjectId]):
-        created_articles = await self._article_repository.get_by_ids(ids)
-
-        await self._event_publisher.publish(DomainEvent(
-            entity="Article",
-            event_type=EventType.CREATED,
-            entity_id="",
-            payload={"articles":
-                [ArticleRead.model_validate(article).model_dump(mode="json") for article in created_articles]
-            },
-        ))
 
     async def get_all_articles(self) -> list[ArticleRead]:
         result: list[ArticleRead] = []
@@ -96,18 +76,27 @@ class ArticleService:
                 result.append(ArticleResponseSNS.model_validate(article))
         return result
 
+    async def get_article_by_ids_front(self, article_ids: list[str]) -> list[ArticleResponseFront]:
+
+        result: list[ArticleResponseFront] = []
+
+        ids: list[PydanticObjectId] = []
+        for string in article_ids:
+            try:
+                ids.append(PydanticObjectId(string))
+            except InvalidId:
+                logger.warning("잘못된 ObjectId 형식: %s", string)
+
+        for article in await self._article_repository.get_by_ids(ids):
+            if article is not None:
+                result.append(ArticleResponseFront.model_validate(article))
+        return result
+
     async def create_article(self, article: ArticleCreate) -> PydanticObjectId:
         result = await self._article_repository.create_one(article)
 
         if result is None:
             raise CreateErrorException("생성 과정에서 오류가 발생했습니다")
-        #
-        # await self._event_publisher.publish(DomainEvent(
-        #     entity="Article",
-        #     event_type=EventType.CREATED,
-        #     entity_id=str(result),
-        #     payload=article.model_dump())
-        # )
 
         return result
 
@@ -119,14 +108,6 @@ class ArticleService:
         if not result:
             return []
 
-        # await self._event_publisher.publish(DomainEvent(
-        #     entity="Article",
-        #     event_type=EventType.CREATED,
-        #     entity_id="",
-        #     payload={"article_ids": [str(pk) for pk in result]})
-        # )
-
-        await self._dispatch_created(result)
         return result
 
     async def create_articles_today(
@@ -168,34 +149,13 @@ class ArticleService:
         if result is None:
             raise NotFoundException("값을 찾을 수 없습니다")
 
-        # await self._event_publisher.publish(DomainEvent(
-        #     entity="Article",
-        #     event_type=EventType.UPDATED,
-        #     entity_id=str(article_id),
-        #     payload=update_data)
-        # )
-
         return ArticleRead.model_validate(result)
 
     async def delete_article(self, article_id: PydanticObjectId) -> bool:
-        result = await self._article_repository.delete_by_id(article_id)
+        return await self._article_repository.delete_by_id(article_id)
 
-        # if result:
-        #
-        #     await self._event_publisher.publish(DomainEvent(
-        #         entity="Article",
-        #         event_type=EventType.DELETED,
-        #         entity_id=str(article_id))
-        #     )
-
-        return result
-
-    #권한 검증
     async def delete_all_articles(self, amount: int | None) -> bool:
         if amount is None:
             return await self._article_repository.delete(amount=0)
 
         return await self._article_repository.delete(amount=amount)
-
-
-#TODO: 언론사 추가

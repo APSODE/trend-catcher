@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query
 
 from src.crawler_api.dependencies.article import get_article_service
 from src.crawler_api.schemas.article import ArticleRead, ArticleCreate, ArticleUpdate, ArticleResponseLLM, \
-    ArticleResponseSNS
+    ArticleResponseSNS, ArticleResponseFront
 from src.crawler_api.service.article_service import ArticleService
 from src.crawler_api.util.normalize_datetime import normalize_datetime
 
@@ -87,6 +87,19 @@ async def get_articles_by_ids_sns(
 ):
 
     return await service.get_article_by_ids_sns(article_ids)
+
+@router.get("/articles_ids_front", response_model=list[ArticleResponseFront])
+async def get_articles_by_ids_front(
+    article_ids: list[str] =
+        Query(json_schema_extra={
+            "example": ["5eb7cf5a86d9755df3a6c593"],
+            "items": {"type": "string", "examples": ["5eb7cf5a86d9755df3a6c593"]}
+        }),
+
+    service: ArticleService = Depends(get_article_service),
+):
+
+    return await service.get_article_by_ids_front(article_ids)
 
 @router.delete("/delete_all", response_model=bool)
 async def delete_all_articles(

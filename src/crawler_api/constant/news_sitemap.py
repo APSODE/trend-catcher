@@ -44,11 +44,11 @@ class NewsSitemap(Enum):
     #    sitemap_type=SitemapType.PAGE,
     #    selector="#contents > div > div > div.sitemap_list.contents_list > div > ul li a")
 
-    CHOSUN_PAGE = NewsUrlData(
-        url="https://www.chosun.com/sitemap/{yyyy}/{mm}/{dd}/",
-        company_name="조선일보",
-        sitemap_type=SitemapType.PAGE,
-        selector="a.story-card__headline")
+    # CHOSUN_PAGE = NewsUrlData(
+    #     url="https://www.chosun.com/sitemap/{yyyy}/{mm}/{dd}/",
+    #     company_name="조선일보",
+    #     sitemap_type=SitemapType.PAGE,
+    #     selector="a.story-card__headline")
 
 
     #KMIB = NewsUrlData(

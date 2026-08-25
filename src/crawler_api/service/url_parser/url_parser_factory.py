@@ -7,7 +7,7 @@ from src.crawler_api.service.url_parser.munhwa_page_parser import MunhwaPagePars
 
 
 _PARSER_MAP: dict[NewsSitemap, type[BasePageParser]] = {
-    NewsSitemap.CHOSUN_PAGE: ChosunPageParser,
+    #NewsSitemap.CHOSUN_PAGE: ChosunPageParser,
     NewsSitemap.MUNHWA: MunhwaPageParser,
     NewsSitemap.JOONGANG: JoongangPageParser
 }
