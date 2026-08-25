@@ -26,10 +26,6 @@ class UserService(BaseService):
         )
         return serialize_many(user_models, UserData)
 
-    async def query_user_by_pk(self, user_pk: int) -> UserData:
-        user_model = await self.require_exist_user(user_pk)
-        return serialize(user_model, UserData)
-
     async def get_user_pk_in_jwt(self, access_token: str) -> PKResponse:
         decode_result = JwtUtil.decode_token(access_token, TokenType.ACCESS)
 
