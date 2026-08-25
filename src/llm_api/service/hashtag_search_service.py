@@ -31,7 +31,7 @@ class HashtagSearchService:
         keyword_pk_list = await self._keyword_matching_service.find_matching_pks(queries)
 
         #매칭된 키워드로 뉴스 연결
-        return await self._collect_crawled_ids(expanded_list, keyword_pk_list)
+        return await self._collect_crawled_ids(expanded_list, keyword_pk_list, since, until)
 
     #확장 데이터를 검색어로 포장
     def _to_query(self, expanded: HashtagModel) -> KeywordQueryData:
@@ -57,4 +57,4 @@ class HashtagSearchService:
             current = best_by_topic.get(news.topic_fk)
             if current is None or news.score > current.score:
                 best_by_topic[news.topic_fk] = news
-            return list(best_by_topic.values())
+        return list(best_by_topic.values())

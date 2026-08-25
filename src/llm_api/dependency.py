@@ -2,7 +2,8 @@ from fastapi import Request, Depends
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.llm_api.infrastructure.search_cache import SearchCache
+from src.llm_api.service.search_cache_service import SearchCacheService
+from src.llm_api.repository.search_cache_repository import SearchCacheRepository
 from src.llm_api.infrastructure.nvidia_client import NvidiaClient
 from src.llm_api.infrastructure.crawler_client import CrawlerClient
 from src.llm_api.infrastructure.user_api_client import UserApiClient
@@ -30,14 +31,10 @@ def get_crawler_client(request: Request) -> CrawlerClient:
 def get_user_api_client(request: Request) -> UserApiClient:
     return request.app.state.user_api_client
 
-def get_search_cache(request: Request) -> SearchCache:
-    return request.app.state.search_cache
-
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 NvidiaClientDep = Annotated[NvidiaClient, Depends(get_nvidia_client)]
 CrawlerClientDep = Annotated[CrawlerClient, Depends(get_crawler_client)]
 UserApiClientDep = Annotated[UserApiClient, Depends(get_user_api_client)]
-SearchCacheDep = Annotated[SearchCache, Depends(get_search_cache)]
 
 #서비스
 def get_scoring_service(session: SessionDep) -> ScoringService:
@@ -54,9 +51,13 @@ def get_hashtag_search_service(session: SessionDep, client: NvidiaClientDep) -> 
         news_analysis_repository = NewsAnalysisRepository(session)
     )
 
+def get_hashtag_cache_service(session: SessionDep) -> SearchCacheService:
+    return SearchCacheService(SearchCacheRepository(session))
+
 ScoringServiceDep = Annotated[ScoringService, Depends(get_scoring_service)]
 MajorNewsServiceDep = Annotated[MajorNewsService, Depends(get_major_news_service)]
 HashtagSearchServiceDep = Annotated[HashtagSearchService, Depends(get_hashtag_search_service)]
+SearchCacheServiceDep = Annotated[SearchCacheService, Depends(get_hashtag_cache_service)]
 
 #유스케이스
 def get_analysis_runner(crawler_client: CrawlerClientDep, nvidia_client: NvidiaClientDep) -> AnalysisRunner:

@@ -1,4 +1,3 @@
-from src.llm_api.constant.period_constant import PeriodConstant
 from src.llm_api.dependency import MajorNewsServiceDep
 from src.llm_api.schema.response import NewsResponseData
 from src.llm_api.util.datetime_util import DateTimeUtil
