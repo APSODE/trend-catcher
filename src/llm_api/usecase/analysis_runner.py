@@ -5,7 +5,7 @@ from src.llm_api.repository.topic_repository import TopicRepository
 from src.llm_api.service.extraction_service import ExtractionService
 from src.llm_api.service.keyword_assignment_service import KeywordAssignmentService
 from src.llm_api.service.topic_matching_service import TopicMatchingService
-from src.llm_api.constant.period_constant import PeriodConstant
+from src.llm_api.constant.schedule_constant import ScheduleConstant
 from src.llm_api.schema.article import CrawledArticleData
 from src.llm_api.schema.analysis_result import AnalysisResultData
 from src.llm_api.infrastructure.crawler_client import CrawlerClient
@@ -15,6 +15,7 @@ from src.llm_api.infrastructure.database import session_scope
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.llm_api.service.news_analysis_service import NewsAnalysisService
 from src.llm_api.model.news_analysis_model import NewsAnalysisModel
+from datetime import timedelta
 import logging
 
 logger = logging.getLogger(__name__)
@@ -26,7 +27,8 @@ class AnalysisRunner:
 
     #메인동작
     async def run(self) -> AnalysisResultData:
-        since = DateTimeUtil.get_current_period_start(PeriodConstant.MORNING_HOUR, PeriodConstant.EVENING_HOUR)
+        now = DateTimeUtil.get_now_kst()
+        since = now - timedelta(hours = ScheduleConstant.FETCH_HOURS)
         articles = await self._crawler_client.get_articles(since, DateTimeUtil.get_now_kst())
         return await self._analyze_each(articles)
 

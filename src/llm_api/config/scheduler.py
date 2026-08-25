@@ -39,19 +39,10 @@ def init_scheduler(app: FastAPI) -> AsyncIOScheduler:
     #정기 분석
     scheduler.add_job(
         run_analysis_job,
-        CronTrigger(hour = ScheduleConstant.ANALYSIS_HOURS, minute = ScheduleConstant.ANALYSIS_FIRST_MINUTE),
+        CronTrigger(hour = ScheduleConstant.ANALYSIS_HOURS, minute = ScheduleConstant.ANALYSIS_MINUTE),
         args = [app],
         max_instances = 1,
         id = "analysis_first"
-    )
-
-    #실패 대비 2차분석
-    scheduler.add_job(
-        run_analysis_job,
-        CronTrigger(hour = ScheduleConstant.ANALYSIS_HOURS, minute = ScheduleConstant.ANALYSIS_SECOND_MINUTE),
-        args = [app],
-        max_instances = 1,
-        id = "analysis_second"
     )
 
     #해시태그 준비
