@@ -42,7 +42,7 @@ def init_scheduler(app: FastAPI) -> AsyncIOScheduler:
         CronTrigger(hour = ScheduleConstant.ANALYSIS_HOURS, minute = ScheduleConstant.ANALYSIS_MINUTE),
         args = [app],
         max_instances = 1,
-        id = "analysis_first"
+        id = "analysis"
     )
 
     #해시태그 준비
