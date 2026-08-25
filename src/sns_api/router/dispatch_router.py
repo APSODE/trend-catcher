@@ -32,7 +32,7 @@ async def verify_internal_token(x_internal_token: Annotated[str, Header()]) -> N
     dependencies=[Depends(verify_internal_token)],
 )
 @handle_errors
-# 주요뉴스 전송
+# 뉴스 전송
 async def trigger_dispatch(slot: Slot, request: Request, session: SessionDep):
     discord_client = request.app.state.discord_client
     user_client = request.app.state.user_client
@@ -43,11 +43,11 @@ async def trigger_dispatch(slot: Slot, request: Request, session: SessionDep):
         slot_label = "아침"
     else:
         slot_label = "저녁"
-
-    await service.dispatch_major(
-        discord_client, llm_client, crawler_client,
-        settings.major_news_channel_id, slot_label,
-    )
+    # 주요 뉴스 전송
+    #await service.dispatch_major(
+     #   discord_client, llm_client, crawler_client,
+     #   settings.major_news_channel_id, slot_label,
+    #)
 
     # 개인화 뉴스 전송
     await service.dispatch_personalized(
