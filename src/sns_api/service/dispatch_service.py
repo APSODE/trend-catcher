@@ -50,11 +50,12 @@ class DispatchService:
     ) -> None:
         dispatch_date = datetime.now().strftime("%Y-%m-%d")
 
-        # 해시태그별 매칭된 기사 목록
+        # LLM에 해시태그별 매칭된 기사 목록
         hashtag_to_articles = await llm_client.get_latest_hashtags()
 
         subscriptions = await self.subscription_repository.list_active_for_slot(session, slot)
 
+        # 구독자 순회하며 구독자의 해시태그 파악
         for sub in subscriptions:
             if await self.dispatch_repository.is_already_sent(session, sub.user_id, slot, dispatch_date):
                 continue
@@ -72,22 +73,19 @@ class DispatchService:
             )
 
             try:
-                # 이 유저의 팔로우 해시태그 조회
                 hashtags = await user_client.get_user_hashtags(sub.user_id)
 
                 # 해시태그로 매칭된 크롤러 아이디 모으기
                 crawled_ids = set()
                 for tag in hashtags:
+                    # 유저별 기사 매칭
                     crawled_ids.update(hashtag_to_articles.get(tag, []))
 
                 if not crawled_ids:
                     await self.dispatch_repository.mark_failed(session, log, "no_matched_articles")
                     continue
 
-                # 개인화 뉴스 최대 상한선 (10개)
-                crawled_ids = list(crawled_ids)[:10]
-
-                articles = await crawler_client.get_articles(crawled_ids)
+                articles = await crawler_client.get_articles(list(crawled_ids))
                 items = list(articles.values())
 
                 # 캐싱된 discord_id 사용
@@ -109,4 +107,3 @@ class DispatchService:
 
             except Exception as e:
                 await self.dispatch_repository.mark_failed(session, log, str(e))
-
