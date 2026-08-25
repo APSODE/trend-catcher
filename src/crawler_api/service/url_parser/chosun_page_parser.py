@@ -14,7 +14,7 @@ class ChosunPageParser(BasePageParser):
             "#fusion-app > div.article.\\| > div:nth-child(2) > div > div > div.article-header__headline-container.\\|.box--pad-left-md.box--pad-right-md > h1 > span"
         )
         date = soup.select_one(
-            "#fusion-app > div:nth-of-type(1) > div:nth-of-type(2) > div > section > article > div:nth-of-type(1) > div:nth-of-type(2) > span > span:nth-of-type(1)"
+            "span.inputDate"
         )
 
         section = soup.select_one(
