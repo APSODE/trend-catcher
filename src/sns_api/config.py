@@ -25,7 +25,7 @@ class Settings(BaseSettings):
 
     # 외부 서비스
     llm_api_base_url: str = "http://100.96.140.48:8080"
-    user_api_base_url: str = "http://100.94.34.103:8080"
+    user_api_base_url: str = "http://100.94.34.103:5175"
     crawler_api_base_url: str = "http://100.106.128.75:8081"
 
     # 발송 채널 (봇 방식)
