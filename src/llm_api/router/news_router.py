@@ -9,4 +9,5 @@ router = APIRouter(prefix="/news", tags=["News"])
 @router.get("/daily", response_model = list[NewsResponseData])
 async def get_daily_news(service: MajorNewsServiceDep, limit: int) -> list[NewsResponseData]:
     since = DateTimeUtil.get_current_period_start(PeriodConstant.MORNING_HOUR, PeriodConstant.EVENING_HOUR)
-    return await service.get_major_news(since, limit)
+    until = DateTimeUtil.get_previous_period_start(PeriodConstant.MORNING_HOUR, PeriodConstant.EVENING_HOUR)
+    return await service.get_major_news(since, until, limit)

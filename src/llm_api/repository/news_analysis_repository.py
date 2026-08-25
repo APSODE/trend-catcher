@@ -33,6 +33,10 @@ class NewsAnalysisRepository(BaseRepository[NewsAnalysisModel]):
     async def find_scored_since(self, since: datetime) -> list[NewsAnalysisModel]:
         return await self._find_all((NewsAnalysisModel.analyzed_at >= since) & (NewsAnalysisModel.score.is_not(None)))
 
+    #기간 내 점수 있는 뉴스 리턴
+    async def find_scored_between(self, since: datetime, until: datetime) -> list[NewsAnalysisModel]:
+        return await self._find_all((NewsAnalysisModel.analyzed_at >= since) & (NewsAnalysisModel.analyzed_at < until) & NewsAnalysisModel.score.is_not(None))
+
     #pk 목록으로 조회
     async def find_by_pks(self, pks: list[int]) -> list[NewsAnalysisModel]:
         if not pks:
