@@ -16,4 +16,4 @@ class UserAccountRouter(BaseRouter):
     def setup_routes(self):
         @self.get("/get-pk-by-provider-user-id", response_model = PKResponse)
         async def get_user_pk_by_provider_user_id(request: ProviderUserIDQueryRequest, service: UserAccountService = Depends(get_user_account_service)):
-            return service.get_user_pk_by_provider_user_id(request.provider_user_id)
+            return await service.get_user_pk_by_provider_user_id(request.provider_user_id)
