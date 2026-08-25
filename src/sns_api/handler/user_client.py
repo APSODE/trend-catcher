@@ -10,6 +10,7 @@ class UserClient:
     def __init__(self, client: httpx.AsyncClient) -> None:
         self._client = client
 
+    # 유저id -> 디스코드 id
     @async_retry(
         max_attempts=settings.http_max_retries,
         exceptions=(httpx.TransportError,),
