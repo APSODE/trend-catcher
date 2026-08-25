@@ -12,4 +12,4 @@ class ScheduleConstant:
 
     #점수 산정
     SCORING_HOURS = "8,20"
-    SCORING_MINUTE = 50
+    SCORING_MINUTE = 55
