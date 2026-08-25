@@ -186,9 +186,9 @@ class ArticleRepository(BaseRepository[Article, PydanticObjectId]):
     ) -> list[Article]:
         
         return await self.find(
-            filter_data={"crawled_at": {"$gte": start_date, "$lte": end_date}},
+            filter_data={"published_at": {"$gte": start_date, "$lte": end_date}},
             amount=amount,
-            sort=[("crawled_at", SortDirection.DESCENDING)]
+            sort=[("published_at", SortDirection.DESCENDING)]
         )
 
 
