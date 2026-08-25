@@ -17,19 +17,12 @@ async def run_scheduled_crawl(app: FastAPI):
     logger.info("scheduler crawling start")
 
     try:
-        result = await CrawlingPipeline.run_all_today(sources=list(NewsSitemap))
-    except Exception as e:
-        logger.exception("crawling failed: %s", e)
-        return
-    logger.info("crawling complete")
-
-    try:
         # 기존 depends에 경우 fastapi에서 조립하여 service return 그러나 스케줄러의 경우 fastapi가 조립하지않음
         async with ArticleContext(app.state.mongo_client) as ctx:
             service = await create_article_service(ctx)
-            await service.create_articles(result)
+            await service.create_articles_today(sources=list(NewsSitemap))
     except Exception as e:
-        logger.exception("crawler save failed : %s", e)
+        logger.exception("crawler failed : %s", e)
 
 def init_scheduler(app: FastAPI) -> AsyncIOScheduler:
     scheduler = AsyncIOScheduler(timezone="Asia/Seoul")

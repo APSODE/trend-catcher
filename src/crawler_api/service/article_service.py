@@ -119,7 +119,8 @@ class ArticleService:
         if sources is None:
             sources = list(NewsSitemap)
 
-        today_crawled_articles = await CrawlingPipeline.run_all_today(sources=sources, limit=limit)
+        today_crawled_articles = await CrawlingPipeline.run_all_today(sources=sources, limit=limit, url_filter=self._filter_new_urls)
+        logger.info("crawling complete")
         return await self.create_articles(today_crawled_articles)
 
     async def create_articles_dates(
@@ -134,7 +135,8 @@ class ArticleService:
         if sources is None:
             sources = list(NewsSitemap)
 
-        date_crawled_articles = await CrawlingPipeline.run_all(sources=sources, limit=limit, dates=dates)
+        date_crawled_articles = await CrawlingPipeline.run_all(sources=sources, limit=limit, dates=dates, url_filter=self._filter_new_urls)
+        logger.info("crawling complete")
         return await self.create_articles(date_crawled_articles)
 
     async def update_article(

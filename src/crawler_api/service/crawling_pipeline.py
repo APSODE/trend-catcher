@@ -112,14 +112,16 @@ class CrawlingPipeline:
     async def run_today(
             self,
             limit: int | None = None,
+            url_filter: UrlFilter | None = None
     ) -> list[ArticleCreate]:
-        return await self.run(dates=[now_date()], limit=limit)
+        return await self.run(dates=[now_date()], limit=limit, url_filter=url_filter)
 
     @staticmethod
     async def run_all(
         sources: list[NewsSitemap] | None,
         dates: list[date],
-        limit: int | None = None
+        limit: int | None = None,
+        url_filter: UrlFilter | None = None
     ) ->list[ArticleCreate]:
 
         if not sources:
@@ -128,7 +130,7 @@ class CrawlingPipeline:
         pipelines = [CrawlingPipeline(source) for source in sources]
 
         results = await asyncio.gather(
-            *(pipe.run(dates=dates, limit=limit) for pipe in pipelines),
+            *(pipe.run(dates=dates, limit=limit, url_filter=url_filter) for pipe in pipelines),
             return_exceptions=True
         )
 
@@ -146,7 +148,8 @@ class CrawlingPipeline:
     @staticmethod
     async def run_all_today(
         sources: list[NewsSitemap] | None = None,
-        limit: int | None = None
+        limit: int | None = None,
+        url_filter: UrlFilter | None = None
     ) ->list[ArticleCreate]:
 
-        return await CrawlingPipeline.run_all(sources=sources, dates=[now_date()], limit=limit)
+        return await CrawlingPipeline.run_all(sources=sources, dates=[now_date()], limit=limit, url_filter=url_filter)
