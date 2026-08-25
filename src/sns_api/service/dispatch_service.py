@@ -84,7 +84,10 @@ class DispatchService:
                     await self.dispatch_repository.mark_failed(session, log, "no_matched_articles")
                     continue
 
-                articles = await crawler_client.get_articles(list(crawled_ids))
+                # 개인화 뉴스 최대 상한선 (10개)
+                crawled_ids = list(crawled_ids)[:10]
+
+                articles = await crawler_client.get_articles(crawled_ids)
                 items = list(articles.values())
 
                 # 캐싱된 discord_id 사용
@@ -106,3 +109,4 @@ class DispatchService:
 
             except Exception as e:
                 await self.dispatch_repository.mark_failed(session, log, str(e))
+
