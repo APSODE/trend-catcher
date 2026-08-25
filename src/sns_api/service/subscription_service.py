@@ -70,7 +70,7 @@ class SubscriptionService:
         )
         return await self.repo.save(session, subscription)
 
-    # 디스코드 서버 퇴장 -> SNS DB에서 바로 찾아 비활성화 (User API 호출 없음)
+    # 디스코드 서버 퇴장 -> SNS DB에서 바로 찾아 비활성화
     async def deactivate_by_discord_id(self, session, discord_user_id: str) -> None:
         sub = await self.repo.get_by_discord_id(session, discord_user_id)
         if sub:
