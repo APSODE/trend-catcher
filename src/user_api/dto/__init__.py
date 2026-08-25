@@ -24,7 +24,8 @@ from src.user_api.dto.request_data import (
 from src.user_api.dto.response_data import (
     DataCollectionResponse,
     OAuth2Response,
-    PKResponse
+    PKResponse,
+    UserSummaryResponse
 )
 
 __all__ = [
@@ -47,6 +48,7 @@ __all__ = [
     "DataCollectionResponse",
     "PKResponse",
     "OAuth2Response",
+    "UserSummaryResponse",
     "UserData",
     "LocalAccountData",
     "SocialAccountData",

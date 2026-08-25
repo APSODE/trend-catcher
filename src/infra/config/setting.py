@@ -27,4 +27,8 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    return Settings(
+        # user_api_url = "100.94.34.103:5175",
+        # sns_api_url = "100.107.191.107:8080",
+        # crawler_api_url = ""
+    )

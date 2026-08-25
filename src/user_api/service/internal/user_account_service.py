@@ -15,14 +15,14 @@ class UserAccountService(BaseService):
         self.__user_repository = user_repository
 
     async def get_user_pk_by_provider_user_id(self, provider_user_id: str) -> PKResponse:
-        target_user = await self.__social_account_repository.get_account_by_provider_user_id(
+        target_social_account = await self.__social_account_repository.get_account_by_provider_user_id(
             provider_user_id = provider_user_id
         )
 
-        if target_user is None:
+        if target_social_account is None:
             raise UnknownUserData()
 
-        return serialize(target_user, PKResponse)
+        return PKResponse(pk = target_social_account.user_fk)
 
 
 get_user_account_service = UserAccountService.create_dependency(

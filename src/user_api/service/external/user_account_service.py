@@ -9,7 +9,8 @@ from src.user_api.exceptions.account_exceptions import IsAlreadyExistLoginID, In
     AlreadyLinkedAccount, AlreadyOwnAccount, UnlinkedSocialAccount, AlreadyLinkedProvider, NotExistAccountData
 from src.user_api.auth import TokenWhitelist, OAuth2Client
 from src.user_api.dto import LocalLoginRequest, LocalRegisterRequest, DeleteRequest, TokenPair, TokenType, AccountData, \
-    SocialRegisterRequest, SocialLoginRequest, SocialLinkRequest, SocialAccountData, DataCollectionResponse, UserData
+    SocialRegisterRequest, SocialLoginRequest, SocialLinkRequest, SocialAccountData, DataCollectionResponse, UserData, \
+    UserSummaryResponse
 from src.user_api.exceptions.user_exceptions import UnknownUserData
 from src.user_api.model import SocialAccountModel, UserModel, LocalAccountModel
 from src.user_api.repository import LocalAccountRepository, UserRepository, SocialAccountRepository

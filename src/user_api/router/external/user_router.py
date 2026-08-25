@@ -12,16 +12,16 @@ from src.user_api.dto import (
     TokenPair,
     AccountData,
     SocialLoginRequest, SocialRegisterRequest, SocialLinkRequest, PKQueryRequest, DataCollectionResponse,
-    ChangePasswordRequest, SocialUnlinkRequest
+    ChangePasswordRequest, SocialUnlinkRequest, UserSummaryResponse
 )
 
 from src.user_api.router import BaseRouter
 
-from src.user_api.service.external import(
+from src.user_api.service.external import (
     UserAccountService,
     get_user_account_service,
     UserHashtagService,
-    get_user_hashtag_service
+    get_user_hashtag_service, UserAccountHashtagService, get_user_account_hashtag_service
 )
 
 
@@ -76,6 +76,11 @@ class UserRouter(BaseRouter):
                                         user_pk: int = Depends(get_current_user_pk),
                                         service: UserAccountService = Depends(get_user_account_service)):
             await service.unlink_social_account(user_pk, request.provider)
+
+        @self.get("/get-user-summary", response_model = UserSummaryResponse)
+        async def get_user_summary(user_pk: int = Depends(get_current_user_pk),
+                                   service: UserAccountHashtagService = Depends(get_user_account_hashtag_service)) -> UserSummaryResponse:
+            return await service.summary_user_info(user_pk)
 
         @self.post("/logout")
         async def logout(credentials: HTTPAuthorizationCredentials = Security(bearer_scheme),
