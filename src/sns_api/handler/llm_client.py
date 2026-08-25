@@ -33,6 +33,14 @@ class LLMClient:
 
         return result
 
-    # 개인화 뉴스
-    async def get_personalized_news(self, user_id: int) -> list[NewsReferenceData]:
-        raise NotImplementedError("미정")
+    # 해시태그별 매칭된 기사 크롤러 아이디 목록 조회
+    @async_retry(
+        max_attempts=settings.http_max_retries,
+        exceptions=(httpx.TransportError,),
+    )
+    async def get_latest_hashtags(self) -> dict[str, list[str]]:
+        response = await self._client.get(
+            f"{settings.llm_api_base_url}/hashtag/latest",
+        )
+        response.raise_for_status()
+        return response.json()

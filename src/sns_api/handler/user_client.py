@@ -33,12 +33,29 @@ class UserClient:
         exceptions=(httpx.TransportError,),
     )
     async def get_user_id_by_discord_id(self, discord_user_id: str) -> int | None:
-        response = await self._client.get(
-            f"{settings.user_api_base_url}/internal/account/get-by-discord-id",
-            params={"discord_id": discord_user_id},
+        response = await self._client.request(
+            "GET",
+            f"{settings.user_api_base_url}/internal/user-account/get-pk-by-provider-user-id",
+            json={"provider_user_id": discord_user_id},
         )
         if response.status_code == 404:
             return None
         response.raise_for_status()
         data = response.json()
-        return data["user_pk"]
+        return data["pk"]
+
+    # user_id -> 팔로우 해시태그 목록
+    @async_retry(
+        max_attempts=settings.http_max_retries,
+        exceptions=(httpx.TransportError,),
+    )
+    async def get_user_hashtags(self, user_id: int) -> list[str]:
+        response = await self._client.get(
+            f"{settings.user_api_base_url}/internal/user/get-by-pk",
+            params={"pk": user_id},
+        )
+        if response.status_code == 404:
+            return []
+        response.raise_for_status()
+        data = response.json()
+        return [h["name"] for h in data["interest"]]

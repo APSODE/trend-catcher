@@ -25,6 +25,7 @@ async def verify_internal_token(x_internal_token: Annotated[str, Header()]) -> N
             detail="invalid internal token",
         )
 
+
 @router.post(
     "/{slot}",
     status_code=status.HTTP_202_ACCEPTED,
@@ -49,9 +50,9 @@ async def trigger_dispatch(slot: Slot, request: Request, session: SessionDep):
     )
 
     # 개인화 뉴스 전송
-    # await service.dispatch_personalized(
-    #   session, slot, slot_label,
-    #  discord_client, user_client, llm_client, crawler_client,
-    # )
+    await service.dispatch_personalized(
+        session, slot, slot_label,
+        discord_client, user_client, llm_client, crawler_client,
+    )
 
     return {"status": "dispatch triggered", "slot": slot.value}
