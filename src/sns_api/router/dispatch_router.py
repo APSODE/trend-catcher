@@ -32,9 +32,9 @@ async def verify_internal_token(x_internal_token: Annotated[str, Header()]) -> N
 )
 @handle_errors
 # 주요뉴스 전송
-async def trigger_dispatch(slot: Slot, request: Request):
+async def trigger_dispatch(slot: Slot, request: Request, session: SessionDep):
     discord_client = request.app.state.discord_client
-    # user_client = request.app.state.user_client
+    user_client = request.app.state.user_client
     llm_client = request.app.state.llm_client
     crawler_client = request.app.state.crawler_client
 

@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.sns_api.decorator.handle_error import handle_errors
@@ -11,34 +11,53 @@ from src.sns_api.service.subscription_service import SubscriptionService
 router = APIRouter(prefix="/subscriptions", tags=["subscriptions"])
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
-service = SubscriptionService()
 
 
 @router.post("", response_model=SubscriptionOutData, status_code=status.HTTP_201_CREATED)
 @handle_errors
-async def create_subscription(payload: SubscriptionCreateData, session: SessionDep):
+async def create_subscription(payload: SubscriptionCreateData, request: Request, session: SessionDep):
+    service = SubscriptionService(request.app.state.user_client)
     return await service.create_subscription(session, payload)
 
 
 @router.get("/{sub_id}", response_model=SubscriptionOutData)
 @handle_errors
-async def get_subscription(sub_id: int, session: SessionDep):
+async def get_subscription(sub_id: int, request: Request, session: SessionDep):
+    service = SubscriptionService(request.app.state.user_client)
     return await service.get_subscription(session, sub_id)
 
 
 @router.get("/user/{user_id}", response_model=list[SubscriptionOutData])
 @handle_errors
-async def list_user_subscriptions(user_id: int, session: SessionDep):
+async def list_user_subscriptions(user_id: int, request: Request, session: SessionDep):
+    service = SubscriptionService(request.app.state.user_client)
     return await service.get_subscriptions_by_user(session, user_id)
 
 
 @router.patch("/{sub_id}", response_model=SubscriptionOutData)
 @handle_errors
-async def update_subscription(sub_id: int, payload: SubscriptionUpdateData, session: SessionDep):
+async def update_subscription(sub_id: int, payload: SubscriptionUpdateData, request: Request, session: SessionDep):
+    service = SubscriptionService(request.app.state.user_client)
     return await service.update_subscription(session, sub_id, payload)
 
 
 @router.delete("/{sub_id}", status_code=status.HTTP_204_NO_CONTENT)
 @handle_errors
-async def delete_subscription(sub_id: int, session: SessionDep):
+async def delete_subscription(sub_id: int, request: Request, session: SessionDep):
+    service = SubscriptionService(request.app.state.user_client)
     await service.delete_subscription(session, sub_id)
+
+
+# 디스코드 봇 전용 - 서버 입장 시 구독 자동 생성
+@router.post("/by-discord-id", response_model=SubscriptionOutData, status_code=status.HTTP_201_CREATED)
+@handle_errors
+async def create_by_discord_id(discord_user_id: str, request: Request, session: SessionDep):
+    service = SubscriptionService(request.app.state.user_client)
+    return await service.create_subscription_by_discord_id(session, discord_user_id)
+
+
+# 디스코드 봇 전용 - 서버 퇴장 시 구독 비활성화
+@router.patch("/deactivate-by-discord-id")
+@handle_errors
+async def deactivate_by_discord_id(discord_user_id: str, request: Request, session: SessionDep):
+    await SubscriptionService(request.app.state.user_client).deactivate_by_discord_id(session, discord_user_id)

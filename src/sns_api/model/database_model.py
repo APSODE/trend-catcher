@@ -31,6 +31,12 @@ class Base(DeclarativeBase):
     """모든 ORM 모델의 base."""
 
 
+# 앱 시작 시 테이블이 없으면 생성 (이미 있으면 아무 동작 안 함)
+async def init_db() -> None:
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     # 세션 생성
     async with AsyncSessionLocal() as session:

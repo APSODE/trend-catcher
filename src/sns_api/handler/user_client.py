@@ -25,3 +25,19 @@ class UserClient:
         # User의 소셜계정데이터 데이터들을 파이썬이 이해할 수 있게 변환
         data = response.json()
         return data["provider_user_id"]
+
+    # 디스코드 아이디 -> 우리 서비스의 user_id 역조회
+    @async_retry(
+        max_attempts=settings.http_max_retries,
+        exceptions=(httpx.TransportError,),
+    )
+    async def get_user_id_by_discord_id(self, discord_user_id: str) -> int | None:
+        response = await self._client.get(
+            f"{settings.user_api_base_url}/internal/account/get-by-discord-id",
+            params={"discord_id": discord_user_id},
+        )
+        if response.status_code == 404:
+            return None
+        response.raise_for_status()
+        data = response.json()
+        return data["user_pk"]

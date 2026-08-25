@@ -37,7 +37,8 @@ class SubscriptionModel(Base):
     __tablename__ = "SNS_SUBSCRIPTION"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(BigInteger, index=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True, nullable=False)
+    discord_id: Mapped[str | None] = mapped_column(String(30), index=True, nullable=True)
 
     channel: Mapped[str] = mapped_column(String(20), default=Channel.DISCORD.value, nullable=False)
 

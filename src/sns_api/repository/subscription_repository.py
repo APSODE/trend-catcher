@@ -24,6 +24,12 @@ class SubscriptionRepository:
         result = await session.execute(query)
         return list(result.scalars().all())
 
+    # 디스코드 아이디로 구독 단건 조회
+    async def get_by_discord_id(self, session: AsyncSession, discord_id: str) -> SubscriptionModel | None:
+        query = select(SubscriptionModel).where(SubscriptionModel.discord_id == discord_id)
+        result = await session.execute(query)
+        return result.scalar_one_or_none()
+
     # 슬롯(아침/저녁)을 구독 중인 활성 구독 목록
     async def list_active_for_slot(self, session: AsyncSession, slot: Slot) -> list[SubscriptionModel]:
         query = select(SubscriptionModel).where(SubscriptionModel.is_active.is_(True))
