@@ -69,6 +69,11 @@ class BaseRepository(Generic[ModelType, IdType]):
     async def get_by_id(self, data_id: IdType) -> ModelType | None:
         return await self._model.get(data_id, session=self._session)
 
+    async def get_by_ids(self, data_ids: list[IdType]) -> list[ModelType]:
+        if not data_ids:
+            return []
+        return await self.find({"_id": {"$in": data_ids}})
+    
     async def update(
         self,
         filter_data: FilterType,

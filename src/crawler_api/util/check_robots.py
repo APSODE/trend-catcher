@@ -4,8 +4,12 @@ import httpx
 
 from urllib.parse import urlparse, urljoin
 
+from src.crawler_api.util.header_provider import get_httpx_header
+
 
 logger = logging.getLogger(__name__)
+
+headers = get_httpx_header()
 
 class CheckRobots:
     def __init__(self, url: str):
@@ -18,15 +22,19 @@ class CheckRobots:
 
     async def load(self):
         try:
-            async with httpx.AsyncClient(timeout=5.0) as client:
+            async with httpx.AsyncClient(headers=headers, timeout=5.0) as client:
                 response = await client.get(self._robots_url)
 
                 if response.status_code != 200:
+                    logger.warning("robot.txt does not exist: %s", self._robots_url)
                     self._is_loaded = False
                     return
 
                 self._rp.parse(response.text.splitlines())
                 self._is_loaded = True
+        except (httpx.ConnectTimeout, httpx.TimeoutException) as e:
+            logger.warning("robots.txt connection time error : %s", e)
+            self._is_loaded = False
 
         except Exception as e:
 

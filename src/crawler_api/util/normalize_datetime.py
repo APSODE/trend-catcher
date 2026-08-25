@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 
 
 def normalize_datetime(dt: datetime) -> datetime:
@@ -7,3 +7,6 @@ def normalize_datetime(dt: datetime) -> datetime:
 
 def now_normalized() -> datetime:
     return normalize_datetime(datetime.now())
+
+def now_date() -> date:
+    return now_normalized().date()
