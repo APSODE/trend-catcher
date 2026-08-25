@@ -32,11 +32,11 @@ class SubscriptionRepository:
 
     # 슬롯(아침/저녁)을 구독 중인 활성 구독 목록
     async def list_active_for_slot(self, session: AsyncSession, slot: Slot) -> list[SubscriptionModel]:
-        query = select(SubscriptionModel).where(SubscriptionModel.is_active.is_ == True)
+        query = select(SubscriptionModel).where(SubscriptionModel.is_active == True)
         if slot == Slot.MORNING:
-            query = query.where(SubscriptionModel.morning_enabled.is_ == True)
+            query = query.where(SubscriptionModel.morning_enabled == True)
         else:
-            query = query.where(SubscriptionModel.evening_enabled.is_== True)
+            query = query.where(SubscriptionModel.evening_enabled == True)
         result = await session.execute(query)
         return list(result.scalars().all())
 
@@ -47,13 +47,13 @@ class SubscriptionRepository:
         if not user_ids:
             return []
         query = select(SubscriptionModel).where(
-            SubscriptionModel.is_active.is_(True),
+            SubscriptionModel.is_active == True,
             SubscriptionModel.user_id.in_(user_ids),
         )
         if slot == Slot.MORNING:
-            query = query.where(SubscriptionModel.morning_enabled.is_(True))
+            query = query.where(SubscriptionModel.morning_enabled == True)
         else:
-            query = query.where(SubscriptionModel.evening_enabled.is_(True))
+            query = query.where(SubscriptionModel.evening_enabled == True)
         result = await session.execute(query)
         return list(result.scalars().all())
 
