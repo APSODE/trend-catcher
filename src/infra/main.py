@@ -21,11 +21,10 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
 
-app.add_middleware(AuthMiddleware)
+#app.add_middleware(AuthMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.frontend_origins,
-    allow_credentials=False,   # 쿠키 대신 Authorization 헤더(Bearer 토큰)를 쓰니 credentials는 불필요
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -35,7 +34,12 @@ app.add_middleware(
 async def health():
     return {"status": "ok"}
 
-
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    print("REQUEST:", request.method, request.url)
+    response = await call_next(request)
+    print("RESPONSE:", response.status_code)
+    return response
 @app.api_route("/{full_path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def catch_all(request: Request, _full_path: str):
     return await proxy_request(request)

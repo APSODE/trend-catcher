@@ -1,3 +1,5 @@
+import logging
+
 import httpx
 
 from fastapi import Request
@@ -7,6 +9,7 @@ from src.infra.config.setting import get_settings
 from src.infra.proxy.route_table import resolve_target
 
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
 
 EXCLUDED_RESPONSE_HEADERS = {
@@ -31,7 +34,9 @@ async def proxy_request(request: Request) -> Response:
             content={"detail": "Not Found", "message": "잘못된 접근 경로입니다"})
 
     target_url = f"{target_base}{path}"
-
+    print("path:", path)
+    print("target_base:", target_base)
+    print("target_url:", target_url)
     forward_headers = {
         k: v for k, v in request.headers.items()
         if k.lower() not in ("host", "content-length")
@@ -39,16 +44,25 @@ async def proxy_request(request: Request) -> Response:
 
     #llm api인경우 추가시간
     timeout = settings.llm_api_timeout if target_base == settings.llm_api_url else settings.default_timeout
-
+    forward_params = {
+        k: v
+        for k, v in request.query_params.multi_items()
+        if k != "_full_path"
+    }
     try:
         upstream_request = client.build_request(
             method=request.method,
             url=target_url,
             headers=forward_headers,
-            params=request.query_params,
+            params=forward_params,
             content=await request.body(),
-            timeout=timeout
+            timeout=timeout,
         )
+        print("=== PROXY ===")
+        print("method:", request.method)
+        print("target_url:", target_url)
+        print("query_params:", dict(request.query_params))
+        print("body:", await request.body())
         upstream_response = await client.send(upstream_request)
     except httpx.ConnectError:
         return JSONResponse(
