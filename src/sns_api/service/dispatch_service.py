@@ -35,7 +35,7 @@ class DispatchService:
         bundle = NewsBundleData(major=items)
         payload = build_payload(bundle, slot_label)
 
-        # 전송
+        # 주요뉴스 디스코드 채널 전송
         await discord_client.send_to_channel(channel_id, payload)
 
         # 개인화된 뉴스 DM 발송 방식
