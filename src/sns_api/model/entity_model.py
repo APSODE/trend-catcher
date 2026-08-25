@@ -5,6 +5,7 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     DateTime,
+    Identity,
     Integer,
     String,
     Text,
@@ -36,7 +37,7 @@ class SubscriptionModel(Base):
 
     __tablename__ = "SNS_SUBSCRIPTION"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(BigInteger, Identity(start=1, increment=1), primary_key=True)
     user_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True, nullable=False)
     discord_id: Mapped[str | None] = mapped_column(String(30), index=True, nullable=True)
 
@@ -64,7 +65,7 @@ class SubscriptionModel(Base):
 class DispatchLogModel(Base):
     __tablename__ = "SNS_DISPATCH_LOG"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(BigInteger, Identity(start=1, increment=1), primary_key=True)
     user_id: Mapped[int] = mapped_column(BigInteger, index=True, nullable=False)
     subscription_id: Mapped[int] = mapped_column(BigInteger, index=True, nullable=False)
     # 슬롯 : MORNING / EVENING
