@@ -2,10 +2,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.crawler_api.config.scheduler import init_scheduler
+from src.crawler_api.config.setting import get_settings
 from src.crawler_api.db.database_session import init_db
 from src.crawler_api.event.event_publisher import EventPublisher
+from src.crawler_api.event.llm_api_observer import LLMApiObserver
+from src.crawler_api.event.sns_api_observer import SNSApiObserver
 from src.crawler_api.route import article_router
 
+settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -13,9 +17,9 @@ async def lifespan(app: FastAPI):
     client = await init_db()
     app.state.mongo_client = client
 
-    #event publisher
     event_publisher = EventPublisher()
-    #event_publisher.subscribe()
+    event_publisher.add_observer(LLMApiObserver(settings.llm_api_url))
+    event_publisher.add_observer(SNSApiObserver(settings.sns_api_url))
     app.state.event_publisher = event_publisher
 
     #스케줄러
@@ -36,3 +40,7 @@ CrawlerAPI = FastAPI(
 )
 
 CrawlerAPI.include_router(article_router.router)
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run("main:CrawlerAPI", host = "0.0.0.0", port = 8080, workers = 1, log_level = "info", reload = True)
