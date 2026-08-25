@@ -2,11 +2,13 @@ import httpx
 
 from src.sns_api.config import get_settings
 from src.sns_api.decorator.retry import async_retry
-from src.sns_api.model.schema_model import NewsBundleData
-
+from src.sns_api.model.schema_model import NewsBundleData, NewsItemData
 settings = get_settings()
 
 DISCORD_API_BASE = "https://discord.com/api/v10"
+
+EMBED_FIELD_VALUE_LIMIT = 1024
+MAX_ITEMS_PER_FIELD = 10  # 안전하게 필드당 기사 개수도 제한
 
 
 class TransientWebhookError(Exception):
@@ -17,28 +19,49 @@ class PermanentWebhookError(Exception):
     """영구적 실패 - 재시도하지 않음"""
 
 
+def _build_lines(items: list[NewsItemData]) -> tuple[str, str | None]:
+    lines = []
+    thumbnail_url = None
+    for i, item in enumerate(items[:MAX_ITEMS_PER_FIELD], start=1):
+        title = item.title.replace("[", "(").replace("]", ")")  # 마크다운 깨짐 방지
+        line = f"{i}. [{title}]({item.url})"
+        lines.append(line)
+        if thumbnail_url is None and item.image_url:
+            thumbnail_url = item.image_url
+
+    value = "\n".join(lines)
+    if len(value) > EMBED_FIELD_VALUE_LIMIT:
+        value = value[: EMBED_FIELD_VALUE_LIMIT - 3] + "..."  # 길이 초과 시 안전하게 자름
+
+    return value, thumbnail_url
+
+
 # 디스코드 디엠 메세지 내용
 def build_payload(bundle: NewsBundleData, slot_label: str) -> dict:
     field = []
+    thumbnail_url = None
+
     # 주요 뉴스 내용상자
     if bundle.major:
-        lines = []
-        for i, item in enumerate(bundle.major, start=1):
-            line = f"{i}. {item.title}"
-            lines.append(line)
-        field.append({"name": "주요 뉴스", "value": "\n".join(lines)})
+        value, thumb = _build_lines(bundle.major)
+        field.append({"name": "주요 뉴스", "value": value})
+        if thumbnail_url is None:
+            thumbnail_url = thumb
 
     # 개인화된 뉴스 내용상자
     if bundle.personalized:
-        lines = []
-        for i, item in enumerate(bundle.personalized, start=1):
-            line = f"{i}. {item.title}"
-            lines.append(line)
-        field.append({"name": "개인화된 뉴스", "value": "\n".join(lines)})
+        value, thumb = _build_lines(bundle.personalized)
+        field.append({"name": "개인화된 뉴스", "value": value})
+        if thumbnail_url is None:
+            thumbnail_url = thumb
+
+    embed: dict[str, object] = {"title": f"{slot_label} 뉴스 브리핑", "fields": field}
+    if thumbnail_url:
+        embed["thumbnail"] = {"url": thumbnail_url}
 
     return {
         "username": "Trend Catcher",
-        "embeds": [{"title": f"{slot_label} 뉴스 브리핑", "fields": field}],
+        "embeds": [embed],
     }
 
 
@@ -46,7 +69,8 @@ class DiscordClient:
     def __init__(self, client: httpx.AsyncClient) -> None:
         self._client = client
 
-    def _headers(self) -> dict:
+    @staticmethod
+    def _headers() -> dict:
         return {"Authorization": f"Bot {settings.discord_bot_token}"}
 
     # 디엠방을 파거나 찾는 메서드
@@ -86,8 +110,8 @@ class DiscordClient:
         )
         self._handle_response(response)
 
-    def _handle_response(self, response) -> None:
-
+    @staticmethod
+    def _handle_response(response) -> None:
         if response.status_code in (200, 201):
             return
         elif response.status_code == 429:
