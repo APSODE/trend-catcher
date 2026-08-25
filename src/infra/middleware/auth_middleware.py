@@ -16,6 +16,9 @@ EXEMPT_PATH_PREFIXES = (
     "/user/social-register",
     "/user/refresh",
     "/health",
+    "/docs",
+    "/openapi.json",
+    "/redoc"
 )
 
 
