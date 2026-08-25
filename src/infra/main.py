@@ -39,3 +39,7 @@ async def health():
 @app.api_route("/{full_path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def catch_all(request: Request, _full_path: str):
     return await proxy_request(request)
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run("src.infra.main:app", host="0.0.0.0", port=8080, workers=1, log_level="info", reload=True)
