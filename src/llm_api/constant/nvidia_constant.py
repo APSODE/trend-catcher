@@ -28,7 +28,7 @@ class LLMConstant:
 
     #임베딩
     EMBEDDING_PATH = "/embeddings"
-    EMBEDDING_MODEL = "nvidia/llama-nemotron-embed-1b-v2"
+    EMBEDDING_MODEL = "nvidia/nemotron-3-embed-1b"
     EMBEDDING_TIMEOUT = 30
 
     #해시태그 확장
