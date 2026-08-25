@@ -42,3 +42,8 @@ class TokenWhitelist:
         pattern = f"whitelist:*:{jwt.account.account_type}:{jwt.account.pk}:{jwt.session_id}"
         async for key in client.scan_iter(match = pattern):
             await client.delete(key)
+
+    @staticmethod
+    async def reset_whitelist():
+        await RedisCreator().client.flushdb()
+

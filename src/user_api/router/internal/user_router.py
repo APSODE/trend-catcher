@@ -1,7 +1,10 @@
 from typing import Annotated
 
 from fastapi import Depends, Query
-from src.user_api.dto import NameQueryRequest, PKQueryRequest, DataCollectionResponse, UserData
+
+from src.user_api.auth import get_current_user_pk
+from src.user_api.dto import NameQueryRequest, PKQueryRequest, DataCollectionResponse, UserData, PKResponse, \
+    ProviderUserIDQueryRequest, AccessTokenDecodeRequest
 from src.user_api.router import BaseRouter
 from src.user_api.service.internal import UserService, get_user_service
 
@@ -36,3 +39,9 @@ class UserRouter(BaseRouter):
         async def get_user_by_pk(request: Annotated[PKQueryRequest, Query()],
                                  service: UserService = Depends(get_user_service)):
             return await service.query_user_by_pk(request.pk)
+
+        @self.get("/get-user-pk")
+        async def get_user_pk(request: AccessTokenDecodeRequest,
+                              service: UserService = Depends(get_user_service)) -> PKResponse:
+            return await service.get_user_pk_in_jwt(request.access_token)
+

@@ -75,4 +75,4 @@ UserAPI = UserAPI()
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run("app:UserAPI", host = "0.0.0.0", port = 8080, workers = 8, log_level = "info", reload = True)
+    uvicorn.run("app:UserAPI", host = "0.0.0.0", port = 5175, workers = 8, log_level = "info", reload = True)

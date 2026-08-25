@@ -89,11 +89,11 @@ class BaseRepository(Generic[ModelType]):
         )
 
     async def delete_by_pk(self,
-                           target_id: int,
+                           target_pk: int,
                            load_relations: Optional[Sequence[RelationPath]] = None,
                            with_flush: bool = False) -> None:
         await self.delete(
-            filter = self._model_class.pk == target_id,
+            filter =self._model_class.pk == target_pk,
             load_relations = load_relations,
             amount = 1,
             with_flush = with_flush,
