@@ -8,7 +8,8 @@ PUBLIC_ROUTES: dict[str, str] = {
     "/subscriptions": settings.sns_api_url,
     "/TODO":          settings.user_api_url,
     "/hashtag":       settings.user_api_url,
-    "/news/daily":    settings.llm_api_url
+    "/news/daily":    settings.llm_api_url,
+    "/article/articles_ids_front": settings.crawler_api_url,
 }
 
 #주소 url에 맞게 수정
