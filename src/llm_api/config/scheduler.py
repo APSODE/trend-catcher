@@ -65,7 +65,7 @@ def init_scheduler(app: FastAPI) -> AsyncIOScheduler:
 
     #점수산정
     scheduler.add_job(
-        run_scoring_job(),
+        run_scoring_job,
         CronTrigger(hour = ScheduleConstant.SCORING_HOURS, minute = ScheduleConstant.SCORING_MINUTE),
         max_instances = 1,
         id = "scoring"
