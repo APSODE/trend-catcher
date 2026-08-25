@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     nvidia_api_key: SecretStr
     database_url: SecretStr
     crawler_api_url: str = "http://100.106.128.75:8081"
-    user_api_url: str = "http://100.101.10.83:5175"
+    user_api_url: str = "http://100.94.34.103:5175"
     db_echo: bool = False
     log_level: str = "INFO"
 
