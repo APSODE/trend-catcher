@@ -29,16 +29,12 @@ class NewsAnalysisRepository(BaseRepository[NewsAnalysisModel]):
         new_analysis = NewsAnalysisModel(crawled_id = crawled_id, topic_fk = topic_fk, content_score = content_score)
         return await self.save(new_analysis)
 
-    # 시간 이후 점수 있는 뉴스 리턴
-    async def find_scored_since(self, since: datetime) -> list[NewsAnalysisModel]:
-        return await self._find_all((NewsAnalysisModel.analyzed_at >= since) & (NewsAnalysisModel.score.is_not(None)))
-
     #기간 내 점수 있는 뉴스 리턴
     async def find_scored_between(self, since: datetime, until: datetime) -> list[NewsAnalysisModel]:
         return await self._find_all((NewsAnalysisModel.analyzed_at >= since) & (NewsAnalysisModel.analyzed_at < until) & NewsAnalysisModel.score.is_not(None))
 
-    #pk 목록으로 조회
-    async def find_by_pks(self, pks: list[int]) -> list[NewsAnalysisModel]:
+    #pk 뉴스가 기간 내인지 필터
+    async def find_scored_between_by_pks(self, pks: list[int], since: datetime, until: datetime) -> list[NewsAnalysisModel]:
         if not pks:
             return []
-        return await self._find_all(NewsAnalysisModel.pk.in_(pks))
+        return await self._find_all(NewsAnalysisModel.pk.in_(pks) & (NewsAnalysisModel.analyzed_at >= since) & (NewsAnalysisModel.analyzed_at < until) & NewsAnalysisModel.score.is_not(None))

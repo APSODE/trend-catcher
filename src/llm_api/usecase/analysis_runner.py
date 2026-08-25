@@ -29,7 +29,7 @@ class AnalysisRunner:
     async def run(self) -> AnalysisResultData:
         now = DateTimeUtil.get_now_kst()
         since = now - timedelta(hours = ScheduleConstant.FETCH_HOURS)
-        articles = await self._crawler_client.get_articles(since, DateTimeUtil.get_now_kst())
+        articles = await self._crawler_client.get_articles(since, now)
         return await self._analyze_each(articles)
 
     #여러개 받아서 하나씩 분석
@@ -49,7 +49,7 @@ class AnalysisRunner:
             else:
                 result.processed.append(analysis)
 
-        logger.info("분석 완료: [요청:%d건, 처리:%d건, 스킵:%d건, 실패:%d건", len(articles), len(result.processed), result.skipped, result.failed)
+        logger.info("분석 완료: [요청:%d건, 처리:%d건, 스킵:%d건, 실패:%d건]", len(articles), len(result.processed), result.skipped, result.failed)
         return result
 
     #한 건 분석: 독립 트랜잭션에서
