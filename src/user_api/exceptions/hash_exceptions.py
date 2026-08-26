@@ -13,4 +13,7 @@ class IllegalSaltException(AppException):
         else:
             message = f"The provided salt length {length} is outside the allowed range."
 
-        super().__init__(message)
+        super().__init__(
+            message,
+            error_code = "HASH_INVALID_SALT_LENGTH",
+        )
