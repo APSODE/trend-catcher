@@ -43,11 +43,12 @@ async def trigger_dispatch(slot: Slot, request: Request, session: SessionDep):
         slot_label = "아침"
     else:
         slot_label = "저녁"
+
     # 주요 뉴스 전송
-    #await service.dispatch_major(
-    #    discord_client, llm_client, crawler_client,
-     #   settings.major_news_channel_id, slot_label,
-    #)
+    await service.dispatch_major(
+        discord_client, llm_client, crawler_client,
+        settings.major_news_channel_id, slot_label,
+    )
 
     # 개인화 뉴스 전송
     await service.dispatch_personalized(
