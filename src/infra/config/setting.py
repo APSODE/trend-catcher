@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Dict, Any, Annotated, Tuple
 
-from pydantic import Field, model_validator
+from pydantic import Field, model_validator, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict, NoDecode
 from pathlib import Path
 
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     default_timeout: float = 10.0
     llm_api_timeout: float = 30.0
 
-    jwt_check_url: str = f"{user_api_url}/{Field(validation_alias = "JWT_CHECK_URL")}"
+    jwt_check_path: str = Field(validation_alias = "JWT_CHECK_PATH")
 
     separator: str = Field(validation_alias = "SEPARATOR")
     protected_url: Annotated[Tuple[str], NoDecode] = Field(validation_alias = "PROTECTED_URL")
@@ -45,6 +45,11 @@ class Settings(BaseSettings):
             data[url_collection_key] = tuple(url_collection_str.replace("\n", "").strip(separator).split(separator))
 
         return data
+
+    @computed_field
+    @property
+    def jwt_check_url(self) -> str:
+        return f"{self.user_api_url}{self.jwt_check_path}"
 
 
 @lru_cache
