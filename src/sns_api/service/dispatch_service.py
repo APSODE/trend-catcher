@@ -9,6 +9,9 @@ from src.sns_api.model.schema_model import NewsBundleData
 from src.sns_api.repository.dispatch_repository import DispatchRepository
 from src.sns_api.repository.subscription_repository import SubscriptionRepository
 
+# 개인화 뉴스 최대 개수
+MAX_PERSONALIZED_ARTICLES = 10
+
 
 class DispatchService:
     def __init__(self) -> None:
@@ -36,6 +39,29 @@ class DispatchService:
         payload = build_payload(bundle, slot_label)
 
         await discord_client.send_to_channel(channel_id, payload)
+
+    # 해시태그별로 한바퀴씩 돌면서 기사 뽑기
+    @staticmethod
+    def _pick_round_robin(
+        hashtags: list[str], hashtag_to_articles: dict[str, list[str]], limit: int
+    ) -> list[str]:
+        tag_queues = [list(hashtag_to_articles.get(tag, [])) for tag in hashtags]
+
+        crawled_ids: list[str] = []
+        seen: set[str] = set()
+
+        while len(crawled_ids) < limit and any(tag_queues):
+            for queue in tag_queues:
+                if not queue:
+                    continue
+                cid = queue.pop(0)
+                if cid not in seen:
+                    crawled_ids.append(cid)
+                    seen.add(cid)
+                    if len(crawled_ids) >= limit:
+                        break
+
+        return crawled_ids
 
     # 개인화 뉴스 -> 구독자 각각에게 DM 발송
     async def dispatch_personalized(
@@ -75,18 +101,16 @@ class DispatchService:
             try:
                 hashtags = await user_client.get_user_hashtags(sub.user_id)
 
-                # 해시태그로 매칭된 크롤러 아이디 모으기
-                crawled_ids = set()
-                for tag in hashtags:
-                    # 유저별 기사 매칭
-                    crawled_ids.update(hashtag_to_articles.get(tag, []))
+                # 해시태그별로 한바퀴씩 돌면서 기사 뽑기 (관심사 골고루 + 개수 제한)
+                crawled_ids = self._pick_round_robin(hashtags, hashtag_to_articles, MAX_PERSONALIZED_ARTICLES)
 
                 if not crawled_ids:
                     await self.dispatch_repository.mark_failed(session, log, "no_matched_articles")
                     continue
 
-                articles = await crawler_client.get_articles(list(crawled_ids))
-                items = list(articles.values())
+                articles = await crawler_client.get_articles(crawled_ids)
+                # 라운드로빈 순서 유지해서 아이템 조립
+                items = [articles[cid] for cid in crawled_ids if cid in articles]
 
                 # 캐싱된 discord_id 사용
                 discord_user_id = sub.discord_id

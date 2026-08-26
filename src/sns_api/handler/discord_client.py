@@ -8,7 +8,7 @@ settings = get_settings()
 DISCORD_API_BASE = "https://discord.com/api/v10"
 
 EMBED_FIELD_VALUE_LIMIT = 1024
-MAX_ITEMS_PER_FIELD = 10  # 안전하게 필드당 기사 개수도 제한
+MAX_ITEMS_PER_FIELD = 10
 
 
 class TransientWebhookError(Exception):
