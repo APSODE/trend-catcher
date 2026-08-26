@@ -1,5 +1,7 @@
+from src.user_api.config import model_config
 from src.user_api.dto.serializer import required_relation, serialize_many
-from src.user_api.exceptions import UnknownHashtagData, UnknownUserData, NotFollowedHashtagData, AlreadyFollowedHashtagData
+from src.user_api.exceptions import UnknownHashtagData, UnknownUserData, NotFollowedHashtagData, \
+    AlreadyFollowedHashtagData, InvalidHashtagNameLength
 from src.user_api.model import UserModel, HashtagModel
 from src.user_api.dto import FollowHashtagRequest, UnfollowHashtagRequest, DataCollectionResponse, HashtagData, UserData
 from src.user_api.repository import HashtagRepository, UserHashtagRepository, UserRepository
@@ -29,6 +31,8 @@ class UserHashtagService(BaseService):
         )
 
         if target_hashtag is None:
+            self.require_valid_hashtag_length(hashtag_name)
+
             target_hashtag = await self.__hashtag_repository.create_hashtag(
                 name = hashtag_name,
                 with_flush = True
@@ -70,10 +74,6 @@ class UserHashtagService(BaseService):
         if target_user is None:
             raise UnknownUserData()
 
-        # 기존에는 target_user.interest를 순회하며 매번
-        # hashtag_repository.get_by_pk(relation_model.hashtag_fk)로 다시 조회했음(N+1 쿼리).
-        # required_relation(UserData)가 이미 relation.hashtag_model까지 로딩해오므로
-        # 그대로 재사용하고, orphan 관계(hashtag가 이미 삭제된 경우)는 방어적으로 걸러낸다.
         user_followed_hashtag_models = [
             relation_model.hashtag_model
             for relation_model in target_user.interest
@@ -109,6 +109,14 @@ class UserHashtagService(BaseService):
     async def require_not_followed_hashtag(self, user_pk: int, hashtag_pk: int):
         if await self.__relation_repository.is_exist_relation(user_pk = user_pk, hashtag_pk = hashtag_pk):
             raise AlreadyFollowedHashtagData()
+
+    @staticmethod
+    def require_valid_hashtag_length(hashtag_name: str):
+        if len(hashtag_name) > model_config.HASHTAG_MAX_NAME_LENGTH:
+            raise InvalidHashtagNameLength(
+                length = len(hashtag_name),
+                max_length = model_config.HASHTAG_MAX_NAME_LENGTH,
+            )
 
 
 get_user_hashtag_service = UserHashtagService.create_dependency(

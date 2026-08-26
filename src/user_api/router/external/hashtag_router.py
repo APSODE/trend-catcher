@@ -1,7 +1,7 @@
 from fastapi import Depends
 
 from src.user_api.auth import get_current_account, get_current_user_pk
-from src.user_api.dto import FollowHashtagRequest, AccountData, UnfollowHashtagRequest, DataCollectionResponse
+from src.user_api.dto import FollowHashtagRequest, AccountData, UnfollowHashtagRequest, DataCollectionResponse, AddHashtagRequest, HashtagData
 from src.user_api.router import BaseRouter
 from src.user_api.service.external import UserHashtagService, get_user_hashtag_service, HashtagService, \
     get_hashtag_service
@@ -36,3 +36,7 @@ class HashtagRouter(BaseRouter):
         @self.get("/hashtag-list", response_model = DataCollectionResponse)
         async def get_hashtag_all_list(service: HashtagService = Depends(get_hashtag_service)):
             return await service.get_all_hashtag_list()
+
+        @self.post("/add-hashtag", response_model = HashtagData)
+        async def add_hashtag(request: AddHashtagRequest, service: HashtagService = Depends(get_hashtag_service)):
+            return await service.add_hashtag(request.hashtag_name)

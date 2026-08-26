@@ -14,7 +14,7 @@ from src.user_api.exceptions.account_exceptions import (
 )
 from src.user_api.exceptions.auth_exceptions import InvalidToken, ExpiredToken, MismatchTokenType
 from src.user_api.exceptions.hash_exceptions import IllegalSaltException
-from src.user_api.exceptions.hashtag_exception import UnknownHashtagData, InvalidHashtagAmount
+from src.user_api.exceptions.hashtag_exception import UnknownHashtagData, InvalidHashtagAmount, InvalidHashtagNameLength
 from src.user_api.exceptions.internal_exceptions import (
     SerializerNotRegistered,
     SerializerTypeMismatch,
@@ -41,6 +41,7 @@ __all__ = [
     "IllegalSaltException",
     "UnknownHashtagData",
     "InvalidHashtagAmount",
+    "InvalidHashtagNameLength",
     "SerializerNotRegistered",
     "SerializerTypeMismatch",
     "UnexpectedNullSerializeTarget",

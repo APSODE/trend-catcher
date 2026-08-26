@@ -20,7 +20,8 @@ from src.user_api.dto.request_data import (
     UnfollowHashtagRequest,
     AccessTokenDecodeRequest,
     SocialUnlinkRequest,
-    CheckTokenRequest
+    CheckTokenRequest,
+    AddHashtagRequest
 )
 from src.user_api.dto.response_data import (
     DataCollectionResponse,
@@ -47,6 +48,7 @@ __all__ = [
     "FollowHashtagRequest",
     "UnfollowHashtagRequest",
     "CheckTokenRequest",
+    "AddHashtagRequest",
     "DataCollectionResponse",
     "PKResponse",
     "OAuth2Response",

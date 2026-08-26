@@ -21,3 +21,13 @@ class InvalidHashtagAmount(AppException):
             "Invalid hashtag amount",
             error_code = "HASHTAG_INVALID_AMOUNT",
         )
+
+
+class InvalidHashtagNameLength(AppException):
+    status_code = HTTPStatus.BAD_REQUEST
+
+    def __init__(self, length: int, max_length: int):
+        super().__init__(
+            f"Hashtag name length {length} exceeds the maximum allowed length of {max_length}.",
+            error_code = "HASHTAG_INVALID_NAME_LENGTH",
+        )

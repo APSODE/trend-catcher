@@ -12,5 +12,5 @@ __all__ = [
     "account_config",
     "auth_config",
     "model_config",
-    "db_config"
+    "db_config",
 ]
