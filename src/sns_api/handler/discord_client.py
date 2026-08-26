@@ -1,4 +1,5 @@
 import httpx
+from datetime import datetime, timezone
 
 from src.sns_api.config import get_settings
 from src.sns_api.decorator.retry import async_retry
@@ -9,6 +10,13 @@ DISCORD_API_BASE = "https://discord.com/api/v10"
 
 EMBED_FIELD_VALUE_LIMIT = 1024
 MAX_ITEMS_PER_FIELD = 10
+
+# 슬롯별 컬러/문구
+SLOT_STYLE = {
+    "아침": {"color": 0xFFA552, "emoji": "☀️", "greeting": "상쾌한 아침, 오늘의 소식을 확인해보세요!"},
+    "저녁": {"color": 0x6C63FF, "emoji": "🌙", "greeting": "하루를 마무리하며, 놓친 소식은 없는지 확인해보세요!"},
+}
+DEFAULT_STYLE = {"color": 0x5865F2, "emoji": "📰", "greeting": "오늘의 소식을 확인해보세요!"}
 
 
 class TransientWebhookError(Exception):
@@ -44,18 +52,27 @@ def build_payload(bundle: NewsBundleData, slot_label: str) -> dict:
     # 주요 뉴스 내용상자
     if bundle.major:
         value, thumb = _build_lines(bundle.major)
-        field.append({"name": "주요 뉴스", "value": value})
+        field.append({"name": "🔥 주요 뉴스", "value": value})
         if thumbnail_url is None:
             thumbnail_url = thumb
 
     # 개인화된 뉴스 내용상자
     if bundle.personalized:
         value, thumb = _build_lines(bundle.personalized)
-        field.append({"name": "개인화된 뉴스", "value": value})
+        field.append({"name": "✨ 개인화된 뉴스", "value": value})
         if thumbnail_url is None:
             thumbnail_url = thumb
 
-    embed: dict[str, object] = {"title": f"{slot_label} 뉴스 브리핑", "fields": field}
+    style = SLOT_STYLE.get(slot_label, DEFAULT_STYLE)
+
+    embed: dict[str, object] = {
+        "title": f"{style['emoji']} {slot_label} 뉴스 브리핑",
+        "description": style["greeting"],
+        "color": style["color"],
+        "fields": field,
+        "footer": {"text": "Trend Catcher"},
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
     if thumbnail_url:
         embed["thumbnail"] = {"url": thumbnail_url}
 

@@ -24,9 +24,9 @@ class Settings(BaseSettings):
     db_echo: bool = False
 
     # 외부 서비스
-    llm_api_base_url: str = "http://100.96.140.48:8080"
-    user_api_base_url: str = "http://100.94.34.103:5175"
-    crawler_api_base_url: str = "http://100.106.128.75:8081"
+    llm_api_base_url: str = "change-me-in-env"
+    user_api_base_url: str = "change-me-in-env"
+    crawler_api_base_url: str = "change-me-in-env"
 
     # 발송 채널 (봇 방식)
     discord_bot_token: str = "change-me-in-env"
