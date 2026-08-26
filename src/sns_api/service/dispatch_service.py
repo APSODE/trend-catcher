@@ -1,10 +1,8 @@
-from datetime import datetime
-
 from src.sns_api.handler.crawler_client import CrawlerClient
 from src.sns_api.handler.discord_client import DiscordClient, PermanentWebhookError, build_payload
 from src.sns_api.handler.llm_client import LLMClient
 from src.sns_api.handler.user_client import UserClient
-from src.sns_api.model.entity_model import DispatchLogModel, DispatchStatus, Slot
+from src.sns_api.model.entity_model import DispatchLogModel, DispatchStatus, Slot, utc_now
 from src.sns_api.model.schema_model import NewsBundleData
 from src.sns_api.repository.dispatch_repository import DispatchRepository
 from src.sns_api.repository.subscription_repository import SubscriptionRepository
@@ -74,7 +72,7 @@ class DispatchService:
         llm_client: LLMClient,
         crawler_client: CrawlerClient,
     ) -> None:
-        dispatch_date = datetime.now().strftime("%Y-%m-%d")
+        dispatch_date = utc_now().strftime("%Y-%m-%d")
 
         # LLM에 해시태그별 매칭된 기사 목록
         hashtag_to_articles = await llm_client.get_latest_hashtags()

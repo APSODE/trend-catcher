@@ -34,6 +34,7 @@ class Base(DeclarativeBase):
 # 앱 시작 시 테이블이 없으면 생성 (이미 있으면 아무 동작 안 함)
 async def init_db() -> None:
     async with engine.begin() as conn:
+        # noinspection PyTypeChecker
         await conn.run_sync(Base.metadata.create_all)
 
 

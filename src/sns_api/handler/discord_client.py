@@ -66,9 +66,9 @@ def build_payload(bundle: NewsBundleData, slot_label: str) -> dict:
 
     embed: dict[str, object] = {
         "title": f"{style['emoji']} {slot_label} 뉴스 브리핑",
-        "description": style["greeting"],
         "color": style["color"],
         "fields": field,
+        "footer": {"text": style["greeting"]},
     }
     if thumbnail_url:
         embed["thumbnail"] = {"url": thumbnail_url}

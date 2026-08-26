@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 from sqlalchemy import (
@@ -9,11 +9,15 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
-    func,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .database_model import Base
+
+
+def utc_now() -> datetime:
+    # DB 서버 타임존에 의존하지 않도록 애플리케이션에서 직접 UTC로 채움
+    return datetime.now(timezone.utc)
 
 
 class Slot(str, Enum):
@@ -55,10 +59,10 @@ class SubscriptionModel(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now(), nullable=False
+        DateTime, default=utc_now, nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+        DateTime, default=utc_now, onupdate=utc_now, nullable=False
     )
 
 
@@ -83,6 +87,6 @@ class DispatchLogModel(Base):
     payload: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now(), nullable=False
+        DateTime, default=utc_now, nullable=False
     )
     sent_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)

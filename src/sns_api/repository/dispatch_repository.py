@@ -1,7 +1,6 @@
-from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.sns_api.model.entity_model import DispatchLogModel, DispatchStatus, Slot
+from src.sns_api.model.entity_model import DispatchLogModel, DispatchStatus, Slot, utc_now
 
 class DispatchRepository:
     # 오늘 이 슬롯에 이미 성공 발송했는지 여부
@@ -28,7 +27,7 @@ class DispatchRepository:
     async def mark_success(self, session: AsyncSession, log: DispatchLogModel) -> None:
         log.status = DispatchStatus.SUCCESS.value
         log.attempt_count += 1
-        log.sent_at = datetime.utcnow()
+        log.sent_at = utc_now()
         log.error_message = None
         await session.flush()
 
