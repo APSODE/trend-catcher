@@ -17,6 +17,7 @@ from src.user_api.exceptions.user_exceptions import UnknownUserData
 from src.user_api.repository import LocalAccountRepository, UserRepository, SocialAccountRepository
 from src.user_api.service import BaseService
 from src.user_api.utils import HashUtil, JwtUtil
+from user_api.exceptions.auth_exceptions import InvalidToken
 
 
 class UserAccountService(BaseService):
@@ -201,7 +202,11 @@ class UserAccountService(BaseService):
 
     @staticmethod
     async def refresh_token(refresh_token: str) -> TokenPair:
-        user_jwt = JwtUtil.decode_token(refresh_token, expected_type = TokenType.REFRESH)
+        user_jwt = JwtUtil.decode_token(refresh_token, expected_type=TokenType.REFRESH)
+
+        if not await TokenWhitelist.is_registered(user_jwt, refresh_token):
+            raise InvalidToken()
+
         await TokenWhitelist.revoke_all_by_session(user_jwt)
         return await UserAccountService._issue_jwt_for_account(user_jwt.account)
 
