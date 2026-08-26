@@ -70,8 +70,6 @@ def build_payload(bundle: NewsBundleData, slot_label: str) -> dict:
         "description": style["greeting"],
         "color": style["color"],
         "fields": field,
-        "footer": {"text": "Trend Catcher"},
-        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     if thumbnail_url:
         embed["thumbnail"] = {"url": thumbnail_url}
