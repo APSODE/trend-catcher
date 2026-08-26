@@ -51,8 +51,7 @@ def build_payload(bundle: NewsBundleData, slot_label: str) -> dict:
     # 주요 뉴스 내용상자
     if bundle.major:
         value, thumb = _build_lines(bundle.major)
-        field.append({"name": "🔥 주요 뉴스", "value": value})
-        if thumbnail_url is None:
+        field.append({"name": "🔥 주요 뉴스", "value": value})       if thumbnail_url is None:
             thumbnail_url = thumb
 
     # 개인화된 뉴스 내용상자
