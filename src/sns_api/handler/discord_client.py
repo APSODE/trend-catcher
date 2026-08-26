@@ -1,5 +1,4 @@
 import httpx
-from datetime import datetime, timezone
 
 from src.sns_api.config import get_settings
 from src.sns_api.decorator.retry import async_retry
