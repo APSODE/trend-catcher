@@ -101,7 +101,7 @@ class DispatchService:
             try:
                 hashtags = await user_client.get_user_hashtags(sub.user_id)
 
-                # 해시태그별로 한바퀴씩 돌면서 기사 뽑기 (관심사 골고루 + 개수 제한)
+                # 해시태그별로 한바퀴씩 돌면서 기사 뽑기
                 crawled_ids = self._pick_round_robin(hashtags, hashtag_to_articles, MAX_PERSONALIZED_ARTICLES)
 
                 if not crawled_ids:
@@ -109,7 +109,7 @@ class DispatchService:
                     continue
 
                 articles = await crawler_client.get_articles(crawled_ids)
-                # 라운드로빈 순서 유지해서 아이템 조립
+
                 items = [articles[cid] for cid in crawled_ids if cid in articles]
 
                 # 캐싱된 discord_id 사용
