@@ -20,7 +20,7 @@ class KMIBPageParser(BasePageParser):
 
         category = None
         content = " ".join(p.strip() for p in section.find_all(string=True, recursive=False) if p.strip())
-        matches = re.search(r'([가-힣]{2,5}\s*기자)', content)
+        matches = re.search(r'([가-힣]{2,6}\s*[가-힣\s·]*기자)', content)
         reporter = matches.group(1) if matches else None
 
         img_urls = []

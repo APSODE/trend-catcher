@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from bs4 import BeautifulSoup
 
@@ -18,6 +19,9 @@ class JoongangPageParser(BasePageParser):
         category = soup.select_one("#container > section > article > header > div.subhead > a.title")
 
         reporter = soup.select_one("#container > section > article > header > div.byline > a")
+        if reporter is None:
+            matches = re.search(r'([가-힣]{2,6}\s*[가-힣\s·]*기자)', content)
+            reporter = matches.group(1) if matches else None
 
         if not title or not section:
             return None
