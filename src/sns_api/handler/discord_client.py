@@ -3,6 +3,7 @@ import httpx
 from src.sns_api.config import get_settings
 from src.sns_api.decorator.retry import async_retry
 from src.sns_api.model.schema_model import NewsBundleData, NewsItemData
+
 settings = get_settings()
 
 DISCORD_API_BASE = "https://discord.com/api/v10"
@@ -10,7 +11,6 @@ DISCORD_API_BASE = "https://discord.com/api/v10"
 EMBED_FIELD_VALUE_LIMIT = 1024
 MAX_ITEMS_PER_FIELD = 10
 
-# 슬롯별 컬러/문구
 SLOT_STYLE = {
     "아침": {"color": 0xFFA552, "emoji": "☀️", "greeting": "상쾌한 아침, 오늘의 소식을 확인해보세요!"},
     "저녁": {"color": 0x6C63FF, "emoji": "🌙", "greeting": "하루를 마무리하며, 놓친 소식은 없는지 확인해보세요!"},
@@ -20,6 +20,10 @@ DEFAULT_STYLE = {"color": 0x5865F2, "emoji": "📰", "greeting": "오늘의 소�
 
 class TransientWebhookError(Exception):
     """일시적 실패 - 재시도 대상"""
+
+    def __init__(self, message: str, retry_after: float | None = None):
+        super().__init__(message)
+        self.retry_after = retry_after
 
 
 class PermanentWebhookError(Exception):
@@ -108,7 +112,7 @@ class DiscordClient:
             json=payload,
             headers=self._headers(),
         )
-        self._handle_response(response)
+        await self._handle_response(response)
 
     # 개인화된 뉴스 -> DM 전송
     @async_retry(
@@ -122,14 +126,21 @@ class DiscordClient:
             json=payload,
             headers=self._headers(),
         )
-        self._handle_response(response)
+        await self._handle_response(response)
 
     @staticmethod
-    def _handle_response(response) -> None:
+    async def _handle_response(response: httpx.Response) -> None:
         if response.status_code in (200, 201):
             return
         elif response.status_code == 429:
-            raise TransientWebhookError("rate limited (429)")
+            retry_after: float | None = None
+            try:
+                raw_retry_after = response.json().get("retry_after")
+                if raw_retry_after is not None:
+                    retry_after = float(raw_retry_after)
+            except Exception:
+                pass
+            raise TransientWebhookError("rate limited (429)", retry_after=retry_after)
         elif 400 <= response.status_code < 500:
             raise PermanentWebhookError(f"permanent error {response.status_code}")
         else:

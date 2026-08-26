@@ -1,3 +1,4 @@
+from sqlalchemy.exc import IntegrityError
 from src.sns_api.handler.crawler_client import CrawlerClient
 from src.sns_api.handler.discord_client import DiscordClient, PermanentWebhookError, build_payload
 from src.sns_api.handler.llm_client import LLMClient
@@ -84,17 +85,21 @@ class DispatchService:
             if await self.dispatch_repository.is_already_sent(session, sub.user_id, slot, dispatch_date):
                 continue
 
-            log = await self.dispatch_repository.save(
-                session,
-                DispatchLogModel(
-                    user_id=sub.user_id,
-                    subscription_id=sub.id,
-                    slot=slot.value,
-                    channel=sub.channel,
-                    dispatch_date=dispatch_date,
-                    status=DispatchStatus.PENDING.value,
-                ),
-            )
+            try:
+                log = await self.dispatch_repository.save(
+                    session,
+                    DispatchLogModel(
+                        user_id=sub.user_id,
+                        subscription_id=sub.id,
+                        slot=slot.value,
+                        channel=sub.channel,
+                        dispatch_date=dispatch_date,
+                        status=DispatchStatus.PENDING.value,
+                    ),
+                )
+            except IntegrityError:
+                await session.rollback()
+                continue
 
             try:
                 hashtags = await user_client.get_user_hashtags(sub.user_id)
@@ -104,6 +109,7 @@ class DispatchService:
 
                 if not crawled_ids:
                     await self.dispatch_repository.mark_failed(session, log, "no_matched_articles")
+                    await session.commit()
                     continue
 
                 articles = await crawler_client.get_articles(crawled_ids)
@@ -114,6 +120,7 @@ class DispatchService:
                 discord_user_id = sub.discord_id
                 if discord_user_id is None:
                     await self.dispatch_repository.mark_failed(session, log, "discord_not_linked")
+                    await session.commit()
                     continue
 
                 bundle = NewsBundleData(personalized=items)
@@ -121,11 +128,13 @@ class DispatchService:
 
                 await discord_client.send_dm(discord_user_id, payload)
                 await self.dispatch_repository.mark_success(session, log)
+                await session.commit()
 
             except PermanentWebhookError as e:
                 await self.dispatch_repository.mark_failed(session, log, str(e))
                 sub.is_active = False
-                await session.flush()
+                await session.commit()
 
             except Exception as e:
                 await self.dispatch_repository.mark_failed(session, log, str(e))
+                await session.commit()

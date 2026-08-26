@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..model.entity_model import Slot, SubscriptionModel
+from src.sns_api.model.entity_model import Slot, SubscriptionModel
 
 
 class SubscriptionRepository:
@@ -32,7 +32,10 @@ class SubscriptionRepository:
 
     # 슬롯(아침/저녁)을 구독 중인 활성 구독 목록
     async def list_active_for_slot(self, session: AsyncSession, slot: Slot) -> list[SubscriptionModel]:
-        query = select(SubscriptionModel).where(SubscriptionModel.is_active == True)
+        query = select(SubscriptionModel).where(
+            SubscriptionModel.is_active == True,
+            SubscriptionModel.personalized_enabled == True,  # ★ 추가
+        )
         if slot == Slot.MORNING:
             query = query.where(SubscriptionModel.morning_enabled == True)
         else:
@@ -48,6 +51,7 @@ class SubscriptionRepository:
             return []
         query = select(SubscriptionModel).where(
             SubscriptionModel.is_active == True,
+            SubscriptionModel.personalized_enabled == True,  # ★ 추가
             SubscriptionModel.user_id.in_(user_ids),
         )
         if slot == Slot.MORNING:
