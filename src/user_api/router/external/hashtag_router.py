@@ -36,5 +36,3 @@ class HashtagRouter(BaseRouter):
         @self.get("/hashtag-list", response_model = DataCollectionResponse)
         async def get_hashtag_all_list(service: HashtagService = Depends(get_hashtag_service)):
             return await service.get_all_hashtag_list()
-
-

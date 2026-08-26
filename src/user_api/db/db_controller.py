@@ -7,7 +7,7 @@ from sqlalchemy.orm import InstrumentedAttribute, selectinload
 from sqlalchemy.orm.interfaces import LoaderOption
 from sqlalchemy.sql.elements import ColumnElement
 
-from src.user_api.model.base_model import BaseModel
+from src.user_api.model import BaseModel
 
 _RelationPath = Union[InstrumentedAttribute, Sequence[InstrumentedAttribute]]
 ModelType = TypeVar("ModelType", bound = BaseModel)
@@ -96,7 +96,8 @@ class DatabaseController:
                      filter: Optional[ColumnElement[bool]] = None,
                      load_relations: Optional[Sequence[_RelationPath]] = None,
                      amount: int = 1,
-                     with_flush: bool = False) -> None:
+                     with_flush: bool = False) -> List[ModelType]:
+
         targets = await self.get(
             model_class = model_class,
             filter = filter,
@@ -104,15 +105,13 @@ class DatabaseController:
             amount = amount
         )
 
-        if targets is None:
-            return
-
         for target in targets:
             await self.__session.delete(target)
 
         if with_flush:
             await self.__session.flush()
 
+        return targets
 
     async def commit(self) -> None:
         await self.__session.commit()
@@ -122,5 +121,3 @@ class DatabaseController:
 
     async def flush(self) -> None:
         await self.__session.flush()
-
-

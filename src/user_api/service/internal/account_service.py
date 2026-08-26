@@ -1,11 +1,16 @@
 from typing import List, Union
 
-from src.user_api.constant.account_constant import AccountType, AccountProvider
+from starlette.responses import JSONResponse
+
+from src.user_api.constant import AccountType, AccountProvider
 from src.user_api.dto import LocalAccountData, SocialAccountData
 from src.user_api.dto.serializer import serialize_many, serialize
-from src.user_api.exceptions.account_exceptions import NotExistAccountData
+from src.user_api.exceptions import NotExistAccountData, InvalidToken
 from src.user_api.repository import LocalAccountRepository, SocialAccountRepository
 from src.user_api.service import BaseService
+from src.user_api.auth import TokenWhitelist
+from src.user_api.dto import TokenType
+from src.user_api.utils import JwtUtil
 
 
 class AccountService(BaseService):
@@ -50,7 +55,7 @@ class AccountService(BaseService):
         )
 
         if len(social_accounts) > 0:
-            user_accounts.append(*serialize_many(social_accounts, SocialAccountData))
+            user_accounts.extend(serialize_many(social_accounts, SocialAccountData))
 
         return user_accounts
 
@@ -65,12 +70,26 @@ class AccountService(BaseService):
 
         return serialize(maybe_social_account, SocialAccountData)
 
+    async def check_jwt(self, raw_token: str, token_type: TokenType) -> JSONResponse:
+        response = JSONResponse(
+            content = raw_token,
+            status_code = 200
+        )
 
+        try:
+            user_jwt = JwtUtil.decode_token(raw_token, token_type)
+
+            if not await TokenWhitelist.is_registered(user_jwt, raw_token):
+                raise InvalidToken()
+
+        except:
+            response.status_code = 401
+
+
+        return response
 
 
 get_account_service = AccountService.create_dependency(
     local_account_repository = LocalAccountRepository,
     social_account_repository = SocialAccountRepository
 )
-
-

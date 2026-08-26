@@ -1,18 +1,21 @@
 from hmac import compare_digest
-from typing import Optional, List, Union
+from typing import Optional
 from uuid import uuid4
 
-from src.user_api.constant.account_constant import SALT_LENGTH, SOCIAL, LOCAL, AccountProvider
-from src.user_api.constant.permission import Permission
+from sqlalchemy.exc import IntegrityError
+
+from src.user_api.config import account_config
+from src.user_api.constant import SOCIAL, AccountProvider, Permission
 from src.user_api.dto.serializer import serialize, serialize_many, required_relation
-from src.user_api.exceptions.account_exceptions import IsAlreadyExistLoginID, InvalidCredentialData, \
-    AlreadyLinkedAccount, AlreadyOwnAccount, UnlinkedSocialAccount, AlreadyLinkedProvider, NotExistAccountData
+from src.user_api.exceptions import (
+    IsAlreadyExistLoginID, InvalidCredentialData,
+    AlreadyLinkedAccount, UnlinkedSocialAccount, AlreadyLinkedProvider,
+    CannotUnlinkLastLoginMethod, DeleteConfirmationMismatch,
+    UnknownUserData, InvalidToken,
+)
 from src.user_api.auth import TokenWhitelist, OAuth2Client
 from src.user_api.dto import LocalLoginRequest, LocalRegisterRequest, DeleteRequest, TokenPair, TokenType, AccountData, \
-    SocialRegisterRequest, SocialLoginRequest, SocialLinkRequest, SocialAccountData, DataCollectionResponse, UserData, \
-    UserSummaryResponse
-from src.user_api.exceptions.user_exceptions import UnknownUserData
-from src.user_api.model import SocialAccountModel, UserModel, LocalAccountModel
+    SocialRegisterRequest, SocialLoginRequest, SocialLinkRequest, SocialAccountData, DataCollectionResponse, UserData
 from src.user_api.repository import LocalAccountRepository, UserRepository, SocialAccountRepository
 from src.user_api.service import BaseService
 from src.user_api.utils import HashUtil, JwtUtil
@@ -51,16 +54,20 @@ class UserAccountService(BaseService):
             with_flush = True
         )
 
-        new_salt = HashUtil.create_salt(SALT_LENGTH)
+        new_salt = HashUtil.create_salt(account_config.SALT_LENGTH)
         hashed_password = HashUtil.get_hashed_string(register_data.password, new_salt)
 
-        await self.__local_account_repository.create_account(
-            user_pk = new_user.pk,
-            login_id = register_data.login_id,
-            hashed_password = hashed_password,
-            personal_salt = new_salt,
-            with_flush = True
-        )
+        try:
+            await self.__local_account_repository.create_account(
+                user_pk = new_user.pk,
+                login_id = register_data.login_id,
+                hashed_password = hashed_password,
+                personal_salt = new_salt,
+                with_flush = True
+            )
+        except IntegrityError:
+            await self.__local_account_repository.db_controller.rollback()
+            raise IsAlreadyExistLoginID(login_id = register_data.login_id)
 
     async def social_register(self, register_data: SocialRegisterRequest) -> TokenPair:
         oauth_response = await OAuth2Client.get_client(register_data.provider).fetch_user_info(register_data.provider_access_token)
@@ -151,12 +158,13 @@ class UserAccountService(BaseService):
             raise UnknownUserData()
 
         if len(target_user.local_accounts) <= 0:
-            raise NotExistAccountData() # 전용 예외를 추가를 할까...? 고민중 ~
+            raise CannotUnlinkLastLoginMethod()
 
-        await self.__social_account_repository.delete_by_user_pk_and_provider(
-            user_pk = user_pk,
-            provider = provider,
-            with_flush = True
+        await self.__social_account_repository.delete_or_raise(
+            exception_factory = UnlinkedSocialAccount,
+            filter = (self.__social_account_repository.model_class.user_fk == user_pk)
+                     & (self.__social_account_repository.model_class.provider == provider),
+            with_flush = True,
         )
 
     async def get_linked_account_info(self, user_pk: int) -> DataCollectionResponse[SocialAccountData]:
@@ -178,7 +186,7 @@ class UserAccountService(BaseService):
         if current_account.account_type == SOCIAL:
             raise InvalidCredentialData()
 
-        new_salt = HashUtil.create_salt(SALT_LENGTH)
+        new_salt = HashUtil.create_salt(account_config.SALT_LENGTH)
         hashed_password = HashUtil.get_hashed_string(new_password, new_salt)
 
         await self.__local_account_repository.update_password(
@@ -196,6 +204,10 @@ class UserAccountService(BaseService):
     @staticmethod
     async def refresh_token(refresh_token: str) -> TokenPair:
         user_jwt = JwtUtil.decode_token(refresh_token, expected_type = TokenType.REFRESH)
+
+        if not await TokenWhitelist.is_registered(user_jwt, refresh_token):
+            raise InvalidToken()
+
         await TokenWhitelist.revoke_all_by_session(user_jwt)
         return await UserAccountService._issue_jwt_for_account(user_jwt.account)
 
@@ -206,17 +218,7 @@ class UserAccountService(BaseService):
             raise UnknownUserData()
 
         if target_user.name != delete_data.name:
-            raise UnknownUserData() # 전용 예외 추가 해야겠지 아무래도?
-
-        # await self.__local_account_repository.delete_by_user_pk(
-        #     user_pk = user_pk,
-        #     with_flush = True
-        # )
-        #
-        # await self.__social_account_repository.delete_by_user_pk(
-        #     user_pk = user_pk,
-        #     with_flush = True
-        # )
+            raise DeleteConfirmationMismatch()
 
         await self.__user_repository.delete_by_pk(
             target_pk = user_pk,
@@ -239,4 +241,3 @@ get_user_account_service = UserAccountService.create_dependency(
     local_account_repository = LocalAccountRepository,
     social_account_repository = SocialAccountRepository
 )
-

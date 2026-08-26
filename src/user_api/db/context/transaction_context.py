@@ -1,12 +1,14 @@
 from typing import Callable, Dict, Type, TypeVar, AsyncGenerator
 
-from src.user_api.db.db_controller import DatabaseController
-from src.user_api.db.db_creator import DatabaseCreator
-from src.user_api.repository.account_repository import LocalAccountRepository, SocialAccountRepository
-from src.user_api.repository.base_repository import BaseRepository
-from src.user_api.repository.hashtag_repository import HashtagRepository
-from src.user_api.repository.user_hashtag_repository import UserHashtagRepository
-from src.user_api.repository.user_repository import UserRepository
+from src.user_api.db import DatabaseController, DatabaseCreator
+from src.user_api.repository import (
+    BaseRepository,
+    HashtagRepository,
+    LocalAccountRepository,
+    SocialAccountRepository,
+    UserHashtagRepository,
+    UserRepository,
+)
 
 R = TypeVar("R", bound = BaseRepository)
 

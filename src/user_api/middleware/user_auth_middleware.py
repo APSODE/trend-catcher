@@ -12,7 +12,3 @@ class UserAuthMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         pass
-
-
-
-

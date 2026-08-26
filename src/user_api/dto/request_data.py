@@ -2,9 +2,8 @@ from typing import List
 
 from pydantic import BaseModel
 
-from src.user_api.constant.account_constant import AccountProvider
-from src.user_api.constant.permission import Permission
-from src.user_api.dto.hashtag_data import HashtagData
+from src.user_api.constant import AccountProvider, Permission
+from src.user_api.dto import HashtagData
 
 
 class LocalRegisterRequest(BaseModel):
@@ -67,6 +66,9 @@ class LoginIDQueryRequest(BaseModel):
 
 class AccessTokenDecodeRequest(BaseModel):
     access_token: str
+
+class CheckTokenRequest(BaseModel):
+    token: str
 
 # # ==== 사용..? 안할수도...?
 # class CreateHashtagRequest(HashtagData):

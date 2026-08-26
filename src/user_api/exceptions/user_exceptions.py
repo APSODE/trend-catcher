@@ -7,4 +7,7 @@ class UnknownUserData(AppException):
     status_code = HTTPStatus.NOT_FOUND
 
     def __init__(self):
-        super().__init__("An error occurred while retrieving user information. Please try again.")
+        super().__init__(
+            "An error occurred while retrieving user information. Please try again.",
+            error_code = "USER_NOT_FOUND",
+        )

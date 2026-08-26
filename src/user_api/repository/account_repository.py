@@ -1,6 +1,6 @@
 from typing import Optional, Sequence, List
 
-from src.user_api.constant.account_constant import AccountProvider
+from src.user_api.constant import AccountProvider
 from src.user_api.db import DatabaseController, RelationPath
 from src.user_api.model import LocalAccountModel, SocialAccountModel
 from src.user_api.repository.base_repository import BaseRepository
@@ -174,8 +174,3 @@ class SocialAccountRepository(BaseRepository[SocialAccountModel]):
             filter = (self.model_class.user_fk == user_pk) & (self.model_class.provider == provider),
             load_relations = load_relations
         )
-
-
-
-
-

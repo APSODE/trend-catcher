@@ -2,9 +2,8 @@ from typing import Annotated
 
 from fastapi import Depends, Query
 
-from src.user_api.constant.account_constant import AccountType, AccountProvider
-from src.user_api.dto import DataCollectionResponse, LocalAccountData, LoginIDQueryRequest, PKQueryRequest, \
-    SocialAccountData
+from src.user_api.constant import AccountType, AccountProvider
+from src.user_api.dto import DataCollectionResponse, PKQueryRequest, SocialAccountData, CheckTokenRequest, TokenType
 from src.user_api.router import BaseRouter
 from src.user_api.service.internal import AccountService, get_account_service
 
@@ -52,3 +51,8 @@ class AccountRouter(BaseRouter):
                 user_pk = user_pk,
                 provider = provider
             )
+
+        @self.get("/check-jwt")
+        async def check_jwt(request: CheckTokenRequest,
+                            service: AccountService = Depends(get_account_service)):
+            return await service.check_jwt(request.token, TokenType.ACCESS)

@@ -1,6 +1,6 @@
 from typing import List
 from pydantic import BaseModel, ConfigDict
-from src.user_api.constant.permission import Permission
+from src.user_api.constant import Permission
 from src.user_api.decorator import bind_model, relation
 from src.user_api.dto.account_data import LocalAccountData, SocialAccountData
 from src.user_api.dto.hashtag_data import HashtagData

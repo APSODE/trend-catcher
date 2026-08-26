@@ -48,4 +48,3 @@ class HashtagRepository(BaseRepository[HashtagModel]):
             filter = self.model_class.name == target_name,
             load_relations = load_relations
         )
-

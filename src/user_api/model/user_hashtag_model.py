@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from src.user_api.model.base_model import BaseModel
+from src.user_api.model import BaseModel
 
 if TYPE_CHECKING:
     from src.user_api.model import UserModel, HashtagModel
@@ -27,6 +27,3 @@ class UserHashtagModel(BaseModel):
         super().__init__(**kw)
         self.user_fk = user_fk
         self.hashtag_fk = hashtag_fk
-
-
-

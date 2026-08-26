@@ -9,4 +9,3 @@ __all__ = [
     "serialize_many",
     "required_relation",
 ]
-

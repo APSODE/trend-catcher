@@ -1,6 +1,7 @@
-from typing import Generic, List, Optional, Type, TypeVar, Sequence
+from typing import Generic, List, Optional, Type, TypeVar, Sequence, Callable
 from sqlalchemy.sql.elements import ColumnElement
 from src.user_api.db import DatabaseController, RelationPath
+from src.user_api.exceptions import AppException
 from src.user_api.model import BaseModel
 
 ModelType = TypeVar("ModelType", bound = BaseModel)
@@ -70,7 +71,6 @@ class BaseRepository(Generic[ModelType]):
                            target_pk: int,
                            update_data: dict,
                            with_flush: bool = False) -> None:
-
         await self.update(filter = self._model_class.pk == target_pk,
                           update_data = update_data,
                           with_flush = with_flush)
@@ -79,8 +79,8 @@ class BaseRepository(Generic[ModelType]):
                      filter: Optional[ColumnElement[bool]] = None,
                      load_relations: Optional[Sequence[RelationPath]] = None,
                      amount: int = 1,
-                     with_flush: bool = False) -> None:
-        await self._db_controller.delete(
+                     with_flush: bool = False) -> List[ModelType]:
+        return await self._db_controller.delete(
             self._model_class,
             filter = filter,
             amount = amount,
@@ -91,13 +91,31 @@ class BaseRepository(Generic[ModelType]):
     async def delete_by_pk(self,
                            target_pk: int,
                            load_relations: Optional[Sequence[RelationPath]] = None,
-                           with_flush: bool = False) -> None:
-        await self.delete(
+                           with_flush: bool = False) -> List[ModelType]:
+        return await self.delete(
             filter =self._model_class.pk == target_pk,
             load_relations = load_relations,
             amount = 1,
             with_flush = with_flush,
         )
+
+    async def delete_or_raise(self,
+                              exception_factory: Callable[[], AppException],
+                              filter: Optional[ColumnElement[bool]] = None,
+                              load_relations: Optional[Sequence[RelationPath]] = None,
+                              amount: int = 1,
+                              with_flush: bool = False) -> List[ModelType]:
+        deleted = await self.delete(
+            filter = filter,
+            load_relations = load_relations,
+            amount = amount,
+            with_flush = with_flush,
+        )
+
+        if len(deleted) == 0:
+            raise exception_factory()
+
+        return deleted
 
     async def is_exist(self,
                        filter: ColumnElement[bool],
@@ -109,4 +127,3 @@ class BaseRepository(Generic[ModelType]):
             amount = 1
         )
         return len(results) > 0
-

@@ -4,16 +4,13 @@ from typing import List
 from fastapi import Depends
 
 from src.user_api.auth import TokenWhitelist
-from src.user_api.constant.permission import Permission
-from src.user_api.constant.account_constant import SALT_LENGTH
+from src.user_api.config import account_config
+from src.user_api.constant import Permission
 from src.user_api.db.context import TransactionContext, get_transaction_context
-from src.user_api.db.db_creator import DatabaseCreator
-from src.user_api.repository.account_repository import LocalAccountRepository
-from src.user_api.repository.hashtag_repository import HashtagRepository
-from src.user_api.repository.user_hashtag_repository import UserHashtagRepository
-from src.user_api.repository.user_repository import UserRepository
-from src.user_api.service.base_service import BaseService
-from src.user_api.utils.hash_util import HashUtil
+from src.user_api.db import DatabaseCreator
+from src.user_api.repository import LocalAccountRepository, HashtagRepository, UserHashtagRepository, UserRepository
+from src.user_api.service import BaseService
+from src.user_api.utils import HashUtil
 
 
 SEED_USERS = [
@@ -67,7 +64,7 @@ class TestService(BaseService):
                 with_flush = True,
             )
 
-            new_salt = HashUtil.create_salt(SALT_LENGTH)
+            new_salt = HashUtil.create_salt(account_config.SALT_LENGTH)
             hashed_password = HashUtil.get_hashed_string(seed["password"], new_salt)
 
             await self.__local_account_repository.create_account(

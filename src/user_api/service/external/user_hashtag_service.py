@@ -1,7 +1,5 @@
 from src.user_api.dto.serializer import required_relation, serialize_many
-from src.user_api.exceptions.hashtag_exception import UnknownHashtagData
-from src.user_api.exceptions.user_exceptions import UnknownUserData
-from src.user_api.exceptions.relation_exceptions import NotFollowedHashtagData, AlreadyFollowedHashtagData
+from src.user_api.exceptions import UnknownHashtagData, UnknownUserData, NotFollowedHashtagData, AlreadyFollowedHashtagData
 from src.user_api.model import UserModel, HashtagModel
 from src.user_api.dto import FollowHashtagRequest, UnfollowHashtagRequest, DataCollectionResponse, HashtagData, UserData
 from src.user_api.repository import HashtagRepository, UserHashtagRepository, UserRepository
@@ -72,15 +70,18 @@ class UserHashtagService(BaseService):
         if target_user is None:
             raise UnknownUserData()
 
-        user_followed_hashtag_models = []
-
-        for relation_model in target_user.interest:
-            user_followed_hashtag_models.append(
-                await self.__hashtag_repository.get_by_pk(relation_model.hashtag_fk)
-            )
+        # 기존에는 target_user.interest를 순회하며 매번
+        # hashtag_repository.get_by_pk(relation_model.hashtag_fk)로 다시 조회했음(N+1 쿼리).
+        # required_relation(UserData)가 이미 relation.hashtag_model까지 로딩해오므로
+        # 그대로 재사용하고, orphan 관계(hashtag가 이미 삭제된 경우)는 방어적으로 걸러낸다.
+        user_followed_hashtag_models = [
+            relation_model.hashtag_model
+            for relation_model in target_user.interest
+            if relation_model.hashtag_model is not None
+        ]
 
         return DataCollectionResponse(
-            amount = len(target_user.interest),
+            amount = len(user_followed_hashtag_models),
             datas = serialize_many(user_followed_hashtag_models, HashtagData)
         )
 
@@ -115,5 +116,3 @@ get_user_hashtag_service = UserHashtagService.create_dependency(
     hashtag_repository = HashtagRepository,
     relation_repository = UserHashtagRepository
 )
-
-
