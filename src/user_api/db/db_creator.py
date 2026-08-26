@@ -4,8 +4,8 @@ from urllib.parse import quote_plus
 from sqlalchemy.engine.base import Connection
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 
-from src.user_api.model.base_model import BaseModel
-from src.user_api.utils.json_read_write import JsonReadWrite
+from src.user_api.model import BaseModel
+from src.user_api.utils import JsonReadWrite
 
 
 class _DatabaseAccount:

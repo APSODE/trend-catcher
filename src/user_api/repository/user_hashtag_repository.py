@@ -32,4 +32,3 @@ class UserHashtagRepository(BaseRepository[UserHashtagModel]):
             filter = (self.model_class.user_fk == user_pk) & (self.model_class.hashtag_fk == hashtag_pk),
             load_relations = load_relations
         )
-

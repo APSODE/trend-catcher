@@ -63,9 +63,3 @@ class UserRepository(BaseRepository[UserModel]):
             filter = self.model_class.pk == target_pk,
             load_relations = load_relations
         )
-
-
-
-
-
-

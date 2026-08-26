@@ -3,7 +3,7 @@ from pydantic import BaseModel, ConfigDict
 
 from src.user_api.constant.account_constant import AccountProvider
 from src.user_api.decorator import bind_model, relation
-from src.user_api.dto import HashtagData, LocalAccountData, SocialAccountData, AccountData
+from src.user_api.dto import HashtagData, AccountData
 from src.user_api.model import UserModel, SocialAccountModel, UserHashtagModel
 
 _DTO = TypeVar("_DTO", bound = BaseModel)
@@ -34,6 +34,3 @@ class OAuth2Response(BaseModel):
     name: Optional[str] = None
     provider: AccountProvider
     provider_user_id: str
-
-
-

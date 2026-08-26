@@ -7,7 +7,7 @@ from src.user_api.constant.account_constant import (
     MAX_ID_LENGTH, MAX_PW_LENGTH, MAX_SALT_LENGTH,
     AccountProvider, AccountType, LOCAL, SOCIAL
 )
-from src.user_api.model.base_model import BaseModel
+from src.user_api.model import BaseModel
 if TYPE_CHECKING:
     from src.user_api.model import UserModel
 

@@ -1,6 +1,6 @@
 from typing import List
 
-from src.user_api.router.base_router import BaseRouter
+from src.user_api.router import BaseRouter
 from src.user_api.router.internal.account_router import AccountRouter
 from src.user_api.router.internal.test_router import TestRouter
 from src.user_api.router.internal.user_account_router import UserAccountRouter

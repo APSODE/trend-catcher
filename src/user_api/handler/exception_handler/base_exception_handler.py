@@ -1,24 +1,55 @@
-from typing import Generic, Type, TypeVar
+import logging
+from http import HTTPStatus
 
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from src.user_api.exceptions.app_exception import AppException
 
-E = TypeVar("E", bound = AppException)
+logger = logging.getLogger("user_api.exception")
 
-#TODO 보일러플레이트로 인한 문제가 발생할 가능성이 높음 -> 추후 Handler 등록과정에 대해 전반적인 개편 예정
-class BaseExceptionHandler(Generic[E]):
-    def __init__(self, exception_type: Type[E]):
-        self._exception_type = exception_type
 
-    @property
-    def exception_type(self) -> Type[E]:
-        return self._exception_type
+class AppExceptionHandler:
+    async def __call__(self, request: Request, exception: AppException) -> JSONResponse:
+        status_code = getattr(exception, "status_code", HTTPStatus.INTERNAL_SERVER_ERROR)
+        status_code_value = getattr(status_code, "value", status_code)
 
-    async def __call__(self, request: Request, exception: Exception) -> JSONResponse:
-        status_code = getattr(exception, "status_code", 500)
+        if status_code_value >= 500:
+            logger.exception(
+                "Unhandled AppException on %s %s: %s",
+                request.method, request.url.path, exception.message,
+                exc_info = exception,
+            )
+        else:
+            logger.warning(
+                "%s on %s %s: %s",
+                type(exception).__name__, request.method, request.url.path, exception.message,
+            )
+
+        content = {"detail": exception.message}
+        if exception.error_code is not None:
+            content["error_code"] = exception.error_code
+
         return JSONResponse(
-            status_code = status_code,
-            content = {"detail": str(exception)},
+            status_code = status_code_value,
+            content = content,
         )
+
+
+class UnhandledExceptionHandler:
+    async def __call__(self, request: Request, exception: Exception) -> JSONResponse:
+        logger.exception(
+            "Unexpected exception on %s %s",
+            request.method, request.url.path,
+            exc_info = exception,
+        )
+
+        return JSONResponse(
+            status_code = HTTPStatus.INTERNAL_SERVER_ERROR,
+            content = {"detail": "Internal server error"},
+        )
+
+
+def register_exception_handlers(app) -> None:
+    app.add_exception_handler(AppException, AppExceptionHandler())
+    app.add_exception_handler(Exception, UnhandledExceptionHandler())

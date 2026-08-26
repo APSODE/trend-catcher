@@ -1,7 +1,7 @@
-from src.user_api.db.redis_creator import RedisCreator
+from src.user_api.db import RedisCreator
 from src.user_api.constant.auth_constant import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
-from src.user_api.dto.token_data import JsonWebToken, TokenPair, TokenType
-from src.user_api.utils.jwt_util import JwtUtil
+from src.user_api.dto import JsonWebToken, TokenPair, TokenType
+from src.user_api.utils import JwtUtil
 
 
 class TokenWhitelist:
@@ -46,4 +46,3 @@ class TokenWhitelist:
     @staticmethod
     async def reset_whitelist():
         await RedisCreator().client.flushdb()
-

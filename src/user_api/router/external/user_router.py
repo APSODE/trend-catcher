@@ -7,11 +7,8 @@ from src.user_api.dto import (
     LocalLoginRequest,
     DeleteRequest,
     RefreshRequest,
-    FollowHashtagRequest,
-    UnfollowHashtagRequest,
     TokenPair,
-    AccountData,
-    SocialLoginRequest, SocialRegisterRequest, SocialLinkRequest, PKQueryRequest, DataCollectionResponse,
+    SocialLoginRequest, SocialRegisterRequest, SocialLinkRequest,
     ChangePasswordRequest, SocialUnlinkRequest, UserSummaryResponse
 )
 
@@ -20,8 +17,7 @@ from src.user_api.router import BaseRouter
 from src.user_api.service.external import (
     UserAccountService,
     get_user_account_service,
-    UserHashtagService,
-    get_user_hashtag_service, UserAccountHashtagService, get_user_account_hashtag_service
+    UserAccountHashtagService, get_user_account_hashtag_service
 )
 
 

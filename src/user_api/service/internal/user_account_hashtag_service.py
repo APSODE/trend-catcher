@@ -24,19 +24,17 @@ class UserAccountHashtagService(BaseService):
 
         if target_user is None:
             raise UnknownUserData()
-
-        hashtag_data_list = []
-        for user_hashtag_relation in target_user.interest:
-            hashtag_data_list.append(
-                await self.__hashtag_repository.get_by_pk(user_hashtag_relation.hashtag_fk)
-            )
-
+        hashtag_models = [
+            relation.hashtag_model
+            for relation in target_user.interest
+            if relation.hashtag_model is not None
+        ]
 
         return UserSummaryResponse(
             name = target_user.name,
             local_accounts = serialize_many(target_user.local_accounts, AccountData),
             social_accounts = serialize_many(target_user.social_accounts, AccountData),
-            interest = serialize_many(hashtag_data_list, HashtagData)
+            interest = serialize_many(hashtag_models, HashtagData)
         )
 
 get_user_account_hashtag_service = UserAccountHashtagService.create_dependency(

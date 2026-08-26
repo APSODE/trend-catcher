@@ -28,6 +28,3 @@ class SocialAccountData(BaseModel):
     user_fk: int
     provider: AccountProvider
     provider_user_id: str
-
-
-

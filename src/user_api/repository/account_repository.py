@@ -174,8 +174,3 @@ class SocialAccountRepository(BaseRepository[SocialAccountModel]):
             filter = (self.model_class.user_fk == user_pk) & (self.model_class.provider == provider),
             load_relations = load_relations
         )
-
-
-
-
-

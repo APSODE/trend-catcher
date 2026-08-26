@@ -2,7 +2,7 @@ from typing import List
 
 from src.user_api.exceptions.user_exceptions import UnknownUserData
 from src.user_api.model import UserModel
-from src.user_api.dto.serializer import serialize, serialize_many, required_relation
+from src.user_api.dto.serializer import serialize_many, required_relation
 from src.user_api.dto import UserData, PKResponse, TokenType
 from src.user_api.repository import UserRepository
 from src.user_api.service import BaseService
@@ -45,6 +45,3 @@ class UserService(BaseService):
 get_user_service = UserService.create_dependency(
     user_repository = UserRepository
 )
-
-
-

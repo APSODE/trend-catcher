@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from src.user_api.exceptions.hashtag_exception import UnknownHashtagData
 from src.user_api.model import HashtagModel
 from src.user_api.dto.serializer import serialize, serialize_many
@@ -15,9 +15,9 @@ class HashtagService(BaseService):
         hashtag_models = await self.__hashtag_repository.find_all()
         return serialize_many(hashtag_models, HashtagData)
 
-    async def query_hashtag_by_name(self, hashtag_name: str) -> Optional[HashtagData]:
-        maybe_hashtag_model = await self.__hashtag_repository.get_by_tag_name(hashtag_name)
-        return serialize(maybe_hashtag_model, HashtagData) if maybe_hashtag_model is not None else None
+    async def query_hashtag_by_name(self, hashtag_name: str) -> HashtagData:
+        hashtag_model = await self.require_exist_hashtag_by_name(hashtag_name)
+        return serialize(hashtag_model, HashtagData)
 
     async def query_hashtag_by_pk(self, hashtag_pk: int) -> HashtagData:
         hashtag_model = await self.require_exist_hashtag(hashtag_pk)
@@ -31,12 +31,14 @@ class HashtagService(BaseService):
 
         return maybe_hashtag_model
 
+    async def require_exist_hashtag_by_name(self, hashtag_name: str) -> HashtagModel:
+        maybe_hashtag_model = await self.__hashtag_repository.get_by_tag_name(hashtag_name)
+
+        if maybe_hashtag_model is None:
+            raise UnknownHashtagData()
+
+        return maybe_hashtag_model
+
 get_hashtag_service = HashtagService.create_dependency(
     hashtag_repository = HashtagRepository
 )
-
-
-
-
-
-

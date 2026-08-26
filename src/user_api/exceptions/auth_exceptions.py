@@ -7,7 +7,8 @@ class InvalidToken(AppException):
     status_code = HTTPStatus.UNAUTHORIZED
 
     def __init__(self):
-        self.message = "Invalid token data"
+        super().__init__("Invalid token data")
+
 
 class ExpiredToken(AppException):
     status_code = HTTPStatus.UNAUTHORIZED

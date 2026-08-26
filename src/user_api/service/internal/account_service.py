@@ -50,7 +50,7 @@ class AccountService(BaseService):
         )
 
         if len(social_accounts) > 0:
-            user_accounts.append(*serialize_many(social_accounts, SocialAccountData))
+            user_accounts.extend(serialize_many(social_accounts, SocialAccountData))
 
         return user_accounts
 
@@ -66,11 +66,7 @@ class AccountService(BaseService):
         return serialize(maybe_social_account, SocialAccountData)
 
 
-
-
 get_account_service = AccountService.create_dependency(
     local_account_repository = LocalAccountRepository,
     social_account_repository = SocialAccountRepository
 )
-
-

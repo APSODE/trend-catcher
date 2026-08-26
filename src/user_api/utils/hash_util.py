@@ -13,14 +13,10 @@ class HashUtil:
             return sha256(urandom(length)).hexdigest()
 
         else:
-            raise IllegalSaltException(length = length, min_length = MIN_SALT_LENGTH, MAX_SALT_LENGTH = MAX_SALT_LENGTH)
+            raise IllegalSaltException(length = length, min_length = MIN_SALT_LENGTH, max_length = MAX_SALT_LENGTH)
 
 
 
     @staticmethod
     def get_hashed_string(target: str, salt: str) -> HashedString:
         return HashedString(sha256(f"{target}{salt}".encode()).hexdigest())
-
-
-
-
