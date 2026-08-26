@@ -1,33 +1,10 @@
-import os.path
 from urllib.parse import quote_plus
 
 from sqlalchemy.engine.base import Connection
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 
 from src.user_api.model import BaseModel
-from src.user_api.utils import JsonReadWrite
-
-
-class _DatabaseAccount:
-    def __init__(self):
-        self.CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
-        self._account_data_file = os.path.join(self.CURRENT_FILE_PATH, "database_account.json")
-        self._id = ""
-        self._pw = ""
-        self._read_data()
-
-    def _read_data(self) -> None:
-        ac_data = JsonReadWrite.read(self._account_data_file)
-        self._id = ac_data.get("id")
-        self._pw = ac_data.get("pw")
-
-    @property
-    def id(self):
-        return self._id
-
-    @property
-    def pw(self):
-        return self._pw
+from src.user_api.config import db_config
 
 
 class DatabaseCreator:
@@ -50,7 +27,6 @@ class DatabaseCreator:
 
         if not hasattr(cls, "_DatabaseCreator__init"):
             cls._DatabaseCreator__init = True
-            self._database_account = _DatabaseAccount()
             self._engine = self._create_engine()
             self._session = self._create_session_factory()
 
@@ -75,7 +51,7 @@ class DatabaseCreator:
 
     def _create_engine(self) -> AsyncEngine:
         return create_async_engine(
-            f"oracle+oracledb_async://{self._database_account.id}:{quote_plus(self._database_account.pw)}@172.22.114.34:51521/?service_name=trend_catcher",
+            f"oracle+oracledb_async://{db_config.oracle_id}:{quote_plus(db_config.oracle_pw)}@172.22.114.34:51521/?service_name=trend_catcher",
             echo = True,
         )
 

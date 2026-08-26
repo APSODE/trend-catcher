@@ -1,7 +1,7 @@
 from typing import List, Generic, TypeVar, Optional
 from pydantic import BaseModel, ConfigDict
 
-from src.user_api.constant.account_constant import AccountProvider
+from src.user_api.constant import AccountProvider
 from src.user_api.decorator import bind_model, relation
 from src.user_api.dto import HashtagData, AccountData
 from src.user_api.model import UserModel, SocialAccountModel, UserHashtagModel

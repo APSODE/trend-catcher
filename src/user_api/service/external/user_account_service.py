@@ -4,20 +4,21 @@ from uuid import uuid4
 
 from sqlalchemy.exc import IntegrityError
 
-from src.user_api.constant.account_constant import SALT_LENGTH, SOCIAL, AccountProvider
-from src.user_api.constant.permission import Permission
+from src.user_api.config import account_config
+from src.user_api.constant import SOCIAL, AccountProvider, Permission
 from src.user_api.dto.serializer import serialize, serialize_many, required_relation
-from src.user_api.exceptions.account_exceptions import IsAlreadyExistLoginID, InvalidCredentialData, \
-    AlreadyLinkedAccount, UnlinkedSocialAccount, AlreadyLinkedProvider, \
-    CannotUnlinkLastLoginMethod, DeleteConfirmationMismatch
+from src.user_api.exceptions import (
+    IsAlreadyExistLoginID, InvalidCredentialData,
+    AlreadyLinkedAccount, UnlinkedSocialAccount, AlreadyLinkedProvider,
+    CannotUnlinkLastLoginMethod, DeleteConfirmationMismatch,
+    UnknownUserData, InvalidToken,
+)
 from src.user_api.auth import TokenWhitelist, OAuth2Client
 from src.user_api.dto import LocalLoginRequest, LocalRegisterRequest, DeleteRequest, TokenPair, TokenType, AccountData, \
     SocialRegisterRequest, SocialLoginRequest, SocialLinkRequest, SocialAccountData, DataCollectionResponse, UserData
-from src.user_api.exceptions.user_exceptions import UnknownUserData
 from src.user_api.repository import LocalAccountRepository, UserRepository, SocialAccountRepository
 from src.user_api.service import BaseService
 from src.user_api.utils import HashUtil, JwtUtil
-from user_api.exceptions.auth_exceptions import InvalidToken
 
 
 class UserAccountService(BaseService):
@@ -53,7 +54,7 @@ class UserAccountService(BaseService):
             with_flush = True
         )
 
-        new_salt = HashUtil.create_salt(SALT_LENGTH)
+        new_salt = HashUtil.create_salt(account_config.SALT_LENGTH)
         hashed_password = HashUtil.get_hashed_string(register_data.password, new_salt)
 
         try:
@@ -185,7 +186,7 @@ class UserAccountService(BaseService):
         if current_account.account_type == SOCIAL:
             raise InvalidCredentialData()
 
-        new_salt = HashUtil.create_salt(SALT_LENGTH)
+        new_salt = HashUtil.create_salt(account_config.SALT_LENGTH)
         hashed_password = HashUtil.get_hashed_string(new_password, new_salt)
 
         await self.__local_account_repository.update_password(
@@ -202,7 +203,7 @@ class UserAccountService(BaseService):
 
     @staticmethod
     async def refresh_token(refresh_token: str) -> TokenPair:
-        user_jwt = JwtUtil.decode_token(refresh_token, expected_type=TokenType.REFRESH)
+        user_jwt = JwtUtil.decode_token(refresh_token, expected_type = TokenType.REFRESH)
 
         if not await TokenWhitelist.is_registered(user_jwt, refresh_token):
             raise InvalidToken()

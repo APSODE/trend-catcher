@@ -1,7 +1,7 @@
 from typing import Generic, List, Optional, Type, TypeVar, Sequence, Callable
 from sqlalchemy.sql.elements import ColumnElement
 from src.user_api.db import DatabaseController, RelationPath
-from src.user_api.exceptions.app_exception import AppException
+from src.user_api.exceptions import AppException
 from src.user_api.model import BaseModel
 
 ModelType = TypeVar("ModelType", bound = BaseModel)

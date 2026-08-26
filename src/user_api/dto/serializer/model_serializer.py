@@ -3,7 +3,7 @@ from typing import Any, Callable, Dict, List, Sequence, Type, TypeVar, Union
 from pydantic import BaseModel as _PydanticModel
 from sqlalchemy.orm import InstrumentedAttribute
 
-from src.user_api.exceptions.internal_exceptions import (
+from src.user_api.exceptions import (
     SerializerNotRegistered,
     SerializerTypeMismatch,
     UnexpectedNullSerializeTarget,

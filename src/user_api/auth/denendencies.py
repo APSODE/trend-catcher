@@ -3,7 +3,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from src.user_api.auth.jwt_auth import TokenWhitelist
 from src.user_api.dto import AccountData, TokenType
-from src.user_api.exceptions.auth_exceptions import InvalidToken
+from src.user_api.exceptions import InvalidToken
 from src.user_api.utils import JwtUtil
 
 bearer_scheme = HTTPBearer()

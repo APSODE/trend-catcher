@@ -4,7 +4,7 @@ from http import HTTPStatus
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from src.user_api.exceptions.app_exception import AppException
+from src.user_api.exceptions import AppException
 
 logger = logging.getLogger("user_api.exception")
 

@@ -1,6 +1,6 @@
 from typing import List
 
-from src.user_api.exceptions.user_exceptions import UnknownUserData
+from src.user_api.exceptions import UnknownUserData
 from src.user_api.model import UserModel
 from src.user_api.dto.serializer import serialize_many, required_relation
 from src.user_api.dto import UserData, PKResponse, TokenType

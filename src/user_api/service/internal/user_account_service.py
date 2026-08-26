@@ -1,6 +1,6 @@
 from src.user_api.dto import PKResponse
 from src.user_api.dto.serializer import serialize
-from src.user_api.exceptions.user_exceptions import UnknownUserData
+from src.user_api.exceptions import UnknownUserData
 from src.user_api.repository import LocalAccountRepository, SocialAccountRepository, UserRepository
 from src.user_api.service import BaseService
 

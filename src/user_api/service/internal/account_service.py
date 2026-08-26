@@ -2,16 +2,15 @@ from typing import List, Union
 
 from starlette.responses import JSONResponse
 
-from src.user_api.constant.account_constant import AccountType, AccountProvider
+from src.user_api.constant import AccountType, AccountProvider
 from src.user_api.dto import LocalAccountData, SocialAccountData
 from src.user_api.dto.serializer import serialize_many, serialize
-from src.user_api.exceptions.account_exceptions import NotExistAccountData
+from src.user_api.exceptions import NotExistAccountData, InvalidToken
 from src.user_api.repository import LocalAccountRepository, SocialAccountRepository
 from src.user_api.service import BaseService
-from user_api.auth import TokenWhitelist
-from user_api.dto import TokenType
-from user_api.exceptions.auth_exceptions import InvalidToken
-from user_api.utils import JwtUtil
+from src.user_api.auth import TokenWhitelist
+from src.user_api.dto import TokenType
+from src.user_api.utils import JwtUtil
 
 
 class AccountService(BaseService):

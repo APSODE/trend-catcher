@@ -1,6 +1,6 @@
 from src.user_api.dto import UserSummaryResponse, UserData, AccountData, HashtagData
 from src.user_api.dto.serializer import required_relation, serialize_many
-from src.user_api.exceptions.user_exceptions import UnknownUserData
+from src.user_api.exceptions import UnknownUserData
 from src.user_api.repository import LocalAccountRepository, SocialAccountRepository, UserRepository, HashtagRepository
 from src.user_api.service import BaseService
 

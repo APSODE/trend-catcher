@@ -1,7 +1,5 @@
 from src.user_api.dto.serializer import required_relation, serialize_many
-from src.user_api.exceptions.hashtag_exception import UnknownHashtagData
-from src.user_api.exceptions.user_exceptions import UnknownUserData
-from src.user_api.exceptions.relation_exceptions import NotFollowedHashtagData, AlreadyFollowedHashtagData
+from src.user_api.exceptions import UnknownHashtagData, UnknownUserData, NotFollowedHashtagData, AlreadyFollowedHashtagData
 from src.user_api.model import UserModel, HashtagModel
 from src.user_api.dto import FollowHashtagRequest, UnfollowHashtagRequest, DataCollectionResponse, HashtagData, UserData
 from src.user_api.repository import HashtagRepository, UserHashtagRepository, UserRepository

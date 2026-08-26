@@ -59,4 +59,5 @@ __all__ = [
     "JsonWebToken",
     "TokenPair",
     "TokenType",
+
 ]

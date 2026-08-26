@@ -1,5 +1,5 @@
 from typing import List
-from src.user_api.exceptions.hashtag_exception import UnknownHashtagData
+from src.user_api.exceptions import UnknownHashtagData
 from src.user_api.model import HashtagModel
 from src.user_api.dto.serializer import serialize, serialize_many
 from src.user_api.dto import HashtagData

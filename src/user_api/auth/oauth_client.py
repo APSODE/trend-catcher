@@ -3,10 +3,9 @@ from typing import Dict
 
 import httpx
 
-from src.user_api.constant.account_constant import AccountProvider
+from src.user_api.constant import AccountProvider
 from src.user_api.dto import OAuth2Response
-from src.user_api.exceptions.account_exceptions import UnsupportedProvider
-from src.user_api.exceptions.auth_exceptions import InvalidToken
+from src.user_api.exceptions import UnsupportedProvider, InvalidToken
 
 @dataclass
 class OAuth2ProviderConfig:
