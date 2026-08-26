@@ -5,7 +5,7 @@ from src.crawler_api.service.url_fetcher.selenium_url_fetcher import SeleniumURL
 
 
 _PAGE_SELENIUM: set[NewsSitemap] = {
-    #NewsSitemap.CHOSUN_PAGE
+    NewsSitemap.CHOSUN
 }
 
 class UrlFetcherFactory:
