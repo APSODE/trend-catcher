@@ -85,7 +85,7 @@ class CrawlingPipeline:
             crawled_at = now_normalized()
             for url, parsed in zip(valid_urls, parsed_result):
                 if isinstance(parsed, Exception):
-                    logger.exception("parsing error occurred : %s", parsed)
+                    logger.exception("parsing error occurred : %s\nurl : %s", parsed,  url)
                     continue
 
                 if parsed is None:
