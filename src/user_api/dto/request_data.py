@@ -68,6 +68,9 @@ class LoginIDQueryRequest(BaseModel):
 class AccessTokenDecodeRequest(BaseModel):
     access_token: str
 
+class CheckTokenRequest(BaseModel):
+    token: str
+
 # # ==== 사용..? 안할수도...?
 # class CreateHashtagRequest(HashtagData):
 #     pass # 이후 필요시 해싱값 추가 예정

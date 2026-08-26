@@ -9,7 +9,7 @@ from jwt import (
 )
 
 from src.user_api.constant.auth_constant import (
-    SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
+    SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_MINUTES
 )
 from src.user_api.dto import JsonWebToken, TokenPair, TokenType, AccountData
 from src.user_api.exceptions.auth_exceptions import InvalidToken, ExpiredToken
@@ -31,7 +31,7 @@ class JwtUtil:
             session_id = session_id,
             account = account,
             token_type = TokenType.REFRESH,
-            expires_delta = timedelta(days = REFRESH_TOKEN_EXPIRE_DAYS),
+            expires_delta = timedelta(minutes = REFRESH_TOKEN_EXPIRE_MINUTES),
         )
 
     @staticmethod
