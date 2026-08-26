@@ -1,15 +1,19 @@
 from sqlalchemy.exc import IntegrityError
+
 from src.sns_api.handler.crawler_client import CrawlerClient
 from src.sns_api.handler.discord_client import DiscordClient, PermanentWebhookError, build_payload
 from src.sns_api.handler.llm_client import LLMClient
 from src.sns_api.handler.user_client import UserClient
-from src.sns_api.model.entity_model import DispatchLogModel, DispatchStatus, Slot, utc_now
+from src.sns_api.model.entity_model import Channel, DispatchLogModel, DispatchStatus, Slot, utc_now
 from src.sns_api.model.schema_model import NewsBundleData
 from src.sns_api.repository.dispatch_repository import DispatchRepository
 from src.sns_api.repository.subscription_repository import SubscriptionRepository
 
 # 개인화 뉴스 최대 개수
 MAX_PERSONALIZED_ARTICLES = 10
+
+# 주요 뉴스 발송 기록용 가상 유저 ID (실제 유저 pk와 안 겹치도록 0 사용)
+MAJOR_DISPATCH_USER_ID = 0
 
 
 class DispatchService:
@@ -20,24 +24,61 @@ class DispatchService:
     # 주요 뉴스 -> 서버 채널로 한 번 발송
     async def dispatch_major(
         self,
+        session,
+        slot: Slot,
+        slot_label: str,
         discord_client: DiscordClient,
         llm_client: LLMClient,
         crawler_client: CrawlerClient,
         channel_id: str,
-        slot_label: str,
     ) -> None:
-        references = await llm_client.get_major_news()
-        articles = await crawler_client.get_articles([ref.crawled_id for ref in references])
+        dispatch_date = utc_now().strftime("%Y-%m-%d")
 
-        items = []
-        for reference in references:
-            if reference.crawled_id in articles:
-                items.append(articles[reference.crawled_id])
+        if await self.dispatch_repository.is_already_sent(
+            session, MAJOR_DISPATCH_USER_ID, slot, dispatch_date
+        ):
+            return
 
-        bundle = NewsBundleData(major=items)
-        payload = build_payload(bundle, slot_label)
+        try:
+            log = await self.dispatch_repository.save(
+                session,
+                DispatchLogModel(
+                    user_id=MAJOR_DISPATCH_USER_ID,
+                    subscription_id=0,
+                    slot=slot.value,
+                    channel=Channel.DISCORD.value,
+                    dispatch_date=dispatch_date,
+                    status=DispatchStatus.PENDING.value,
+                ),
+            )
+        except IntegrityError:
+            await session.rollback()
+            return
 
-        await discord_client.send_to_channel(channel_id, payload)
+        try:
+            references = await llm_client.get_major_news()
+            articles = await crawler_client.get_articles([ref.crawled_id for ref in references])
+
+            items = []
+            for reference in references:
+                if reference.crawled_id in articles:
+                    items.append(articles[reference.crawled_id])
+
+            if not items:
+                await self.dispatch_repository.mark_failed(session, log, "no_matched_articles")
+                await session.commit()
+                return
+
+            bundle = NewsBundleData(major=items)
+            payload = build_payload(bundle, slot_label)
+
+            await discord_client.send_to_channel(channel_id, payload)
+            await self.dispatch_repository.mark_success(session, log)
+            await session.commit()
+
+        except Exception as e:
+            await self.dispatch_repository.mark_failed(session, log, str(e))
+            await session.commit()
 
     # 해시태그별로 한바퀴씩 돌면서 기사 뽑기
     @staticmethod
@@ -113,8 +154,12 @@ class DispatchService:
                     continue
 
                 articles = await crawler_client.get_articles(crawled_ids)
-
                 items = [articles[cid] for cid in crawled_ids if cid in articles]
+
+                if not items:
+                    await self.dispatch_repository.mark_failed(session, log, "no_matched_articles")
+                    await session.commit()
+                    continue
 
                 # 캐싱된 discord_id 사용
                 discord_user_id = sub.discord_id

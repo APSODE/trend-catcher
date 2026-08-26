@@ -34,15 +34,18 @@ def _build_lines(items: list[NewsItemData]) -> tuple[str, str | None]:
     lines = []
     thumbnail_url = None
     for i, item in enumerate(items[:MAX_ITEMS_PER_FIELD], start=1):
-        title = item.title.replace("[", "(").replace("]", ")")  # 마크다운 깨짐 방지
-        line = f"{i}. [{title}]({item.url})"
+        title = item.title.replace("[", "(").replace("]", ")")
+        if item.url:
+            line = f"{i}. [{title}]({item.url})"
+        else:
+            line = f"{i}. {title}"
         lines.append(line)
         if thumbnail_url is None and item.image_url:
             thumbnail_url = item.image_url
 
     value = "\n".join(lines)
     if len(value) > EMBED_FIELD_VALUE_LIMIT:
-        value = value[: EMBED_FIELD_VALUE_LIMIT - 3] + "..."  # 길이 초과 시 안전하게 자름
+        value = value[: EMBED_FIELD_VALUE_LIMIT - 3] + "..."
 
     return value, thumbnail_url
 

@@ -1,4 +1,6 @@
-from src.sns_api.exception.sns_exception import NotFoundError
+from sqlalchemy.exc import IntegrityError
+
+from src.sns_api.exception.sns_exception import ConflictError, NotFoundError
 from src.sns_api.handler.user_client import UserClient
 from src.sns_api.model.entity_model import Channel, SubscriptionModel
 from src.sns_api.model.schema_model import SubscriptionCreateData, SubscriptionUpdateData
@@ -19,7 +21,11 @@ class SubscriptionService:
             personalized_enabled=payload.personalized_enabled,
             major_enabled=payload.major_enabled,
         )
-        return await self.repo.save(session, subscription)
+        try:
+            return await self.repo.save(session, subscription)
+        except IntegrityError:
+            await session.rollback()
+            raise ConflictError("이미 구독 중인 유저입니다")
 
     async def get_subscription(self, session, sub_id: int) -> SubscriptionModel:
         sub = await self.repo.get_by_id(session, sub_id)

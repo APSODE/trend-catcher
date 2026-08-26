@@ -46,18 +46,3 @@ async def update_subscription(sub_id: int, payload: SubscriptionUpdateData, requ
 async def delete_subscription(sub_id: int, request: Request, session: SessionDep):
     service = SubscriptionService(request.app.state.user_client)
     await service.delete_subscription(session, sub_id)
-
-
-# 디스코드 봇 전용 - 서버 입장 시 구독 자동 생성
-@router.post("/by-discord-id", response_model=SubscriptionOutData, status_code=status.HTTP_201_CREATED)
-@handle_errors
-async def create_by_discord_id(discord_user_id: str, request: Request, session: SessionDep):
-    service = SubscriptionService(request.app.state.user_client)
-    return await service.create_subscription_by_discord_id(session, discord_user_id)
-
-
-# 디스코드 봇 전용 - 서버 퇴장 시 구독 비활성화
-@router.patch("/deactivate-by-discord-id")
-@handle_errors
-async def deactivate_by_discord_id(discord_user_id: str, request: Request, session: SessionDep):
-    await SubscriptionService(request.app.state.user_client).deactivate_by_discord_id(session, discord_user_id)

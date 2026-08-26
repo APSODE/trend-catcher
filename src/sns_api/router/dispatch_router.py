@@ -46,8 +46,9 @@ async def trigger_dispatch(slot: Slot, request: Request, session: SessionDep):
 
     # 주요 뉴스 전송
     await service.dispatch_major(
+        session, slot, slot_label,
         discord_client, llm_client, crawler_client,
-        settings.major_news_channel_id, slot_label,
+        settings.major_news_channel_id,
     )
 
     # 개인화 뉴스 전송

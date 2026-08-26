@@ -46,6 +46,10 @@ async def lifespan(app: FastAPI):
 
         await bot.close()
         bot_task.cancel()
+        try:
+            await bot_task
+        except asyncio.CancelledError:
+            pass
 
 app = FastAPI(title="SNS Service", version="0.1.0", lifespan=lifespan)
 
