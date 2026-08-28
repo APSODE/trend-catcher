@@ -35,4 +35,4 @@ CrawlerAPI.include_router(article_router.router)
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run("main:CrawlerAPI", host = "0.0.0.0", port = 8081, workers =1, log_level = "info", reload = True)
+    uvicorn.run("app:CrawlerAPI", host = "0.0.0.0", port = 8081, workers =1, log_level = "info", reload = True)

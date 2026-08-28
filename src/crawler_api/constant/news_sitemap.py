@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import date
 from enum import Enum, auto
 from pydantic import BaseModel
 
@@ -38,23 +38,23 @@ class NewsUrlData(BaseModel):
 
 class NewsSitemap(Enum):
 
-    #DONGA_PAGE = NewsUrlData(
-    #    url="https://www.donga.com/news/sitemap?p1={yyyy}&p2={mm}&p3={dd}",
-    #    company_name="동아일보",
-    #    sitemap_type=SitemapType.PAGE,
-    #    selector="#contents > div > div > div.sitemap_list.contents_list > div > ul li a")
+    DONGA = NewsUrlData(
+       url="https://www.donga.com/news/sitemap?p1={yyyy}&p2={mm}&p3={dd}",
+       company_name="동아일보",
+       sitemap_type=SitemapType.PAGE,
+       selector="#contents > div > div > div.sitemap_list.contents_list > div > ul li a")
 
-    # CHOSUN_PAGE = NewsUrlData(
+    # CHOSUN = NewsUrlData(
     #     url="https://www.chosun.com/sitemap/{yyyy}/{mm}/{dd}/",
     #     company_name="조선일보",
     #     sitemap_type=SitemapType.PAGE,
     #     selector="a.story-card__headline")
 
 
-    #KMIB = NewsUrlData(
+    # KMIB = NewsUrlData(
     #    url="https://www.kmib.co.kr/rss/data/sitemap/daily/{yyyy}/{mm}/dailyArticleList_{yyyymmdd}.xml",
     #    company_name="국민일보",
-    #    sitemap_type=SitemapType.XML) # 일간
+    #    sitemap_type=SitemapType.XML)
 
     MUNHWA = NewsUrlData(
         url="https://www.munhwa.com/sitemap/articles/{yyyy}/{yyyymmdd}",
@@ -65,7 +65,7 @@ class NewsSitemap(Enum):
     #SEGYE = NewsURLData(
     #    url="https://www.segye.com/sitemap_day0.xml",
     #    company_name="세계일보",
-    #    sitemap_type=SitemapType.DATE_IN_NEWS) # 일간
+    #    sitemap_type=SitemapType.XML) # 일간
 
     #AI봇 많이 차단
     JOONGANG = NewsUrlData(
@@ -79,11 +79,11 @@ class NewsSitemap(Enum):
     #    company_name="한국일보",
     #    sitemap_type=SitemapType.XML)  # 일간
 
-    #SEOUL_PAGE = NewsUrlData(
-    #    url="https://www.seoul.co.kr/sitemap/sitemap_index_{yyyymmdd}",
-    #    company_name="서울신문",
-    #    sitemap_type=SitemapType.PAGE_HTTPX,
-    #    selector="#articleArea > ul li a")
+    SEOUL = NewsUrlData(
+       url="https://www.seoul.co.kr/sitemap/sitemap_index_{yyyymmdd}",
+       company_name="서울신문",
+       sitemap_type=SitemapType.PAGE,
+       selector="#articleArea > ul li a")
 
     #후보
     #조선일보

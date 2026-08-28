@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from bs4 import BeautifulSoup
 
@@ -14,10 +15,16 @@ class JoongangPageParser(BasePageParser):
         date = soup.select_one("time[itemprop='datePublished']")
 
         section = soup.select_one("#article_body")
+        section_content=" ".join(p.get_text(strip=True) for p in section.find_all("p") if p.get_text(strip=True))
 
         category = soup.select_one("#container > section > article > header > div.subhead > a.title")
-
+        
         reporter = soup.select_one("#container > section > article > header > div.byline > a")
+        if reporter is None:
+            matches = re.search(r'([가-힣]{2,6}\s*[가-힣\s·]*기자)', section_content)
+            reporter = matches.group(1) if matches else None
+        else:
+            reporter = reporter.get_text(strip=True)
 
         if not title or not section:
             return None
@@ -36,8 +43,8 @@ class JoongangPageParser(BasePageParser):
 
         return ParsedData(
             title=title.get_text(strip=True),
-            content=" ".join(p.get_text(strip=True) for p in section.find_all("p") if p.get_text(strip=True)),
-            reporter=reporter.get_text(strip=True) if reporter else None,
+            content=section_content,
+            reporter=reporter if reporter else None,
             category=category.get_text(strip=True) if category else None,
             published_at=normalize_datetime(published_at) if published_at else None,
             img_urls=img_urls
