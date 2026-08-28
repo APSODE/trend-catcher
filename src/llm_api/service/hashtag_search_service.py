@@ -5,6 +5,7 @@ from src.llm_api.repository.news_keyword_map_repository import NewsKeywordMapRep
 from src.llm_api.schema.keyword_query import KeywordQueryData
 from src.llm_api.service.hashtag_expansion_service import HashtagExpansionService
 from src.llm_api.service.keyword_matching_service import KeywordMatchingService
+from src.llm_api.constant.period_constant import PeriodConstant
 from datetime import datetime
 import logging
 
@@ -38,7 +39,7 @@ class HashtagSearchService:
         return KeywordQueryData(terms = [expanded.hashtag, *expanded.aliases, *expanded.children], embedding = expanded.embedding)
 
     #해시태그별 매칭된 키워드로 뉴스 매칭
-    async def _collect_crawled_ids(self, expanded_list: list[HashtagModel], keyword_pk_list: list[set[int]], since: datetime, until: datetime, limit: int = 10) -> dict[str, list[str]]:
+    async def _collect_crawled_ids(self, expanded_list: list[HashtagModel], keyword_pk_list: list[set[int]], since: datetime, until: datetime, limit: int = PeriodConstant.SEARCH_LIMIT) -> dict[str, list[str]]:
         result: dict[str, list[str]] = {}
         for expanded, keyword_pks in zip(expanded_list, keyword_pk_list):
             news_pks = await self._news_keyword_map_repository.find_news_fks_by_keyword_fks(list(keyword_pks))
