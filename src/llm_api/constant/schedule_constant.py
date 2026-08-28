@@ -7,7 +7,7 @@ class ScheduleConstant:
     FETCH_HOURS = 2
 
     #해시태그 확장
-    HASHTAG_HOURS = "*/6"
+    HASHTAG_HOURS = "*"
     HASHTAG_MINUTE = 35
 
     #점수 산정
