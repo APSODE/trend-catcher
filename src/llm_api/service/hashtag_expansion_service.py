@@ -70,7 +70,7 @@ class HashtagExpansionService:
             logger.warning("해시태그 확장 파싱 실패, 빈 확장 저장: %s", hashtag)
             expansion = HashtagExpansionData(aliases=[], children=[])
         except NvidiaApiException:
-            logger.exception("해시태그 확장 호출 실패, 빈 확장 저장: %s", hashtag)
+            logger.warning("해시태그 확장 호출 실패, 빈 확장 저장: %s", hashtag)
             expansion = HashtagExpansionData(aliases=[], children=[])
 
         embedding = await self._client.create_embedding(hashtag, EmbeddingInputType.QUERY)

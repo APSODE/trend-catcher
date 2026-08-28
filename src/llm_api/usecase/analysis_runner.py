@@ -30,24 +30,28 @@ class AnalysisRunner:
         now = DateTimeUtil.get_now_kst()
         since = now - timedelta(hours = ScheduleConstant.FETCH_HOURS)
         articles = await self._crawler_client.get_articles(since, now)
+        logger.info("분석 시작: %d건 수신 (%s ~ %s)", len(articles), since, now)
         return await self._analyze_each(articles)
 
     #여러개 받아서 하나씩 분석
     async def _analyze_each(self, articles: list[CrawledArticleData]) -> AnalysisResultData:
         result = AnalysisResultData()
+        total = len(articles)
 
-        for article in articles:
+        for index, article in enumerate(articles, start = 1):
             try:
                 analysis = await self._analyze_one(article)
             except Exception:
                 logger.exception("분석 실패: [crawled_id: %s]", article.crawled_id)
                 result.failed += 1
                 continue
-
-            if analysis is None:
-                result.skipped += 1
             else:
-                result.processed.append(analysis)
+                if analysis is None:
+                    result.skipped += 1
+                else:
+                    result.processed.append(analysis)
+            finally:
+                logger.info("진행: %d/%d", index, total)
 
         logger.info("분석 완료: [요청:%d건, 처리:%d건, 스킵:%d건, 실패:%d건]", len(articles), len(result.processed), result.skipped, result.failed)
         return result

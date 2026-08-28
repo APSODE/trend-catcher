@@ -76,5 +76,5 @@ class KeywordAssignmentService:
                 logger.debug("키워드 매칭 실패: [keyword: %s, 최고 유사 키워드: %s, 유사도: %.3f]", keyword,candidates[best_match_index].keyword, best_match_similarity)
         
         #아니면 새로 만듦
-        logger.info("신규 키워드 생성: %s", keyword)
+        logger.debug("신규 키워드 생성: %s", keyword)
         return await self._keyword_repository.create_keyword(keyword, embedding)
