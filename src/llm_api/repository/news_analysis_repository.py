@@ -13,8 +13,8 @@ class NewsAnalysisRepository(BaseRepository[NewsAnalysisModel]):
         return result is not None
 
     #점수 없는애들 검색
-    async def find_unscored(self, limit: int) -> list[NewsAnalysisModel]:
-        stmt = self._select(NewsAnalysisModel.score.is_(None)).limit(limit)
+    async def find_unscored(self) -> list[NewsAnalysisModel]:
+        stmt = self._select(NewsAnalysisModel.score.is_(None))
         result = await self._session.scalars(stmt)
         return list(result.all())
 

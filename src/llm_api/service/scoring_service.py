@@ -12,8 +12,8 @@ class ScoringService:
         self._topic_repository = topic_repository
 
     #score가 None인것들 채우기
-    async def fill_scores(self, limit: int) -> int:
-        targets = await self._news_analysis_repository.find_unscored(limit)
+    async def fill_scores(self) -> int:
+        targets = await self._news_analysis_repository.find_unscored()
         for target in targets:
             await self._fill_one(target)
         logger.info("점수 산정 완료: %d건", len(targets))
