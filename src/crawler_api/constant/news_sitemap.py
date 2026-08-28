@@ -44,17 +44,17 @@ class NewsSitemap(Enum):
        sitemap_type=SitemapType.PAGE,
        selector="#contents > div > div > div.sitemap_list.contents_list > div > ul li a")
 
-    CHOSUN = NewsUrlData(
-        url="https://www.chosun.com/sitemap/{yyyy}/{mm}/{dd}/",
-        company_name="조선일보",
-        sitemap_type=SitemapType.PAGE,
-        selector="a.story-card__headline")
+    # CHOSUN = NewsUrlData(
+    #     url="https://www.chosun.com/sitemap/{yyyy}/{mm}/{dd}/",
+    #     company_name="조선일보",
+    #     sitemap_type=SitemapType.PAGE,
+    #     selector="a.story-card__headline")
 
 
-    KMIB = NewsUrlData(
-       url="https://www.kmib.co.kr/rss/data/sitemap/daily/{yyyy}/{mm}/dailyArticleList_{yyyymmdd}.xml",
-       company_name="국민일보",
-       sitemap_type=SitemapType.XML)
+    # KMIB = NewsUrlData(
+    #    url="https://www.kmib.co.kr/rss/data/sitemap/daily/{yyyy}/{mm}/dailyArticleList_{yyyymmdd}.xml",
+    #    company_name="국민일보",
+    #    sitemap_type=SitemapType.XML)
 
     MUNHWA = NewsUrlData(
         url="https://www.munhwa.com/sitemap/articles/{yyyy}/{yyyymmdd}",

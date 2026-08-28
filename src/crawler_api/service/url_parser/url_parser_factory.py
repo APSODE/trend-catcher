@@ -9,12 +9,12 @@ from src.crawler_api.service.url_parser.munhwa_page_parser import MunhwaPagePars
 from src.crawler_api.service.url_parser.seoul_page_parser import SeoulPageParser
 
 _PARSER_MAP: dict[NewsSitemap, type[BasePageParser]] = {
-    NewsSitemap.CHOSUN: ChosunPageParser,
+    # NewsSitemap.CHOSUN: ChosunPageParser,
     NewsSitemap.MUNHWA: MunhwaPageParser,
     NewsSitemap.JOONGANG: JoongangPageParser,
     NewsSitemap.SEOUL: SeoulPageParser,
     NewsSitemap.DONGA: DongaPageParser,
-    NewsSitemap.KMIB: KMIBPageParser,
+    # NewsSitemap.KMIB: KMIBPageParser,
 }
 
 class UrlParserFactory:
