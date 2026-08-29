@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 #파일 구조 변경시 수정 필요
-ENV_PATH = Path(__file__).resolve().parents[1] / "atlas-credentials.env"
+ENV_PATH = Path(__file__).resolve().parents[2] / "crawler.env"
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
