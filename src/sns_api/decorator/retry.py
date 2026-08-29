@@ -12,7 +12,7 @@ def async_retry(
     base_delay: float = 0.5,
     max_delay: float = 8.0,
     exceptions: tuple[type[Exception], ...] = (Exception,),
-) -> Callable[[Callable[..., Any]], Callable[..., Any]]:                                
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     if max_attempts < 1:
         raise ValueError("max_attempts는 1 이상")
 
@@ -25,8 +25,14 @@ def async_retry(
                 except exceptions as exc:
                     if attempt == max_attempts:
                         raise
-                    delay = min(max_delay, base_delay * (2 ** (attempt - 1)))
-                    delay = min(max_delay, delay + random.uniform(0, delay * 0.25))
+
+                    server_retry_after = getattr(exc, "retry_after", None)
+                    if isinstance(server_retry_after, (int, float)):
+                        delay: float = float(server_retry_after)
+                    else:
+                        delay = min(max_delay, base_delay * (2 ** (attempt - 1)))
+                        delay = min(max_delay, delay + random.uniform(0, delay * 0.25))
+
                     logger.warning(
                         "%s 실패 (%d/%d): %s — %.2fs 후 재시도",
                         func.__name__, attempt, max_attempts, exc, delay,

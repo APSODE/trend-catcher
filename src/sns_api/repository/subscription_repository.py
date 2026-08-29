@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..model.entity_model import Slot, SubscriptionModel
+from src.sns_api.model.entity_model import Slot, SubscriptionModel
 
 
 class SubscriptionRepository:
@@ -12,9 +12,11 @@ class SubscriptionRepository:
         await session.refresh(subscription)
         return subscription
 
-    # id를 통한 구독 조회
+    # id 구독 조회
     async def get_by_id(self, session: AsyncSession, sub_id: int) -> SubscriptionModel | None:
-        return await session.get(SubscriptionModel, sub_id)
+        query = select(SubscriptionModel).where(SubscriptionModel.id == sub_id)
+        result = await session.execute(query)
+        return result.scalar_one_or_none()
 
     # 유저의 구독 전체 조회
     async def get_by_user(self, session: AsyncSession, user_id: int) -> list[SubscriptionModel]:
@@ -22,13 +24,22 @@ class SubscriptionRepository:
         result = await session.execute(query)
         return list(result.scalars().all())
 
+    # 디스코드 아이디로 구독 단건 조회
+    async def get_by_discord_id(self, session: AsyncSession, discord_id: str) -> SubscriptionModel | None:
+        query = select(SubscriptionModel).where(SubscriptionModel.discord_id == discord_id)
+        result = await session.execute(query)
+        return result.scalar_one_or_none()
+
     # 슬롯(아침/저녁)을 구독 중인 활성 구독 목록
     async def list_active_for_slot(self, session: AsyncSession, slot: Slot) -> list[SubscriptionModel]:
-        query = select(SubscriptionModel).where(SubscriptionModel.is_active.is_(True))
+        query = select(SubscriptionModel).where(
+            SubscriptionModel.is_active == True,
+            SubscriptionModel.personalized_enabled == True,  # ★ 추가
+        )
         if slot == Slot.MORNING:
-            query = query.where(SubscriptionModel.morning_enabled.is_(True))
+            query = query.where(SubscriptionModel.morning_enabled == True)
         else:
-            query = query.where(SubscriptionModel.evening_enabled.is_(True))
+            query = query.where(SubscriptionModel.evening_enabled == True)
         result = await session.execute(query)
         return list(result.scalars().all())
 
@@ -39,13 +50,14 @@ class SubscriptionRepository:
         if not user_ids:
             return []
         query = select(SubscriptionModel).where(
-            SubscriptionModel.is_active.is_(True),
+            SubscriptionModel.is_active == True,
+            SubscriptionModel.personalized_enabled == True,  # ★ 추가
             SubscriptionModel.user_id.in_(user_ids),
         )
         if slot == Slot.MORNING:
-            query = query.where(SubscriptionModel.morning_enabled.is_(True))
+            query = query.where(SubscriptionModel.morning_enabled == True)
         else:
-            query = query.where(SubscriptionModel.evening_enabled.is_(True))
+            query = query.where(SubscriptionModel.evening_enabled == True)
         result = await session.execute(query)
         return list(result.scalars().all())
 

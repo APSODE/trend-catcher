@@ -1,5 +1,5 @@
 .idea
-src/sns_api/.env
+src/sns.env
 __pycache__/
 *.env
 *.pyc

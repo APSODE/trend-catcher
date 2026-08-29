@@ -8,3 +8,6 @@ class NotFoundError(SNSError):
 
 class DispatchError(SNSError):
     status_code = status.HTTP_502_BAD_GATEWAY
+
+class ConflictError(SNSError):
+    status_code = status.HTTP_409_CONFLICT

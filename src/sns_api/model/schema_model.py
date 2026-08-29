@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .entity_model import Channel, DispatchStatus, Slot
+from src.sns_api.model.entity_model import Channel, DispatchStatus, Slot
 
 
 # 구독
@@ -10,7 +10,6 @@ from .entity_model import Channel, DispatchStatus, Slot
 class SubscriptionCreateData(BaseModel):
     user_id: int
     channel: Channel = Channel.DISCORD
-    webhook_url: str | None = None
     morning_enabled: bool = True
     evening_enabled: bool = True
     personalized_enabled: bool = True
@@ -18,7 +17,6 @@ class SubscriptionCreateData(BaseModel):
 
 
 class SubscriptionUpdateData(BaseModel):
-    webhook_url: str | None = None
     morning_enabled: bool | None = None
     evening_enabled: bool | None = None
     personalized_enabled: bool | None = None
@@ -32,7 +30,6 @@ class SubscriptionOutData(BaseModel):
     id: int
     user_id: int
     channel: str
-    webhook_url: str | None
     morning_enabled: bool
     evening_enabled: bool
     personalized_enabled: bool
@@ -66,11 +63,14 @@ class DispatchResponseData(BaseModel):
     results: list[DispatchResultItemData]
 
 
-# LLM 서비스 응답 (수정 필요)
+# LLM과 소통시 받을 것들
+class NewsReferenceData(BaseModel):
+    crawled_id: str
+    score: float
 
+# 최종 완성된 뉴스에 필요한 것들(크롤러로부터 받은 것들)
 class NewsItemData(BaseModel):
     title: str
-    summary: str
     url: str | None = None
     image_url: str | None = None
 
