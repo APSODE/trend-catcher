@@ -1,12 +1,14 @@
+from src.llm_api.model.base_model import AbstractBaseModel
 from src.llm_api.core.settings import get_settings
 from collections.abc import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, AsyncSession, async_sessionmaker
+from contextlib import asynccontextmanager
 
 settings = get_settings()
 
 #엔진
 engine: AsyncEngine = create_async_engine(
-    settings.database_url.get_secret_value(),
+    settings.database_url,
     echo = settings.db_echo,
     pool_pre_ping = True #연결이 죽은지 감지, 자동 연결
 )
@@ -18,8 +20,9 @@ SessionFactory: async_sessionmaker[AsyncSession] = async_sessionmaker(
     expire_on_commit = False #커밋하면서 증발히는거 방지
 )
 
-#세션 동작부
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
+#세션스코프 관리
+@asynccontextmanager
+async def session_scope() -> AsyncGenerator[AsyncSession, None]:
     async with SessionFactory() as session:
         try:
             yield session #일 하라고 보내놓고 대기
@@ -27,3 +30,13 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
         except Exception: #문제발생했으면
             await session.rollback() #일단 flush들 롤백시키고
             raise #핸들러에게 상황 보고 처리해달라 위임
+
+#세션 동작부
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    async with session_scope() as session:
+        yield session
+
+#테이블 생성
+async def init_database() -> None:
+    async with engine.begin() as connection:
+        await connection.run_sync(AbstractBaseModel.metadata.create_all)

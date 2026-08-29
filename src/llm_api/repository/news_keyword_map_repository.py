@@ -1,7 +1,6 @@
 from src.llm_api.repository.base_repository import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.llm_api.model.news_keyword_map_model import NewsKeywordMapModel
-from sqlalchemy import select
 
 class NewsKeywordMapRepository(BaseRepository[NewsKeywordMapModel]):
     def __init__(self, session: AsyncSession):

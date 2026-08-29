@@ -1,9 +1,8 @@
 import asyncio
-import json
-from src.llm_api.constant.llm_constant import LLMConstant
+from src.llm_api.constant.nvidia_constant import LLMConstant
 from src.llm_api.infrastructure.nvidia_client import NvidiaClient
 from src.llm_api.schema.extraction import ExtractionResultData
-from pydantic import ValidationError
+from src.llm_api.exception.parse_exception import JsonParseException
 from src.llm_api.util.json_util import JsonUtil
 import logging
 
@@ -21,7 +20,7 @@ class ExtractionService:
             try:
                 raw_response = await self._client.chat_completion(prompt)
                 return JsonUtil.parse(raw_response, ExtractionResultData)
-            except (json.JSONDecodeError, ValidationError):
+            except JsonParseException:
                 if attempt == LLMConstant.EXTRACTION_RETRY_ATTEMPTS - 1:
                     raise
                 logger.warning("추출 실패, 재시도 (%d회차)", attempt + 1)

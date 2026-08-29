@@ -5,7 +5,7 @@ from src.llm_api.util.datetime_util import DateTimeUtil
 from src.llm_api.util.similarity_util import SimilarityUtil
 from src.llm_api.constant.period_constant import PeriodConstant
 from src.llm_api.constant.similarity_constant import SimilarityConstant
-from src.llm_api.constant.llm_constant import EmbeddingInputType
+from src.llm_api.constant.nvidia_constant import EmbeddingInputType
 import logging
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ class TopicMatchingService:
         candidates = await self._topic_repository.find_recent(since) #이번타임 주제목록
 
         if not candidates:  # 후보 없으면 바로 생성
-            logger.info("신규 토픽 생성 topic=%s", topic)
+            logger.debug("신규 토픽 생성 topic=%s", topic)
             return await self._topic_repository.create_topic(topic, crawled_id, embedding)
 
         #가장 잘 맞는 뉴스 찾기
@@ -37,5 +37,5 @@ class TopicMatchingService:
             logger.debug("토픽 편입 실패: [pk: %d , 최고 유사 주제: %s, 유사도: %.3f]",matched_topic.pk, candidates[best_match_index].topic, best_match_similarity,)
 
         #아니면 새로 만듦
-        logger.info("신규 토픽 생성 topic=%s", topic)
+        logger.debug("신규 토픽 생성 topic=%s", topic)
         return await self._topic_repository.create_topic(topic, crawled_id, embedding)
