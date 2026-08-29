@@ -6,9 +6,9 @@ import httpx
 from src.crawler_api.exception.fetch_value_exception import FetchValueException
 from src.crawler_api.service.url_fetcher.base_url_fetcher import BaseUrlFetcher
 from src.crawler_api.util.check_robots import CheckRobots
+from src.crawler_api.util.header_provider import get_httpx_header
 
-
-headers = {"User-Agent": "Mozilla/5.0"}
+headers = get_httpx_header()
 logger = logging.getLogger(__name__)
 
 class HTTPXUrlFetcher(BaseUrlFetcher):
@@ -16,13 +16,13 @@ class HTTPXUrlFetcher(BaseUrlFetcher):
     def __init__(self):
         self._semaphore = asyncio.Semaphore(5)
 
-    async def fetch(self, url: str) -> str | None:
+    async def fetch(self, url: str) -> str:
         robots = CheckRobots(url)
         await robots.load()
 
         try:
             if not await robots.is_allowed(url):
-                return None
+                return ""
 
             async with httpx.AsyncClient(headers=headers, timeout=10.0) as client:
                 response = await client.get(url)

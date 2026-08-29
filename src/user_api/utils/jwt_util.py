@@ -8,11 +8,9 @@ from jwt import (
     ExpiredSignatureError
 )
 
-from src.user_api.constant.auth_constant import (
-    SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
-)
+from src.user_api.config import auth_config
 from src.user_api.dto import JsonWebToken, TokenPair, TokenType, AccountData
-from src.user_api.exceptions.auth_exceptions import InvalidToken, ExpiredToken
+from src.user_api.exceptions import InvalidToken, ExpiredToken
 
 
 class JwtUtil:
@@ -22,7 +20,7 @@ class JwtUtil:
             session_id = session_id,
             account = account,
             token_type = TokenType.ACCESS,
-            expires_delta = timedelta(minutes = ACCESS_TOKEN_EXPIRE_MINUTES),
+            expires_delta = timedelta(minutes = auth_config.ACCESS_TOKEN_EXPIRE_MINUTES),
         )
 
     @staticmethod
@@ -31,7 +29,7 @@ class JwtUtil:
             session_id = session_id,
             account = account,
             token_type = TokenType.REFRESH,
-            expires_delta = timedelta(days = REFRESH_TOKEN_EXPIRE_DAYS),
+            expires_delta = timedelta(minutes = auth_config.REFRESH_TOKEN_EXPIRE_MINUTES),
         )
 
     @staticmethod
@@ -52,12 +50,12 @@ class JwtUtil:
             exp = now + expires_delta,
             session_id = session_id
         )
-        return encodeJWT(token.model_dump(), SECRET_KEY, algorithm = ALGORITHM)
+        return encodeJWT(token.model_dump(), auth_config.SECRET_KEY, algorithm = auth_config.ALGORITHM)
 
     @staticmethod
     def decode_token(token: str, expected_type: TokenType) -> JsonWebToken:
         try:
-            payload = decodeJWT(token, SECRET_KEY, algorithms = [ALGORITHM])
+            payload = decodeJWT(token, auth_config.SECRET_KEY, algorithms = [auth_config.ALGORITHM])
         except ExpiredSignatureError:
             raise ExpiredToken()
         except InvalidTokenError:

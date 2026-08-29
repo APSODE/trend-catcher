@@ -1,5 +1,5 @@
 from typing import Optional, List, Sequence
-from src.user_api.constant.permission import Permission
+from src.user_api.constant import Permission
 from src.user_api.db import DatabaseController, RelationPath
 from src.user_api.model import UserModel
 from src.user_api.repository.base_repository import BaseRepository
@@ -63,9 +63,3 @@ class UserRepository(BaseRepository[UserModel]):
             filter = self.model_class.pk == target_pk,
             load_relations = load_relations
         )
-
-
-
-
-
-

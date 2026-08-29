@@ -1,12 +1,21 @@
 from http import HTTPStatus
+from typing import Optional
+
 
 class AppException(Exception):
-    status_code = HTTPStatus.INTERNAL_SERVER_ERROR
+    status_code: HTTPStatus = HTTPStatus.INTERNAL_SERVER_ERROR
+    error_code: Optional[str] = None
 
-    def __init__(self, message: str):
+    def __init__(self, message: str, *, status_code: Optional[HTTPStatus] = None, error_code: Optional[str] = None):
         self.message = message
+
+        if status_code is not None:
+            self.status_code = status_code
+
+        if error_code is not None:
+            self.error_code = error_code
+
         super().__init__(message)
 
-# class SerializeException(AppException):
-#     def __init__(self, target_type: type, expected_type: type):
-#         super().__init__(f"Expected type : {expected_type.__name__}, but target type is {target_type.__name__}")
+    def __str__(self) -> str:
+        return self.message

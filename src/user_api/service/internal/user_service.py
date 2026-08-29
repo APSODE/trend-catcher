@@ -1,11 +1,12 @@
 from typing import List
 
-from src.user_api.exceptions.user_exceptions import UnknownUserData
+from src.user_api.exceptions import UnknownUserData
 from src.user_api.model import UserModel
-from src.user_api.dto.serializer import serialize, serialize_many, required_relation
-from src.user_api.dto import UserData
+from src.user_api.dto.serializer import serialize_many, required_relation
+from src.user_api.dto import UserData, PKResponse, TokenType
 from src.user_api.repository import UserRepository
 from src.user_api.service import BaseService
+from src.user_api.utils import JwtUtil
 
 
 class UserService(BaseService):
@@ -25,9 +26,10 @@ class UserService(BaseService):
         )
         return serialize_many(user_models, UserData)
 
-    async def query_user_by_pk(self, user_pk: int) -> UserData:
-        user_model = await self.require_exist_user(user_pk)
-        return serialize(user_model, UserData)
+    async def get_user_pk_in_jwt(self, access_token: str) -> PKResponse:
+        decode_result = JwtUtil.decode_token(access_token, TokenType.ACCESS)
+
+        return PKResponse(pk = decode_result.account.user_fk)
 
     async def require_exist_user(self, user_pk) -> UserModel:
         maybe_user_model = await self.__user_repository.get_by_pk(
@@ -43,6 +45,3 @@ class UserService(BaseService):
 get_user_service = UserService.create_dependency(
     user_repository = UserRepository
 )
-
-
-

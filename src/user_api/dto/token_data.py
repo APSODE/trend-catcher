@@ -1,9 +1,9 @@
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
 
-from src.user_api.dto.account_data import AccountData
+from src.user_api.dto import AccountData
 
 
 class TokenType(str, Enum):
@@ -27,7 +27,3 @@ class JsonWebToken(BaseModel):
 
 class RefreshJWT(BaseModel):
     access_token_id: str
-
-
-
-

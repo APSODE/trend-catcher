@@ -1,16 +1,18 @@
 import asyncio, logging
 
-from datetime import datetime
+from datetime import date
+from typing import Callable, Awaitable
 
 from src.crawler_api.constant.news_sitemap import NewsSitemap
 from src.crawler_api.schemas.article import ArticleCreate
 from src.crawler_api.service.url_extractor.url_extractor_factory import UrlExtractorFactory
 from src.crawler_api.service.url_fetcher.url_fetcher_factory import UrlFetcherFactory
 from src.crawler_api.service.url_parser.url_parser_factory import UrlParserFactory
-from src.crawler_api.util.normalize_datetime import normalize_datetime, now_normalized
-
+from src.crawler_api.util.normalize_datetime import now_normalized, now_date
 
 logger = logging.getLogger(__name__)
+
+UrlFilter = Callable[[list[str]], Awaitable[list[str]]]
 
 class CrawlingPipeline:
     """
@@ -27,28 +29,47 @@ class CrawlingPipeline:
 
     async def run(
         self,
-        date: datetime,
-        limit: int | None = None
+        dates: list[date],
+        limit: int | None = None,
+        url_filter: UrlFilter | None = None
     ) -> list[ArticleCreate]:
 
+        if dates is None:
+            return []
+
         try:
-            sitemap_url = self._source.value.get_url(normalize_datetime(date))
+            urls = []
+            base_url: str = ""
 
-            sitemap_content = await self._fetcher.fetch(sitemap_url)
+            for date_val in dates:
+                sitemap_url = self._source.value.get_url(date_value=date_val)
+                base_url = sitemap_url
 
-            urls = await self._extractor.parse(
-                raw_content=sitemap_content,
-                selector=self._source.value.selector,
-                base_url=sitemap_url
-            )
+                sitemap_content = await self._fetcher.fetch(sitemap_url)
+
+                extract_urls = await self._extractor.parse(
+                    raw_content=sitemap_content,
+                    selector=self._source.value.selector,
+                    base_url=sitemap_url
+                )
+
+                if not extract_urls:
+                    continue
+
+                if url_filter is not None:
+                    extract_urls = await url_filter(extract_urls)
+                    if not extract_urls:
+                        continue
+
+                if limit is not None:
+                    extract_urls = extract_urls[:limit]
+
+                urls.extend(extract_urls)
 
             if not urls:
                 return []
 
-            if limit is not None:
-                urls = urls[:limit]
-
-            page_contents = await self._fetcher.fetch_by_all(urls=urls, base_url=sitemap_url)
+            page_contents = await self._fetcher.fetch_by_all(urls=urls, base_url=base_url)
 
             valid_pairs = [(url, content) for url, content in zip(urls, page_contents) if content != ""]
             if not valid_pairs:
@@ -64,7 +85,7 @@ class CrawlingPipeline:
             crawled_at = now_normalized()
             for url, parsed in zip(valid_urls, parsed_result):
                 if isinstance(parsed, Exception):
-                    logger.exception("parsing error occurred : %s", parsed)
+                    logger.exception("parsing error occurred : %s\nurl : %s", parsed,  url)
                     continue
 
                 if parsed is None:
@@ -88,14 +109,19 @@ class CrawlingPipeline:
             if hasattr(self._fetcher, "close"): #fetcher에 close가 있는경우(selenium인 경우)
                 self._fetcher.close()
 
-    async def run_today(self, limit: int | None = None) -> list[ArticleCreate]:
-        return await self.run(date=normalize_datetime(datetime.today()), limit=limit)
+    async def run_today(
+            self,
+            limit: int | None = None,
+            url_filter: UrlFilter | None = None
+    ) -> list[ArticleCreate]:
+        return await self.run(dates=[now_date()], limit=limit, url_filter=url_filter)
 
     @staticmethod
     async def run_all(
         sources: list[NewsSitemap] | None,
-        date: datetime,
-        limit: int | None = None
+        dates: list[date],
+        limit: int | None = None,
+        url_filter: UrlFilter | None = None
     ) ->list[ArticleCreate]:
 
         if not sources:
@@ -104,7 +130,7 @@ class CrawlingPipeline:
         pipelines = [CrawlingPipeline(source) for source in sources]
 
         results = await asyncio.gather(
-            *(pipe.run(date=date, limit=limit) for pipe in pipelines),
+            *(pipe.run(dates=dates, limit=limit, url_filter=url_filter) for pipe in pipelines),
             return_exceptions=True
         )
 
@@ -122,10 +148,8 @@ class CrawlingPipeline:
     @staticmethod
     async def run_all_today(
         sources: list[NewsSitemap] | None = None,
-        limit: int | None = None
+        limit: int | None = None,
+        url_filter: UrlFilter | None = None
     ) ->list[ArticleCreate]:
 
-        if sources is None:
-            sources = list(NewsSitemap)
-
-        return await CrawlingPipeline.run_all(sources=sources, date=datetime.today(), limit=limit)
+        return await CrawlingPipeline.run_all(sources=sources, dates=[now_date()], limit=limit, url_filter=url_filter)

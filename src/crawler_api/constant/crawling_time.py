@@ -1,6 +1,1 @@
-from enum import Enum
-
-
-class CrawlingTime(Enum):
-    MORNING = 9
-    EVENING = 21
+CRAWLING_TIME = 30

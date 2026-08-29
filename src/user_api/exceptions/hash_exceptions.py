@@ -1,21 +1,19 @@
+from typing import Optional
+
 from src.user_api.exceptions.app_exception import AppException
 
 
 class IllegalSaltException(AppException):
-    def __init__(self, **kwargs):
-        param_amount = len(kwargs.keys())
-
-        if param_amount == 1:
-            error_message = f"The provided salt length {kwargs.get('length')} is outside the allowed range."
-
-        elif param_amount == 3:
-            error_message = (
-                f"The salt length {kwargs.get('length')} is invalid. "
-                f"It must be between {kwargs.get('min_length')} and {kwargs.get('max_length')} characters."
+    def __init__(self, length: int, min_length: Optional[int] = None, max_length: Optional[int] = None):
+        if min_length is not None and max_length is not None:
+            message = (
+                f"The salt length {length} is invalid. "
+                f"It must be between {min_length} and {max_length} characters."
             )
-
         else:
-            error_message = f"An unexpected error occurred during salt generation."
+            message = f"The provided salt length {length} is outside the allowed range."
 
-
-        super().__init__(error_message)
+        super().__init__(
+            message,
+            error_code = "HASH_INVALID_SALT_LENGTH",
+        )

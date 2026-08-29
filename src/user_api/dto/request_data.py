@@ -2,12 +2,11 @@ from typing import List
 
 from pydantic import BaseModel
 
-from src.user_api.constant.account_constant import AccountProvider
-from src.user_api.constant.permission import Permission
-from src.user_api.dto.hashtag_data import HashtagData
+from src.user_api.constant import AccountProvider, Permission
+from src.user_api.dto import HashtagData
 
 
-class LocalRegisterData(BaseModel):
+class LocalRegisterRequest(BaseModel):
     name: str
     permission: int | Permission = Permission.GUEST
     interest: List[int] = []
@@ -15,7 +14,7 @@ class LocalRegisterData(BaseModel):
     login_id: str
     password: str
 
-class SocialRegisterData(BaseModel):
+class SocialRegisterRequest(BaseModel):
     provider: AccountProvider
     provider_access_token: str
     permission: int | Permission = Permission.GUEST
@@ -32,11 +31,17 @@ class SocialLinkRequest(BaseModel):
     provider: AccountProvider
     provider_access_token: str
 
+class SocialUnlinkRequest(BaseModel)    :
+    provider: AccountProvider
+
+class ChangePasswordRequest(BaseModel):
+    new_password: str
+
 class LogoutRequest(BaseModel):
     access_token: str
 
 class DeleteRequest(BaseModel):
-    login_id: str
+    name: str
 
 class RefreshRequest(BaseModel):
     refresh_token: str
@@ -53,8 +58,20 @@ class NameQueryRequest(BaseModel):
 class PKQueryRequest(BaseModel):
     pk: int
 
+class ProviderUserIDQueryRequest(BaseModel):
+    provider_user_id: str
+
 class LoginIDQueryRequest(BaseModel):
     login_id: str
+
+class AccessTokenDecodeRequest(BaseModel):
+    access_token: str
+
+class CheckTokenRequest(BaseModel):
+    token: str
+
+class AddHashtagRequest(BaseModel):
+    hashtag_name: str
 
 # # ==== 사용..? 안할수도...?
 # class CreateHashtagRequest(HashtagData):

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
-from src.user_api.constant.account_constant import AccountProvider, AccountType
+from src.user_api.constant import AccountProvider, AccountType
 from src.user_api.decorator import bind_model
 from src.user_api.model import LocalAccountModel, SocialAccountModel
 
@@ -28,6 +28,3 @@ class SocialAccountData(BaseModel):
     user_fk: int
     provider: AccountProvider
     provider_user_id: str
-
-
-

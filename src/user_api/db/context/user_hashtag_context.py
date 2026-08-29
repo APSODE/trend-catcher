@@ -2,10 +2,8 @@ from typing import AsyncGenerator
 from warnings import deprecated
 
 from src.user_api.db.context.transaction_context import TransactionContext
-from src.user_api.db.db_creator import DatabaseCreator
-from src.user_api.repository.hashtag_repository import HashtagRepository
-from src.user_api.repository.user_hashtag_repository import UserHashtagRepository
-from src.user_api.repository.user_repository import UserRepository
+from src.user_api.db import DatabaseCreator
+from src.user_api.repository import HashtagRepository, UserHashtagRepository, UserRepository
 
 @deprecated("BaseService에 정의된 create_dependency로 사용")
 class UserHashtagContext(TransactionContext):

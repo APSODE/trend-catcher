@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING, Any, Union, List, Optional
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from src.user_api.constant.permission import Permission
-from src.user_api.constant.user_model_constant import MAX_NAME_LENGTH
-from src.user_api.model.base_model import BaseModel
+from src.user_api.config import model_config
+from src.user_api.constant import Permission
+from src.user_api.model import BaseModel
 
 if TYPE_CHECKING:
     from src.user_api.model import LocalAccountModel, SocialAccountModel, UserHashtagModel
@@ -11,11 +11,12 @@ if TYPE_CHECKING:
 
 class UserModel(BaseModel):
     __tablename__ = "user"
-    name: Mapped[str] = mapped_column(String(MAX_NAME_LENGTH), nullable = False)
+    name: Mapped[str] = mapped_column(String(model_config.USER_MAX_NAME_LENGTH), nullable = False)
     permission: Mapped[int] = mapped_column(default = 0, nullable = False)
     interest: Mapped[List["UserHashtagModel"]] = relationship(
         "UserHashtagModel",
         back_populates = "user_model",
+        cascade = "all, delete-orphan"
     )
 
     local_accounts: Mapped[List["LocalAccountModel"]] = relationship(
@@ -45,8 +46,3 @@ class UserModel(BaseModel):
     @staticmethod
     def create_model(name: str, permission: Union[int, Permission], interest: Optional[List[int]] = None):
         return UserModel(name, permission, interest)
-
-
-
-
-

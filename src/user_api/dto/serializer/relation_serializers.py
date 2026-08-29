@@ -1,8 +1,7 @@
 from typing import List
 from warnings import deprecated
 
-from src.user_api.dto.account_data import LocalAccountData
-from src.user_api.dto.hashtag_data import HashtagData
+from src.user_api.dto import HashtagData, LocalAccountData
 from src.user_api.dto.serializer import serialize_many
 from src.user_api.model import UserModel
 

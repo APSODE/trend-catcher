@@ -39,13 +39,26 @@ class ArticleResponseSNS(BaseModel):
     id: PydanticObjectId
     title: str
     company_name: str
-    published_at: datetime
+    published_at: datetime | None = None
     img_list: list[str] | None = None
 
     @field_serializer("id")
     def serialize_object_id(self, value):
         return str(value)
 
+class ArticleResponseFront(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: PydanticObjectId
+    url: str
+    content: str
+    title: str
+    company_name: str
+    img_list: list[str] | None = None
+    published_at: datetime | None = None
+
+    @field_serializer("id")
+    def serialize_object_id(self, value):
+        return str(value)
 
 class ArticleRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)

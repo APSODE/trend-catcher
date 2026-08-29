@@ -1,6 +1,5 @@
 from redis.asyncio import Redis
-from src.user_api.db.db_creator import _DatabaseAccount
-
+from src.user_api.config import db_config
 
 class RedisCreator:
     _single_instance = None
@@ -15,10 +14,10 @@ class RedisCreator:
         if not hasattr(cls, "_RedisCreator__init"):
             cls._RedisCreator__init = True
             self._client = Redis(
-                host = "localhost",
-                port = 6379,
+                host = db_config.redis_ip,
+                port = db_config.redis_port,
                 db = 0,
-                password = _DatabaseAccount().pw,
+                password = db_config.redis_pw,
                 decode_responses = True,
             )
 

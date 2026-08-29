@@ -1,9 +1,12 @@
 from typing import Annotated
 
 from fastapi import Depends, Query
-from src.user_api.dto import NameQueryRequest, PKQueryRequest, DataCollectionResponse, UserData
+
+from src.user_api.dto import NameQueryRequest, PKQueryRequest, DataCollectionResponse, PKResponse, \
+    AccessTokenDecodeRequest, UserSummaryResponse
 from src.user_api.router import BaseRouter
-from src.user_api.service.internal import UserService, get_user_service
+from src.user_api.service.internal import UserService, get_user_service, get_user_account_hashtag_service, \
+    UserAccountHashtagService
 
 
 class UserRouter(BaseRouter):
@@ -32,7 +35,12 @@ class UserRouter(BaseRouter):
                 datas = users
             )
 
-        @self.get("/get-by-pk", response_model = UserData)
+        @self.get("/get-by-pk", response_model = UserSummaryResponse)
         async def get_user_by_pk(request: Annotated[PKQueryRequest, Query()],
-                                 service: UserService = Depends(get_user_service)):
-            return await service.query_user_by_pk(request.pk)
+                                 service: UserAccountHashtagService = Depends(get_user_account_hashtag_service)):
+            return await service.get_user_by_pk(request.pk)
+
+        @self.get("/get-user-pk")
+        async def get_user_pk(request: AccessTokenDecodeRequest,
+                              service: UserService = Depends(get_user_service)) -> PKResponse:
+            return await service.get_user_pk_in_jwt(request.access_token)

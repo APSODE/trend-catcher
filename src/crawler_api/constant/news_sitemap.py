@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import date
 from enum import Enum, auto
 from pydantic import BaseModel
 
 from src.crawler_api.exception.selector_value_exception import SelectorValueException
-from src.crawler_api.util.normalize_datetime import now_normalized
+from src.crawler_api.util.normalize_datetime import now_date
 
 
 class SitemapType(Enum):
@@ -21,40 +21,41 @@ class NewsUrlData(BaseModel):
     날짜마다 URL이 달라지는 경우가 있음으로 무조건 value.get_url 사용
     """
 
-    def __post_init__(self):
+    def model_post_init(self, __context):
         if self.sitemap_type == SitemapType.PAGE and self.selector is None:
             raise SelectorValueException()
 
         if self.sitemap_type != SitemapType.PAGE and self.selector:
             raise SelectorValueException()
 
-    def get_url(self, date: datetime=now_normalized()):
+    def get_url(self, date_value: date | None = None):
+        date_value = date_value or now_date()
         return self.url.format(
-            yyyy=date.strftime("%Y"),
-            yyyymmdd=date.strftime("%Y%m%d"),
-            mm=date.strftime("%m"),
-            dd=date.strftime("%d")
+            yyyy=date_value.strftime("%Y"),
+            yyyymmdd=date_value.strftime("%Y%m%d"),
+            mm=date_value.strftime("%m"),
+            dd=date_value.strftime("%d")
         )
 
 class NewsSitemap(Enum):
 
-    #DONGA_PAGE = NewsUrlData(
-    #    url="https://www.donga.com/news/sitemap?p1={yyyy}&p2={mm}&p3={dd}",
-    #    company_name="동아일보",
-    #    sitemap_type=SitemapType.PAGE,
-    #    selector="#contents > div > div > div.sitemap_list.contents_list > div > ul li a")
+    DONGA = NewsUrlData(
+       url="https://www.donga.com/news/sitemap?p1={yyyy}&p2={mm}&p3={dd}",
+       company_name="동아일보",
+       sitemap_type=SitemapType.PAGE,
+       selector="#contents > div > div > div.sitemap_list.contents_list > div > ul li a")
 
-    CHOSUN_PAGE = NewsUrlData(
-        url="https://www.chosun.com/sitemap/{yyyy}/{mm}/{dd}/",
-        company_name="조선일보",
-        sitemap_type=SitemapType.PAGE,
-        selector="a.story-card__headline")
+    # CHOSUN = NewsUrlData(
+    #     url="https://www.chosun.com/sitemap/{yyyy}/{mm}/{dd}/",
+    #     company_name="조선일보",
+    #     sitemap_type=SitemapType.PAGE,
+    #     selector="a.story-card__headline")
 
 
-    #KMIB = NewsUrlData(
+    # KMIB = NewsUrlData(
     #    url="https://www.kmib.co.kr/rss/data/sitemap/daily/{yyyy}/{mm}/dailyArticleList_{yyyymmdd}.xml",
     #    company_name="국민일보",
-    #    sitemap_type=SitemapType.XML) # 일간
+    #    sitemap_type=SitemapType.XML)
 
     MUNHWA = NewsUrlData(
         url="https://www.munhwa.com/sitemap/articles/{yyyy}/{yyyymmdd}",
@@ -65,7 +66,7 @@ class NewsSitemap(Enum):
     #SEGYE = NewsURLData(
     #    url="https://www.segye.com/sitemap_day0.xml",
     #    company_name="세계일보",
-    #    sitemap_type=SitemapType.DATE_IN_NEWS) # 일간
+    #    sitemap_type=SitemapType.XML) # 일간
 
     #AI봇 많이 차단
     JOONGANG = NewsUrlData(
@@ -79,11 +80,11 @@ class NewsSitemap(Enum):
     #    company_name="한국일보",
     #    sitemap_type=SitemapType.XML)  # 일간
 
-    #SEOUL_PAGE = NewsUrlData(
-    #    url="https://www.seoul.co.kr/sitemap/sitemap_index_{yyyymmdd}",
-    #    company_name="서울신문",
-    #    sitemap_type=SitemapType.PAGE_HTTPX,
-    #    selector="#articleArea > ul li a")
+    SEOUL = NewsUrlData(
+       url="https://www.seoul.co.kr/sitemap/sitemap_index_{yyyymmdd}",
+       company_name="서울신문",
+       sitemap_type=SitemapType.PAGE,
+       selector="#articleArea > ul li a")
 
     #후보
     #조선일보

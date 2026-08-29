@@ -14,7 +14,7 @@ class ChosunPageParser(BasePageParser):
             "#fusion-app > div.article.\\| > div:nth-child(2) > div > div > div.article-header__headline-container.\\|.box--pad-left-md.box--pad-right-md > h1 > span"
         )
         date = soup.select_one(
-            "#fusion-app > div:nth-of-type(1) > div:nth-of-type(2) > div > section > article > div:nth-of-type(1) > div:nth-of-type(2) > span > span:nth-of-type(1)"
+            "span.inputDate"
         )
 
         section = soup.select_one(
@@ -32,13 +32,10 @@ class ChosunPageParser(BasePageParser):
 
 
         reporter = soup.select_one(
-            "#fusion-app > div:nth-of-type(1) > div:nth-of-type(2) > div > section > article > div:nth-of-type(1) > div:nth-of-type(1) > div > a"
+            "#fusion-app .article-byline-date .article-byline > div > a, "
+            "#fusion-app .article-byline-date .article-byline > div > span"
         )
 
-        if reporter is None:
-            reporter = soup.select_one(
-                "#fusion-app > div:nth-of-type(1) > div:nth-of-type(2) > div > section > article > div:nth-of-type(1) > div:nth-of-type(1) > div > span"
-            )
 
         if not title or not section:
             return None

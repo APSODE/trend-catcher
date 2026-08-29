@@ -1,7 +1,7 @@
-from src.user_api.db.redis_creator import RedisCreator
-from src.user_api.constant.auth_constant import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
-from src.user_api.dto.token_data import JsonWebToken, TokenPair, TokenType
-from src.user_api.utils.jwt_util import JwtUtil
+from src.user_api.config import auth_config
+from src.user_api.db import RedisCreator
+from src.user_api.dto import JsonWebToken, TokenPair, TokenType
+from src.user_api.utils import JwtUtil
 
 
 class TokenWhitelist:
@@ -12,9 +12,9 @@ class TokenWhitelist:
     @staticmethod
     def __create_ttl(token_type: TokenType) -> int:
         if token_type == TokenType.ACCESS:
-            return ACCESS_TOKEN_EXPIRE_MINUTES * 60
+            return auth_config.ACCESS_TOKEN_EXPIRE_MINUTES * 60
         else:
-            return REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+            return auth_config.REFRESH_TOKEN_EXPIRE_MINUTES * 60
 
     @staticmethod
     async def register(token: str, token_type: TokenType) -> None:
@@ -42,3 +42,7 @@ class TokenWhitelist:
         pattern = f"whitelist:*:{jwt.account.account_type}:{jwt.account.pk}:{jwt.session_id}"
         async for key in client.scan_iter(match = pattern):
             await client.delete(key)
+
+    @staticmethod
+    async def reset_whitelist():
+        await RedisCreator().client.flushdb()

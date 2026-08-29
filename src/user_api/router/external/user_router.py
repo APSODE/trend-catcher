@@ -3,24 +3,21 @@ from fastapi.security import HTTPAuthorizationCredentials
 from src.user_api.auth import get_current_user_pk, get_current_account, bearer_scheme
 
 from src.user_api.dto import (
-    LocalRegisterData,
+    LocalRegisterRequest,
     LocalLoginRequest,
     DeleteRequest,
     RefreshRequest,
-    FollowHashtagRequest,
-    UnfollowHashtagRequest,
     TokenPair,
-    AccountData,
-    SocialLoginRequest, SocialRegisterData, SocialLinkRequest
+    SocialLoginRequest, SocialRegisterRequest, SocialLinkRequest,
+    ChangePasswordRequest, SocialUnlinkRequest, UserSummaryResponse
 )
 
 from src.user_api.router import BaseRouter
 
-from src.user_api.service.external import(
+from src.user_api.service.external import (
     UserAccountService,
     get_user_account_service,
-    UserHashtagService,
-    get_user_hashtag_service
+    UserAccountHashtagService, get_user_account_hashtag_service
 )
 
 
@@ -34,12 +31,12 @@ class UserRouter(BaseRouter):
 
     def setup_routes(self):
         @self.put("/local-register")
-        async def local_register(request: LocalRegisterData, service: UserAccountService = Depends(get_user_account_service)):
+        async def local_register(request: LocalRegisterRequest, service: UserAccountService = Depends(get_user_account_service)):
             await service.local_register(request)
             return {"message": "success"}
 
         @self.put("/social-register")
-        async def social_register(request: SocialRegisterData, service: UserAccountService = Depends(get_user_account_service)):
+        async def social_register(request: SocialRegisterRequest, service: UserAccountService = Depends(get_user_account_service)):
             await service.social_register(request)
             return {"message": "success"}
 
@@ -58,6 +55,29 @@ class UserRouter(BaseRouter):
                               service: UserAccountService = Depends(get_user_account_service)):
             return await service.link_social_account(user_pk, request)
 
+        @self.patch("/change-password")
+        async def update_password(request: ChangePasswordRequest,
+                                  current_account = Depends(get_current_account),
+                                  service: UserAccountService = Depends(get_user_account_service)):
+            await service.change_password(current_account, request.new_password)
+
+
+        @self.get("/linked-accounts",)
+        async def get_linked_account_info(user_pk: int = Depends(get_current_user_pk),
+                                          service: UserAccountService = Depends(get_user_account_service)):
+            return await service.get_linked_account_info(user_pk)
+
+        @self.delete("/unlink-social-account")
+        async def unlink_social_account(request: SocialUnlinkRequest,
+                                        user_pk: int = Depends(get_current_user_pk),
+                                        service: UserAccountService = Depends(get_user_account_service)):
+            await service.unlink_social_account(user_pk, request.provider)
+
+        @self.get("/get-user-summary", response_model = UserSummaryResponse)
+        async def get_user_summary(user_pk: int = Depends(get_current_user_pk),
+                                   service: UserAccountHashtagService = Depends(get_user_account_hashtag_service)) -> UserSummaryResponse:
+            return await service.summary_user_info(user_pk)
+
         @self.post("/logout")
         async def logout(credentials: HTTPAuthorizationCredentials = Security(bearer_scheme),
                          service: UserAccountService = Depends(get_user_account_service)):
@@ -65,21 +85,11 @@ class UserRouter(BaseRouter):
             return {"message": "success"}
 
         @self.delete("/delete-user")
-        async def delete(request: DeleteRequest, service: UserAccountService = Depends(get_user_account_service)):
-            await service.delete(request)
+        async def delete(request: DeleteRequest,
+                         user_pk: int = Depends(get_current_user_pk),
+                         service: UserAccountService = Depends(get_user_account_service)):
+            await service.delete_user(user_pk, request)
 
         @self.post("/refresh", response_model = TokenPair)
         async def refresh(request: RefreshRequest, service: UserAccountService = Depends(get_user_account_service)):
             return await service.refresh_token(request.refresh_token)
-
-        @self.post("/follow-hashtag")
-        async def follow_hashtag(request: FollowHashtagRequest,
-                                 account: AccountData = Depends(get_current_account),
-                                 service: UserHashtagService = Depends(get_user_hashtag_service)):
-            await service.follow_hashtag(request, account.user_fk)
-
-        @self.post("/unfollow-hashtag")
-        async def unfollow_hashtag(request: UnfollowHashtagRequest,
-                                   account: AccountData = Depends(get_current_account),
-                                   service: UserHashtagService = Depends(get_user_hashtag_service)):
-            await service.unfollow_hashtag(request, account.user_fk)

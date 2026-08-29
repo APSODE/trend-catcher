@@ -1,8 +1,13 @@
-from typing import Any, Callable, Dict, List, Sequence, Type, TypeVar, Union
+from typing import Any, Callable, Dict, List, Sequence, Type, TypeVar, Union, Iterable
 
 from pydantic import BaseModel as _PydanticModel
 from sqlalchemy.orm import InstrumentedAttribute
 
+from src.user_api.exceptions import (
+    SerializerNotRegistered,
+    SerializerTypeMismatch,
+    UnexpectedNullSerializeTarget,
+)
 from src.user_api.model import BaseModel as _ORMBaseModel
 
 _ORM = TypeVar("_ORM", bound = _ORMBaseModel)
@@ -80,11 +85,14 @@ class ModelSerializer:
 
     @classmethod
     def serialize(cls, instance: _ORM, expected_type: Type[_DTO]) -> _DTO:
+        if instance is None:
+            raise UnexpectedNullSerializeTarget()
+
         orm_class = type(instance)
         dto_classes = cls._registry.get(orm_class, [])
 
         if expected_type not in dto_classes:
-            raise ValueError(f"No DTO registered for '{orm_class.__name__}'.")
+            raise SerializerNotRegistered(orm_class_name = orm_class.__name__)
 
         transformers = cls._field_transformers.get(orm_class, {})
 
@@ -102,12 +110,10 @@ class ModelSerializer:
             result = expected_type.model_validate(data)
 
         if not isinstance(result, expected_type):
-            raise TypeError(
-                f"Expected '{expected_type.__name__}', "
-                f"but the registered DTO for '{orm_class.__name__}' is '{expected_type.__name__}'."
-            )
+            raise SerializerTypeMismatch(expected_type_name = expected_type.__name__)
+
         return result
 
     @classmethod
-    def serialize_many(cls, instances: List[_ORM], expected_type: Type[_DTO]) -> List[_DTO]:
+    def serialize_many(cls, instances: Iterable[_ORM], expected_type: Type[_DTO]) -> List[_DTO]:
         return [cls.serialize(instance, expected_type) for instance in instances]

@@ -3,9 +3,9 @@ from typing import Dict
 
 import httpx
 
-from src.user_api.constant.account_constant import AccountProvider
+from src.user_api.constant import AccountProvider
 from src.user_api.dto import OAuth2Response
-from src.user_api.exceptions.auth_exceptions import InvalidToken
+from src.user_api.exceptions import UnsupportedProvider, InvalidToken
 
 @dataclass
 class OAuth2ProviderConfig:
@@ -53,7 +53,10 @@ class OAuth2Client:
     def get_client(cls, provider: AccountProvider) -> "OAuth2Client":
         client = cls._registry.get(provider)
         if client is None:
-            raise ValueError(f"지원하지 않는 provider입니다: {provider}")
+            # 기존에는 순수 ValueError를 던져서 AppException 체계(및 통합 핸들러)를
+            # 벗어나 처리되지 않은 500으로 나갔음. 클라이언트가 잘못된 provider 값을
+            # 보낸 상황이므로 400번대 전용 예외로 교체함.
+            raise UnsupportedProvider(provider)
         return client
 
 
