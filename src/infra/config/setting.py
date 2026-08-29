@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict, NoDecode
 from pathlib import Path
 
 
-ENV_PATH = Path(__file__).resolve().parents[1] / "url.env"
+ENV_PATH = Path(__file__).resolve().parents[2] / "gateway.env"
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
