@@ -14,8 +14,8 @@ class RedisCreator:
         if not hasattr(cls, "_RedisCreator__init"):
             cls._RedisCreator__init = True
             self._client = Redis(
-                host = "localhost",
-                port = 6379,
+                host = db_config.redis_ip,
+                port = db_config.redis_port,
                 db = 0,
                 password = db_config.redis_pw,
                 decode_responses = True,
