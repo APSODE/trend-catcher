@@ -17,7 +17,6 @@ class LLMClient:
     )
     # 주요뉴스 (크롤러 아이디가 담긴 리스트를 가져옴)
     async def get_major_news(self, limit: int = 10) -> list[NewsReferenceData]:
-        # LLM 요청부
         response = await self._client.get(
             f"{settings.llm_api_base_url}/news/daily",
             params={"limit": limit},
@@ -26,21 +25,23 @@ class LLMClient:
         data = response.json()
 
         result = []
-
         for item in data:
             reference = NewsReferenceData(crawled_id=item["crawled_id"], score=item["score"])
             result.append(reference)
 
         return result
 
-    # 해시태그별 매칭된 기사 크롤러 아이디 목록 조회
+    # 유저의 해시태그로 매칭된 기사 크롤러 아이디 목록 조회
     @async_retry(
         max_attempts=settings.http_max_retries,
         exceptions=(httpx.TransportError,),
     )
-    async def get_latest_hashtags(self) -> dict[str, list[str]]:
-        response = await self._client.get(
-            f"{settings.llm_api_base_url}/hashtag/latest",
+    async def search_hashtags(self, hashtags: list[str]) -> dict[str, list[str]]:
+        if not hashtags:
+            return {}
+        response = await self._client.post(
+            f"{settings.llm_api_base_url}/hashtag/search",
+            json={"hashtags": hashtags},
         )
         response.raise_for_status()
         return response.json()

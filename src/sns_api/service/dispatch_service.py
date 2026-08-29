@@ -12,7 +12,7 @@ from src.sns_api.repository.subscription_repository import SubscriptionRepositor
 # 개인화 뉴스 최대 개수
 MAX_PERSONALIZED_ARTICLES = 10
 
-# 주요 뉴스 발송 기록용 가상 유저 ID (실제 유저 pk와 안 겹치도록 0 사용)
+# 주요 뉴스 발송 기록용
 MAJOR_DISPATCH_USER_ID = 0
 
 
@@ -116,9 +116,6 @@ class DispatchService:
     ) -> None:
         dispatch_date = utc_now().strftime("%Y-%m-%d")
 
-        # LLM에 해시태그별 매칭된 기사 목록
-        hashtag_to_articles = await llm_client.get_latest_hashtags()
-
         subscriptions = await self.subscription_repository.list_active_for_slot(session, slot)
 
         # 구독자 순회하며 구독자의 해시태그 파악
@@ -144,6 +141,14 @@ class DispatchService:
 
             try:
                 hashtags = await user_client.get_user_hashtags(sub.user_id)
+
+                if not hashtags:
+                    await self.dispatch_repository.mark_failed(session, log, "no_hashtags")
+                    await session.commit()
+                    continue
+
+                # 유저 해시태그로 LLM에 직접 검색 요청
+                hashtag_to_articles = await llm_client.search_hashtags(hashtags)
 
                 # 해시태그별로 한바퀴씩 돌면서 기사 뽑기
                 crawled_ids = self._pick_round_robin(hashtags, hashtag_to_articles, MAX_PERSONALIZED_ARTICLES)

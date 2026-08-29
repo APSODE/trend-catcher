@@ -11,7 +11,7 @@ logger = logging.getLogger("sns.scheduler")
 
 
 async def _trigger_dispatch(slot: str) -> None:
-    async with httpx.AsyncClient(timeout=settings.http_timeout_seconds) as client:
+    async with httpx.AsyncClient(timeout=60.0) as client:  # ★ settings.http_timeout_seconds(10초) → 60초로 임시 상향
         try:
             response = await client.post(
                 f"{settings.self_base_url}/dispatch/{slot}",
