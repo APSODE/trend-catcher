@@ -4,8 +4,8 @@ from typing import Optional, Self, cast
 
 from pydantic_settings import SettingsConfigDict, BaseSettings
 
-_DEFAULT_ENV = Path(__file__).resolve().parent / "test.env"
-
+_DEFAULT_ENV = Path(__file__).resolve().parents[2] / "user.env"
+print(_DEFAULT_ENV)
 class BaseConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_file = str(),

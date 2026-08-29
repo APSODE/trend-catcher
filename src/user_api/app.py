@@ -7,7 +7,7 @@ from src.user_api.auth import OAuth2Client
 from src.user_api.db.db_creator import DatabaseCreator
 from src.user_api.router.internal import INTERNAL_ROUTERS
 from src.user_api.router.external import EXTERNAL_ROUTERS
-from user_api.handler.exception_handler import register_exception_handlers
+from src.user_api.handler.exception_handler import register_exception_handlers
 
 
 class UserAPI(FastAPI):

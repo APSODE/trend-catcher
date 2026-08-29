@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class UserModel(BaseModel):
     __tablename__ = "user"
-    name: Mapped[str] = mapped_column(String(model_config.MAX_NAME_LENGTH), nullable = False)
+    name: Mapped[str] = mapped_column(String(model_config.USER_MAX_NAME_LENGTH), nullable = False)
     permission: Mapped[int] = mapped_column(default = 0, nullable = False)
     interest: Mapped[List["UserHashtagModel"]] = relationship(
         "UserHashtagModel",

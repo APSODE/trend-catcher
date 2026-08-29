@@ -51,7 +51,7 @@ class DatabaseCreator:
 
     def _create_engine(self) -> AsyncEngine:
         return create_async_engine(
-            f"oracle+oracledb_async://{db_config.oracle_id}:{quote_plus(db_config.oracle_pw)}@172.22.114.34:51521/?service_name=trend_catcher",
+            f"oracle+oracledb_async://{db_config.oracle_id}:{quote_plus(db_config.oracle_pw)}@{db_config.oracle_ip}:{db_config.oracle_port}/?service_name={db_config.oracle_pdb_name}",
             echo = True,
         )
 

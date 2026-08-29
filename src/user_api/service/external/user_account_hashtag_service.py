@@ -25,10 +25,6 @@ class UserAccountHashtagService(BaseService):
         if target_user is None:
             raise UnknownUserData()
 
-        # internal/user_account_hashtag_service.py의 get_user_by_pk와 완전히 동일한 로직
-        # (N+1 쿼리 제거 + orphan 관계 방어). 두 서비스가 이 로직을 그대로 복제해서
-        # 들고 있는 구조 자체가 유지보수 부담이므로, 추후 공통 로직을 베이스 클래스나
-        # 공용 함수로 추출하는 것을 권장함(이번 리팩토링 범위에서는 동작 수정에 집중).
         hashtag_models = [
             relation.hashtag_model
             for relation in target_user.interest

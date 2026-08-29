@@ -32,3 +32,5 @@ class HashtagRouter(BaseRouter):
         async def get_hashtag_by_pk(request: Annotated[PKQueryRequest, Query()],
                                     service: HashtagService = Depends(get_hashtag_service)):
             return await service.query_hashtag_by_pk(request.pk)
+
+

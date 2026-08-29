@@ -14,7 +14,7 @@ class TokenWhitelist:
         if token_type == TokenType.ACCESS:
             return auth_config.ACCESS_TOKEN_EXPIRE_MINUTES * 60
         else:
-            return auth_config.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+            return auth_config.REFRESH_TOKEN_EXPIRE_MINUTES * 60
 
     @staticmethod
     async def register(token: str, token_type: TokenType) -> None:

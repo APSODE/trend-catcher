@@ -70,6 +70,9 @@ class AccessTokenDecodeRequest(BaseModel):
 class CheckTokenRequest(BaseModel):
     token: str
 
+class AddHashtagRequest(BaseModel):
+    hashtag_name: str
+
 # # ==== 사용..? 안할수도...?
 # class CreateHashtagRequest(HashtagData):
 #     pass # 이후 필요시 해싱값 추가 예정

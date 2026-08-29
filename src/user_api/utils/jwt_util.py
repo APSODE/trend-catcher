@@ -29,7 +29,7 @@ class JwtUtil:
             session_id = session_id,
             account = account,
             token_type = TokenType.REFRESH,
-            expires_delta = timedelta(days = auth_config.REFRESH_TOKEN_EXPIRE_DAYS),
+            expires_delta = timedelta(minutes = auth_config.REFRESH_TOKEN_EXPIRE_MINUTES),
         )
 
     @staticmethod
