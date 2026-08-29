@@ -9,7 +9,7 @@ class DongaPageParser(BasePageParser):
     async def parse(self, content: str) -> ParsedData | None:
         soup = BeautifulSoup(content, "html.parser")
 
-        title = soup.select_one("#container > section > article > header > h1")
+        title = soup.select_one("#contents > header > div > section > h1")
 
         date = soup.select_one("#contents > header > div > section > div.view_news_info > ul > li:nth-child(2) > button > span:nth-child(1)")
 
