@@ -1,12 +1,13 @@
 from datetime import datetime, date
+from zoneinfo import ZoneInfo
 
+KST = ZoneInfo("Asia/Seoul")
 
 def normalize_datetime(dt: datetime) -> datetime:
-    dt = dt.replace(tzinfo=None, microsecond=0)
-    return dt
+    return dt.replace(microsecond=0)
 
 def now_normalized() -> datetime:
-    return normalize_datetime(datetime.now())
+    return datetime.now(KST).replace(microsecond=0)
 
 def now_date() -> date:
     return now_normalized().date()
