@@ -4,14 +4,13 @@ class LLMConstant:
     BASE_URL = "https://integrate.api.nvidia.com/v1"
 
     #추출
-    EXTRACTION_URL = BASE_URL + "/chat/completions"
+    EXTRACTION_PATH = "/chat/completions"
     EXTRACTION_MODEL = "nvidia/nemotron-3-nano-30b-a3b"
     EXTRACTION_TIMEOUT = 300
     EXTRACTION_PROMPT_TEMPLATE = """
 다음 뉴스 기사를 읽고, 아래 지침에 따라 핵심 키워드와 주제, 신뢰도를 추출해줘
 #지침
 - keywords는 기사의 핵심 고유명사(지명, 인물, 기관, 사건명) 3~5개
-  · 일반명사, 수치 표현, 시점 표현은 제외할 것 (예: "전국", "사상최대", "3분기", "7차전" ❌)
   · 줄임말 대신 정식 명칭을 쓸 것 (예: "금통위" ❌ → "금융통화위원회" ⭕)
   · 지명은 가장 구체적인 단위로 하나만 (예: "인천송도" ❌ → "송도" ⭕)
   · 띄어쓰기 없이 붙여쓸 것
@@ -28,8 +27,8 @@ class LLMConstant:
 """
 
     #임베딩
-    EMBEDDING_URL = BASE_URL + "/embeddings"
-    EMBEDDING_MODEL = "nvidia/llama-nemotron-embed-1b-v2"
+    EMBEDDING_PATH = "/embeddings"
+    EMBEDDING_MODEL = "nvidia/nemotron-3-embed-1b"
     EMBEDDING_TIMEOUT = 30
 
     #해시태그 확장
@@ -63,6 +62,7 @@ class LLMConstant:
     EXTRACTION_RETRY_ATTEMPTS = 2
     RETRY_BASE_DELAY = 1.0
     HASHTAG_RETRY_ATTEMPTS = 2
+    HTTP_RETRY_ATTEMPTS = 3
 
 #임베딩 타입 enum
 class EmbeddingInputType(str, Enum):

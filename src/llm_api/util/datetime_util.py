@@ -18,6 +18,12 @@ class DateTimeUtil:
             return DateTimeUtil._get_current_period(now, morning_hour)
         return DateTimeUtil._get_current_period((now - timedelta(days = 1)), evening_hour) #둘 다 아니면 날짜 지난 새벽 -> 전날 저녁
 
+    #지난 타임 리턴
+    @staticmethod
+    def get_previous_period_start(morning_hour: int, evening_hour: int) -> datetime:
+        current_start = DateTimeUtil.get_current_period_start(morning_hour, evening_hour)
+        return current_start - timedelta(hours = 12)
+
     #정각 시간 반환
     @staticmethod
     def _get_current_period(now: datetime, hour: int) -> datetime:

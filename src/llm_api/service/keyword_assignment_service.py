@@ -1,7 +1,7 @@
 from src.llm_api.infrastructure.nvidia_client import NvidiaClient
 from src.llm_api.model.keyword_model import KeywordModel
 from src.llm_api.repository.keyword_repository import KeywordRepository
-from src.llm_api.constant.llm_constant import EmbeddingInputType
+from src.llm_api.constant.nvidia_constant import EmbeddingInputType
 from src.llm_api.constant.similarity_constant import SimilarityConstant
 from src.llm_api.util.similarity_util import SimilarityUtil
 import logging
@@ -76,5 +76,5 @@ class KeywordAssignmentService:
                 logger.debug("키워드 매칭 실패: [keyword: %s, 최고 유사 키워드: %s, 유사도: %.3f]", keyword,candidates[best_match_index].keyword, best_match_similarity)
         
         #아니면 새로 만듦
-        logger.info("신규 키워드 생성: %s", keyword)
+        logger.debug("신규 키워드 생성: %s", keyword)
         return await self._keyword_repository.create_keyword(keyword, embedding)
