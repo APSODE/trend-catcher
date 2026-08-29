@@ -3,12 +3,11 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-BASE_DIR = Path(__file__).resolve().parent
-
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / ".env",
+        env_file=BASE_DIR /  "sns.env",
         env_prefix="SNS_",
         extra="ignore",
     )
@@ -18,7 +17,7 @@ class Settings(BaseSettings):
     debug: bool = False
 
     # Oracle DB
-    db_url: str = "oracle+oracledb://sns:sns@localhost:1521/?service_name=XEPDB1"
+    db_url: str
     db_pool_size: int = 5
     db_max_overflow: int = 10
     db_echo: bool = False

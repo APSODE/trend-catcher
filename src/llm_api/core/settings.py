@@ -3,8 +3,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
 from functools import lru_cache
 
-#.env 파일 경로
-ENV_PATH = Path(__file__).resolve().parents[1] /".env" #테스트돌릴때1 배포에2
+#sns.env 파일 경로
+ENV_PATH = Path(__file__).resolve().parents[1] /"sns.env" #테스트돌릴때1 배포에2
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
