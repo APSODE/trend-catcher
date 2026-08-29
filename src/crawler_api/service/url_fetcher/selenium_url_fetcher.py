@@ -64,7 +64,7 @@ class SeleniumURLFetcher(BaseUrlFetcher):
 
         try:
             if not await robots.is_allowed(url):
-                return None
+                return ""
 
             return await asyncio.to_thread(self.__load_page, driver, url)
 
