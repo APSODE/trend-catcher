@@ -21,14 +21,15 @@ class NewsUrlData(BaseModel):
     날짜마다 URL이 달라지는 경우가 있음으로 무조건 value.get_url 사용
     """
 
-    def __post_init__(self):
+    def model_post_init(self, __context):
         if self.sitemap_type == SitemapType.PAGE and self.selector is None:
             raise SelectorValueException()
 
         if self.sitemap_type != SitemapType.PAGE and self.selector:
             raise SelectorValueException()
 
-    def get_url(self, date_value: date = now_date()):
+    def get_url(self, date_value: date | None = None):
+        date_value = date_value or now_date()
         return self.url.format(
             yyyy=date_value.strftime("%Y"),
             yyyymmdd=date_value.strftime("%Y%m%d"),
