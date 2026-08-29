@@ -1,0 +1,11 @@
+selenium
+fastapi
+httpx
+beautifulsoup4
+lxml
+beanie
+pymongo>=4.9 #motor 대신 async mongo 권장
+pydantic-settings
+apscheduler
+redis
+pyjwt
