@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Sequence, Type, TypeVar, Union
+from typing import Any, Callable, Dict, List, Sequence, Type, TypeVar, Union, Iterable
 
 from pydantic import BaseModel as _PydanticModel
 from sqlalchemy.orm import InstrumentedAttribute
@@ -115,5 +115,5 @@ class ModelSerializer:
         return result
 
     @classmethod
-    def serialize_many(cls, instances: List[_ORM], expected_type: Type[_DTO]) -> List[_DTO]:
+    def serialize_many(cls, instances: Iterable[_ORM], expected_type: Type[_DTO]) -> List[_DTO]:
         return [cls.serialize(instance, expected_type) for instance in instances]

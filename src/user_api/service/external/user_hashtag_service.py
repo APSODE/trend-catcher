@@ -65,7 +65,7 @@ class UserHashtagService(BaseService):
             hashtag_pk = target_hashtag.pk
         )
 
-    async def get_followed_hashtag_list(self, user_pk: int) -> DataCollectionResponse[HashtagData]:
+    async def get_user_followed_hashtag_list(self, user_pk: int) -> DataCollectionResponse[HashtagData]:
         target_user = await self.__user_repository.get_by_pk(
             target_pk = user_pk,
             load_relations = required_relation(UserData)
@@ -84,7 +84,6 @@ class UserHashtagService(BaseService):
             amount = len(user_followed_hashtag_models),
             datas = serialize_many(user_followed_hashtag_models, HashtagData)
         )
-
 
     async def require_exist_user(self, user_pk: int) -> UserModel:
         maybe_user = await self.__user_repository.get_by_pk(user_pk)

@@ -31,7 +31,7 @@ class HashtagRouter(BaseRouter):
         @self.get("/follow-hashtag-list", response_model = DataCollectionResponse)
         async def get_followed_hashtag_list(user_pk: int = Depends(get_current_user_pk),
                                             service: UserHashtagService = Depends(get_user_hashtag_service)):
-            return await service.get_followed_hashtag_list(user_pk)
+            return await service.get_user_followed_hashtag_list(user_pk)
 
         @self.get("/hashtag-list", response_model = DataCollectionResponse)
         async def get_hashtag_all_list(service: HashtagService = Depends(get_hashtag_service)):
