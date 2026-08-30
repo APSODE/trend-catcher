@@ -1,5 +1,6 @@
 selenium
 sqlalchemy
+uvicorn[standard]
 fastapi
 httpx
 beautifulsoup4
@@ -10,3 +11,6 @@ pydantic-settings
 apscheduler
 redis
 pyjwt
+discord.py
+oracledb
+numpy
