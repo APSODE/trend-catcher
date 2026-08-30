@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     morning_cron: str = "0 9 * * *"    # 매일 09:00
     evening_cron: str = "0 21 * * *"   # 매일 21:00
     timezone: str = "Asia/Seoul"
-    self_base_url: str = "http://127.0.0.1:8080"
+    self_base_url: str = "http://127.0.0.1:8003"
 
 @lru_cache
 def get_settings() -> Settings:

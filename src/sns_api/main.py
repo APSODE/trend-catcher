@@ -15,6 +15,7 @@ from src.sns_api.handler.user_client import UserClient
 from src.sns_api.model.database_model import init_db
 from src.sns_api.router.subscription_router import router as subscription_router
 from src.sns_api.router.dispatch_router import router as dispatch_router
+from src.sns_api.router.admin_router import router as admin_router
 
 settings = get_settings()
 
@@ -56,6 +57,7 @@ app = FastAPI(title="SNS Service", version="0.1.0", lifespan=lifespan)
 # 라우터 등록
 app.include_router(subscription_router)
 app.include_router(dispatch_router)
+app.include_router(admin_router)
 
 @app.get("/health")
 async def health_check() -> dict:

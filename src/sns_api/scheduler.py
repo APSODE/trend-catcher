@@ -29,7 +29,7 @@ def create_scheduler() -> AsyncIOScheduler:
     # 오전 9시
     scheduler.add_job(
         _trigger_dispatch,
-        trigger=CronTrigger.from_crontab(settings.morning_cron),
+        trigger=CronTrigger.from_crontab(settings.morning_cron, timezone=settings.timezone),
         args=["MORNING"],
         id="morning_dispatch",
         replace_existing=True,
@@ -37,7 +37,7 @@ def create_scheduler() -> AsyncIOScheduler:
     # 오후 9시
     scheduler.add_job(
         _trigger_dispatch,
-        trigger=CronTrigger.from_crontab(settings.evening_cron),
+        trigger=CronTrigger.from_crontab(settings.evening_cron, timezone=settings.timezone),
         args=["EVENING"],
         id="evening_dispatch",
         replace_existing=True,
