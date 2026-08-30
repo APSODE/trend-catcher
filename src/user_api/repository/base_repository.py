@@ -1,6 +1,6 @@
 from typing import Generic, List, Optional, Type, TypeVar, Sequence, Callable
 from sqlalchemy.sql.elements import ColumnElement
-from src.user_api.db import DatabaseController, RelationPath
+from src.user_api.db import DatabaseController, RelationPath, OrderByClause
 from src.user_api.exceptions import AppException
 from src.user_api.model import BaseModel
 
@@ -28,11 +28,13 @@ class BaseRepository(Generic[ModelType]):
 
     async def find(self,
                    filter: Optional[ColumnElement[bool]] = None,
+                   order_by: Optional[Sequence[OrderByClause]] = None,
                    load_relations: Optional[Sequence[RelationPath]] = None,
                    amount: int = 0) -> List[ModelType]:
         return await self._db_controller.get(
             model_class = self._model_class,
             filter = filter,
+            order_by = order_by,
             load_relations = load_relations,
             amount = amount
         )
@@ -40,13 +42,22 @@ class BaseRepository(Generic[ModelType]):
     async def find_one(self,
                        filter: Optional[ColumnElement[bool]] = None,
                        load_relations: Optional[Sequence[RelationPath]] = None) -> Optional[ModelType]:
-        results = await self.find(filter, load_relations, amount = 1)
+        results = await self.find(
+            filter = filter,
+            load_relations = load_relations,
+            amount = 1
+        )
         return results[0] if results else None
 
     async def find_all(self,
                        filter: Optional[ColumnElement[bool]] = None,
+                       order_by: Optional[Sequence[OrderByClause]] = None,
                        load_relations: Optional[Sequence[RelationPath]] = None) -> List[ModelType]:
-        return await self.find(filter, load_relations)
+        return await self.find(
+            filter = filter,
+            order_by = order_by,
+            load_relations = load_relations
+        )
 
     async def get_by_pk(self,
                         target_pk: int,

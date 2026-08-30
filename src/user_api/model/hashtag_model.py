@@ -1,5 +1,5 @@
 from typing import Any, List, TYPE_CHECKING
-from sqlalchemy import String
+from sqlalchemy import String, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.user_api.config import model_config
 from src.user_api.model import BaseModel
@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 class HashtagModel(BaseModel):
     __tablename__ = "hashtag"
     name: Mapped[str] = mapped_column(String(model_config.HASHTAG_MAX_NAME_LENGTH), unique = True, nullable = False)
+    follower_amount: Mapped[int] = mapped_column(Integer(), nullable = False, default = 0)
     interested_user: Mapped[List["UserHashtagModel"]] = relationship(
         "UserHashtagModel",
         back_populates = "hashtag_model"

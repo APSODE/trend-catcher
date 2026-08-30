@@ -1,12 +1,13 @@
 from src.user_api.dto.user_data import UserData
 from src.user_api.dto.account_data import LocalAccountData, SocialAccountData, AccountData
-from src.user_api.dto.hashtag_data import HashtagData
+from src.user_api.dto.hashtag_data import HashtagData, HashtagDataWithFollowerAmount
 from src.user_api.dto.token_data import JsonWebToken, TokenType, TokenPair
 from src.user_api.dto.request_data import (
     PKQueryRequest,
     NameQueryRequest,
     LoginIDQueryRequest,
     ProviderUserIDQueryRequest,
+    TopFollowedHashtagQueryRequest,
     RefreshRequest,
     LocalRegisterRequest,
     SocialRegisterRequest,
@@ -35,6 +36,7 @@ __all__ = [
     "LoginIDQueryRequest",
     "NameQueryRequest",
     "ProviderUserIDQueryRequest",
+    "TopFollowedHashtagQueryRequest",
     "RefreshRequest",
     "LocalRegisterRequest",
     "SocialRegisterRequest",
@@ -58,6 +60,7 @@ __all__ = [
     "SocialAccountData",
     "AccountData",
     "HashtagData",
+    "HashtagDataWithFollowerAmount",
     "JsonWebToken",
     "TokenPair",
     "TokenType",
