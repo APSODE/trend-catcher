@@ -62,6 +62,19 @@ class DispatchResponseData(BaseModel):
     skipped: int
     results: list[DispatchResultItemData]
 
+class DispatchLogOutData(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    user_id: int
+    slot: str
+    channel: str
+    dispatch_date: str
+    status: str
+    attempt_count: int
+    error_message: str | None
+    created_at: datetime
+    sent_at: datetime | None
 
 # LLM과 소통시 받을 것들
 class NewsReferenceData(BaseModel):

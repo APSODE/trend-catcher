@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.sns_api.model.entity_model import DispatchLogModel, DispatchStatus, Slot, utc_now
 
@@ -50,3 +50,47 @@ class DispatchRepository:
         )
         result = await session.execute(query)
         return list(result.scalars().all())
+
+    # 관리자용 발송 로그 조회 (필터: 날짜/슬롯/상태, 전부 선택사항)
+    async def list_logs(
+            self,
+            session: AsyncSession,
+            dispatch_date: str | None = None,
+            slot: Slot | None = None,
+            status: DispatchStatus | None = None,
+    ) -> list[DispatchLogModel]:
+        query = select(DispatchLogModel)
+        if dispatch_date:
+            query = query.where(DispatchLogModel.dispatch_date == dispatch_date)
+        if slot:
+            query = query.where(DispatchLogModel.slot == slot.value)
+        if status:
+            query = query.where(DispatchLogModel.status == status.value)
+        query = query.order_by(DispatchLogModel.created_at.desc())
+        result = await session.execute(query)
+        return list(result.scalars().all())
+
+    # 관리자용 발송 로그 삭제 (테스트 재시도용)
+    async def delete_logs(
+            self,
+            session: AsyncSession,
+            dispatch_date: str,
+            slot: Slot | None = None,
+            user_id: int | None = None,
+            include_major: bool = False,
+            only_failed: bool = True,
+    ) -> int:
+        query = delete(DispatchLogModel).where(
+            DispatchLogModel.dispatch_date == dispatch_date
+        )
+        if slot:
+            query = query.where(DispatchLogModel.slot == slot.value)
+        if user_id is not None:
+            query = query.where(DispatchLogModel.user_id == user_id)
+        if not include_major:
+            query = query.where(DispatchLogModel.user_id != 0)
+        if only_failed:
+            query = query.where(DispatchLogModel.status == DispatchStatus.FAILED.value)
+
+        result = await session.execute(query)
+        return result.rowcount
