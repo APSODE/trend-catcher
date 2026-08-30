@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 from src.sns_api.model.entity_model import Channel, DispatchStatus, Slot
 
@@ -29,6 +29,7 @@ class SubscriptionOutData(BaseModel):
 
     id: int
     user_id: int
+    discord_id: str | None
     channel: str
     morning_enabled: bool
     evening_enabled: bool
@@ -40,27 +41,6 @@ class SubscriptionOutData(BaseModel):
 
 
 # 발송
-
-class DispatchRequestData(BaseModel):
-    slot: Slot
-    user_ids: list[int] | None = None
-    dry_run: bool = Field(default=False, description="true면 실제 발송 없이 대상만 계산")
-
-
-class DispatchResultItemData(BaseModel):
-    user_id: int
-    status: DispatchStatus
-    error: str | None = None
-
-
-class DispatchResponseData(BaseModel):
-    slot: Slot
-    dispatch_date: str
-    total: int
-    success: int
-    failed: int
-    skipped: int
-    results: list[DispatchResultItemData]
 
 class DispatchLogOutData(BaseModel):
     model_config = ConfigDict(from_attributes=True)

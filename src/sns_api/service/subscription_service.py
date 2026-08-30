@@ -58,6 +58,7 @@ class SubscriptionService:
         await self.repo.delete(session, sub)
 
     # 디스코드 서버 입장 -> SNS DB에서 먼저 확인, 없을 때만 User API 역조회
+    # discord_id로 못 찾아도, 이미 user_id로 구독이 있으면(API로 먼저 가입한 경우) 그 row를 재사용
     async def upsert_by_discord_id(self, session, discord_user_id: str) -> SubscriptionModel:
         existing = await self.repo.get_by_discord_id(session, discord_user_id)
         if existing:
@@ -68,6 +69,15 @@ class SubscriptionService:
         user_id = await self.user_client.get_user_id_by_discord_id(discord_user_id)
         if user_id is None:
             raise NotFoundError("연동된 유저를 찾을 수 없음")
+
+        # user_id 기준으로 이미 구독이 있는지 한 번 더 확인 (API 선가입 케이스)
+        existing_by_user = await self.repo.get_by_user(session, user_id)
+        if existing_by_user:
+            sub = existing_by_user[0]
+            sub.discord_id = discord_user_id
+            sub.is_active = True
+            await session.flush()
+            return sub
 
         subscription = SubscriptionModel(
             user_id=user_id,
