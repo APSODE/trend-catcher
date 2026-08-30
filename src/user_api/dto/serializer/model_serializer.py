@@ -94,7 +94,7 @@ class ModelSerializer:
         if expected_type not in dto_classes:
             raise SerializerNotRegistered(orm_class_name = orm_class.__name__)
 
-        transformers = cls._field_transformers.get(orm_class, {})
+        transformers = cls._field_transformers.get(expected_type, {})
 
         if not transformers:
             result = expected_type.model_validate(instance)
