@@ -2,7 +2,11 @@ from src.infra.config.setting import get_settings
 
 settings = get_settings()
 
-#외부에서 접근하는 라우터 추가시 여기 추가
+
+PATH_REWRITES: dict[str, tuple[str, str]] = {
+    "/news/my-interest": (settings.llm_api_url, "/hashtag/search_front"),
+}
+
 PUBLIC_ROUTES: dict[str, str] = {
     "/user":          settings.user_api_url,
     "/subscriptions": settings.sns_api_url,
@@ -13,9 +17,20 @@ PUBLIC_ROUTES: dict[str, str] = {
 }
 
 #주소 url에 맞게 수정
-def resolve_target(path: str) -> str | None:
+def resolve_target(path: str) -> tuple[str, str] | None:
+    if path in PATH_REWRITES:
+        return PATH_REWRITES[path]
+
+    best_match: str | None = None
+    best_prefix_length = -1
 
     for prefix, base_url in PUBLIC_ROUTES.items():
         if path == prefix or path.startswith(prefix + "/"):
-            return base_url
-    return None
+            if len(prefix) > best_prefix_length:
+                best_match = base_url
+                best_prefix_length = len(prefix)
+
+    if best_match is None:
+        return None
+
+    return best_match, path

@@ -27,13 +27,15 @@ async def proxy_request(request: Request) -> Response:
         )
     path = request.url.path
 
-    target_base = resolve_target(path)
-    if target_base is None:
+    resolved = resolve_target(path)
+    if resolved is None:
         return JSONResponse(
             status_code=404,
             content={"detail": "Not Found", "message": "잘못된 접근 경로입니다"})
 
-    target_url = f"{target_base}{path}"
+    target_base, target_path = resolved
+
+    target_url = f"{target_base}{target_path}"
     print("path:", path)
     print("target_base:", target_base)
     print("target_url:", target_url)
