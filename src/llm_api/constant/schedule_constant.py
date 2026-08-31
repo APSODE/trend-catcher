@@ -11,5 +11,5 @@ class ScheduleConstant:
     HASHTAG_MINUTE = 35
 
     #점수 산정
-    SCORING_HOURS = "8,20"
+    SCORING_HOURS = "5,17"
     SCORING_MINUTE = 55
