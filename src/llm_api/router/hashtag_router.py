@@ -24,3 +24,9 @@ async def search_hashtags(request: HashtagSearchRequestData, service: HashtagSea
 async def get_latest_search(cache_service: SearchCacheServiceDep) -> dict[str, list[str]]:
     since = DateTimeUtil.get_previous_period_start(PeriodConstant.MORNING_HOUR, PeriodConstant.EVENING_HOUR)
     return await cache_service.get_latest(since)
+
+@router.post("/search_front", response_model = dict[str, list[str]])
+async def search_hashtag_front(request: HashtagSearchRequestData, service: HashtagSearchServiceDep) -> dict[str, list[str]]:
+    since = DateTimeUtil.get_previous_period_start(PeriodConstant.MORNING_HOUR, PeriodConstant.EVENING_HOUR)
+    until = DateTimeUtil.get_current_period_start(PeriodConstant.MORNING_HOUR, PeriodConstant.EVENING_HOUR)
+    return await service.search_all(request.hashtags, since, until)

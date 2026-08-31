@@ -31,6 +31,34 @@ class HashtagRepository(BaseRepository[HashtagModel]):
             with_flush = with_flush
         )
 
+    async def increase_follower_amount(self,
+                                       target_name: str,
+                                       increase_amount: int,
+                                       with_flush: bool = False,
+                                       load_relations: Optional[Sequence[RelationPath]] = None):
+        target_hashtag = await self.get_by_tag_name(target_name = target_name, load_relations = load_relations)
+
+        if target_hashtag is not None:
+            await self.update(
+                filter = self.model_class.pk == target_hashtag.pk,
+                update_data = {"follower_amount": target_hashtag.follower_amount + increase_amount},
+                with_flush = with_flush
+            )
+
+    async def decrease_follower_amount(self,
+                                       target_name: str,
+                                       decrease_amount: int,
+                                       with_flush: bool = False,
+                                       load_relations: Optional[Sequence[RelationPath]] = None):
+        target_hashtag = await self.get_by_tag_name(target_name = target_name, load_relations=load_relations)
+
+        if target_hashtag is not None:
+            await self.update(
+                filter = self.model_class.pk == target_hashtag.pk,
+                update_data = {"follower_amount": target_hashtag.follower_amount - decrease_amount},
+                with_flush = with_flush
+            )
+
     async def delete_by_tag_name(self,
                                  target_name: str,
                                  with_flush: bool = False,

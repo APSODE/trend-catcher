@@ -43,8 +43,11 @@ class UserHashtagService(BaseService):
 
         await self.__relation_repository.create_relation(
             user_pk = target_user.pk,
-            hashtag_pk = target_hashtag.pk
+            hashtag_pk = target_hashtag.pk,
+            with_flush = True
         )
+
+        await self.__hashtag_repository.increase_follower_amount(hashtag_name, 1, with_flush = True)
 
     async def unfollow_hashtag(self, request: UnfollowHashtagRequest, user_pk: int):
         target_user = await self.require_exist_user(
@@ -62,7 +65,14 @@ class UserHashtagService(BaseService):
 
         await self.__relation_repository.delete_relation(
             user_pk = target_user.pk,
-            hashtag_pk = target_hashtag.pk
+            hashtag_pk = target_hashtag.pk,
+            with_flush = True
+        )
+
+        await self.__hashtag_repository.decrease_follower_amount(
+            target_name = target_hashtag.name,
+            decrease_amount = 1,
+            with_flush = True
         )
 
     async def get_user_followed_hashtag_list(self, user_pk: int) -> DataCollectionResponse[HashtagData]:

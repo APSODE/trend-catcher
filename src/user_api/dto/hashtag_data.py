@@ -9,3 +9,10 @@ class HashtagData(BaseModel):
     model_config = ConfigDict(from_attributes = True)
 
     name: str
+
+@bind_model(HashtagModel)
+class HashtagDataWithFollowerAmount(BaseModel):
+    model_config = ConfigDict(from_attributes = True)
+
+    name: str
+    follower_amount: int

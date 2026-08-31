@@ -117,6 +117,11 @@ class TestService(BaseService):
                     hashtag_pk = hashtag.pk,
                     with_flush = True,
                 )
+                await self.__hashtag_repository.increase_follower_amount(
+                    target_name = hashtag.name,
+                    increase_amount = 1,
+                    with_flush = True
+                )
                 created_count += 1
 
         return created_count

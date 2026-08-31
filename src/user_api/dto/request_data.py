@@ -73,6 +73,9 @@ class CheckTokenRequest(BaseModel):
 class AddHashtagRequest(BaseModel):
     hashtag_name: str
 
+class TopFollowedHashtagQueryRequest(BaseModel):
+    amount: int = 20
+
 # # ==== 사용..? 안할수도...?
 # class CreateHashtagRequest(HashtagData):
 #     pass # 이후 필요시 해싱값 추가 예정

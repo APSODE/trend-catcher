@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import List, Optional, Type, TypeVar, Any, Sequence, Union
+from typing import List, Optional, Type, TypeVar, Any, Sequence, Union, Tuple
 
 from sqlalchemy import select, update, Select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +10,10 @@ from sqlalchemy.sql.elements import ColumnElement
 from src.user_api.model import BaseModel
 
 _RelationPath = Union[InstrumentedAttribute, Sequence[InstrumentedAttribute]]
+# InstrumentedAttribute를 그냥 넘기면 오름차순(ASC)으로 취급되고,
+# .asc() / .desc()를 호출한 결과(UnaryExpression)를 넘기면 그 방향을 그대로 따른다.
+# 예: order_by=[UserModel.name.asc(), UserModel.pk.desc()]
+_OrderByClause = Union[InstrumentedAttribute, ColumnElement[Any]]
 ModelType = TypeVar("ModelType", bound = BaseModel)
 
 class DatabaseController:
@@ -36,7 +40,8 @@ class DatabaseController:
     @staticmethod
     def __build_select(model_class: ModelType | Type[ModelType],
                        filter: Optional[ColumnElement[bool]] = None,
-                       load_relations: Optional[Sequence[_RelationPath]] = None) -> Select[tuple[Any]]:
+                       load_relations: Optional[Sequence[_RelationPath]] = None,
+                       order_by: Optional[Sequence[_OrderByClause]] = None) -> Select[Tuple[Any]]:
         statement = select(model_class)
 
         if filter is not None:
@@ -45,6 +50,9 @@ class DatabaseController:
         if load_relations:
             for path in load_relations:
                 statement = statement.options(DatabaseController.__build_load_option(path))
+
+        if order_by:
+            statement = statement.order_by(*order_by)
 
         return statement
 
@@ -69,8 +77,9 @@ class DatabaseController:
                   model_class: ModelType | Type[ModelType],
                   filter: Optional[ColumnElement[bool]] = None,
                   load_relations: Optional[Sequence[_RelationPath]] = None,
+                  order_by: Optional[Sequence[_OrderByClause]] = None,
                   amount: int = 0) -> List[ModelType]:
-        statement = self.__build_select(model_class, filter, load_relations)
+        statement = self.__build_select(model_class, filter, load_relations, order_by)
         if amount > 0:
             statement = statement.limit(amount)
 
@@ -95,6 +104,7 @@ class DatabaseController:
                      model_class: ModelType | Type[ModelType],
                      filter: Optional[ColumnElement[bool]] = None,
                      load_relations: Optional[Sequence[_RelationPath]] = None,
+                     order_by: Optional[Sequence[_OrderByClause]] = None,
                      amount: int = 1,
                      with_flush: bool = False) -> List[ModelType]:
 
@@ -102,6 +112,7 @@ class DatabaseController:
             model_class = model_class,
             filter = filter,
             load_relations = load_relations,
+            order_by = order_by,
             amount = amount
         )
 

@@ -1,9 +1,10 @@
-from src.user_api.dto import DataCollectionResponse, HashtagData
+from src.user_api.dto import DataCollectionResponse, HashtagData, HashtagDataWithFollowerAmount
 from src.user_api.dto.serializer import serialize_many, serialize
 from src.user_api.repository import HashtagRepository
 from src.user_api.service import BaseService
 from src.user_api.config import model_config
 from src.user_api.exceptions import InvalidHashtagNameLength
+from src.user_api.model import HashtagModel
 
 
 class HashtagService(BaseService):
@@ -25,6 +26,17 @@ class HashtagService(BaseService):
             raise InvalidHashtagNameLength(input_hashtag_name_length, model_config.HASHTAG_MAX_NAME_LENGTH)
 
         return serialize(await self.__hashtag_repository.create_hashtag(hashtag_name), HashtagData)
+
+    async def get_follower_top_hashtags(self, limit: int = 20) -> DataCollectionResponse[HashtagDataWithFollowerAmount]:
+        top_hashtags = await self.__hashtag_repository.find(
+            order_by = [HashtagModel.follower_amount.desc()],
+            amount = limit
+        )
+
+        return DataCollectionResponse(
+            amount = len(top_hashtags),
+            datas = serialize_many(top_hashtags, HashtagDataWithFollowerAmount)
+        )
 
 
 get_hashtag_service = HashtagService.create_dependency(
