@@ -14,6 +14,11 @@ logger = logging.getLogger(__name__)
 
 UrlFilter = Callable[[list[str]], Awaitable[list[str]]]
 
+#스킵할 url 생기면 여기 추가
+SOURCE_SKIP_URLS: dict[NewsSitemap, list[str]] = {
+    NewsSitemap.SEOUL: ["/peoples/"]
+}
+
 class CrawlingPipeline:
     """
     -> sitemap url fetch(fetch 함수)
@@ -37,6 +42,8 @@ class CrawlingPipeline:
         if dates is None:
             return []
 
+        skip_patterns = SOURCE_SKIP_URLS.get(self._source, [])
+
         try:
             urls = []
             base_url: str = ""
@@ -55,6 +62,19 @@ class CrawlingPipeline:
 
                 if not extract_urls:
                     continue
+
+                if skip_patterns:
+                    skip_urls = []
+
+                    for url in extract_urls:
+                        if any(pattern in url for pattern in skip_patterns):
+                            logger.info("%s: skip url : %s", self._source.value.company_name, url)
+                        else:
+                            skip_urls.append(url)
+                    extract_urls = skip_urls
+
+                    if not extract_urls:
+                        continue
 
                 if url_filter is not None:
                     extract_urls = await url_filter(extract_urls)
