@@ -33,4 +33,6 @@ class HashtagRouter(BaseRouter):
                                     service: HashtagService = Depends(get_hashtag_service)):
             return await service.query_hashtag_by_pk(request.pk)
 
-
+        @self.delete("/delete-by-name")
+        async def delete_by_name(request: Annotated[NameQueryRequest, Query()], service: HashtagService = Depends(get_hashtag_service)):
+            await service.delete_hashtag(request.name)

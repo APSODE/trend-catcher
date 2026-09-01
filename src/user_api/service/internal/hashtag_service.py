@@ -39,6 +39,12 @@ class HashtagService(BaseService):
 
         return maybe_hashtag_model
 
+    async def delete_hashtag(self, hashtag_name: str):
+        await self.__hashtag_repository.delete_by_tag_name(
+            target_name = hashtag_name,
+            with_flush = True
+        )
+
 get_hashtag_service = HashtagService.create_dependency(
     hashtag_repository = HashtagRepository
 )
